@@ -14,12 +14,13 @@
  * is made inside the first gesture, as before. Nothing plays before a gesture, and nothing is created or fetched at all while
  * muted; muting later fades out and suspends the context. Default: on for a fine (desktop) pointer, off for touch-first
  * devices, unless the visitor chose. A sound asked for while its files are still loading plays when they arrive if that is
- * within LATE seconds, else never. Once unlocked, the room's ambience (ambient.ts: a breeze in the leaves, a bird now and then)
- * fades in under the foley; it fades out when muted or while the page is hidden, and is never fetched for a visitor who asked to
+ * within LATE seconds, else never. Once unlocked, the owner's piano (music.ts; where it cannot stream, the room's ambience in
+ * ambient.ts: a breeze in the leaves, a bird now and then) fades in under the foley; it fades out when muted or while the page is hidden, and is never fetched for a visitor who asked to
  * save data (or with `ambient: false`).
  */
 
 import { createAmbient, type Ambient } from "./ambient";
+import { canStream, createMusic } from "./music";
 import { loadBank, soundKey, type Bank, type SoundName } from "./bank";
 import { createEngine, DEFAULT_VOLUME, type Engine, type PlayOptions } from "./engine";
 import type { Material } from "./gate";
@@ -160,7 +161,8 @@ export function createSoundKit(opts: { volume?: number; base?: string; ambient?:
   function room(): void {
     if (!ambientOn || disposed || muted || !gestured || !ac || !engine || env().document?.hidden) return;
     const f = env().fetch;
-    ambient ??= createAmbient(ac, engine.master, base, f ? (url) => f(url) : () => Promise.reject(new Error("no fetch")));
+    const fetcher = f ? (url: string) => f(url) : () => Promise.reject(new Error("no fetch"));
+    ambient ??= canStream(ac) ? createMusic(ac, engine.master, base, fetcher) : createAmbient(ac, engine.master, base, fetcher);
     ambient.start();
   }
   const onVisibility = () => (env().document?.hidden ? ambient?.stop() : room());

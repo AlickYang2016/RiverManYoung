@@ -1,0 +1,7 @@
+{
+ "about": "The owner's own piano, played by src/sound/music.ts under the foley in place of the room tone (ambient.json). Encoded from the owner's recording with ffmpeg: trimmed of the trailing silence, a 1.6 s fade out, AAC-LC stereo 128 kb/s. Source loudness -13.9 LUFS; gainDb is the playback trim.",
+ "file": "music-piano.m4a",
+ "gainDb": -13,
+ "duration": 207.6,
+ "bytes": 3377332
+}

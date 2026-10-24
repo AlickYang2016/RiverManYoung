@@ -1,10 +1,11 @@
-# Publishes the site to GitHub Pages on every push to main, once Pages is switched on
-# (Settings → Pages → Build and deployment → Source: GitHub Actions). Until then the run stops early with a note saying so.
+# Publishes the site to GitHub Pages on every push to folio-test, the only branch the github-pages environment lets deploy
+# (main is kept identical to it). Pages must be set to deploy from GitHub Actions (Settings > Pages > Source); until then the run
+# stops early with a note saying so.
 name: Pages
 
 on:
   push:
-    branches: [main]
+    branches: [folio-test]
   workflow_dispatch:
 
 permissions:
