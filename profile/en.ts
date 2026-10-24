@@ -106,7 +106,7 @@ export const profile: Profile = {
   bio: "Real estate research at AEW, Master in Management at ESSEC. Seeking a final-year internship from January 2027.",
   coverTitle: "Alexis Yang — Folio",
   seal,
-  source: "https://github.com/AlickYang2016/folio",
+  source: "https://github.com/AlickYang2016/RiverManYoung",
   links: [
     { label: "Email", href: "mailto:zijiang.yang1@essec.edu" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/yangzijiang" },

@@ -25,5 +25,5 @@ Add one entry to the main nav, next to "Beyond work" or "CV":
 
 ## Licence (important)
 sasshi is AGPL-3.0. Publishing this folio means its source must be public: push this repository to
-https://github.com/AlickYang2016/folio (public) — the page footer's "Source" link already points there.
+https://github.com/AlickYang2016/RiverManYoung (public) — the page footer's "Source" link already points there.
 The main site's own code is not affected as long as it only links to /folio/ and does not import this code.
