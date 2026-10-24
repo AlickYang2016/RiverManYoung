@@ -13,12 +13,16 @@ import { BLACK, WHITE, css, grainPattern, luma, mix, printFont, rgbOf, roundRect
 
 const LABEL_MM = 4;
 const INDEX_MM = 1.6;
+/** Folio: the chapter line on a picture card */
+const CHAPTER_MM = 2.2;
 
 /** The strings the faces print. */
 function cardRuns(cards: readonly AlbumCard[]): FontRun[] {
   const latin = cards.map((c) => c.label || c.id).join(" ");
   const local = cards.map((c) => c.nameLocal ?? "").join("");
+  const chapters = cards.map((c) => c.chapter ?? "").join(" ");
   const runs: FontRun[] = [{ role: "serif", weight: 400, text: latin, han: hanLangOf(latin) }, { role: "sans", weight: 500, text: "0123456789", han: "ja" }];
+  if (chapters.trim()) runs.push({ role: "sans", weight: 500, text: chapters, han: hanLangOf(chapters) });
   if (local) runs.push({ role: "serif", weight: 400, text: local, han: "ja" });
   return runs;
 }
@@ -52,7 +56,7 @@ export function paintAlbumCard(ctx: CanvasRenderingContext2D, card: AlbumCard, c
   ctx.save();
   ctx.clip();
   if (img) {
-    ctx.drawImage(img, 0, 0, w, h);
+    paintPictureCard(ctx, card, img, w, h, cell.index);
   } else {
     // soft gradient from the colour: lighter up-left, a touch deeper down-right
     const g = ctx.createLinearGradient(0, 0, w * 0.7, h * 1.2);
@@ -104,4 +108,62 @@ export function paintAlbumCard(ctx: CanvasRenderingContext2D, card: AlbumCard, c
   roundRectPath(ctx, 0.09, 0.09, w - 0.18, h - 0.18, r.r - 0.09);
   ctx.stroke();
   ctx.restore();
+}
+
+/**
+ * Folio: a picture card. The photo fills the card cropped (never stretched), a soft shade at the foot carries the place's name in
+ * white (romaji, then its own script), the chapter sits small at the top left and the card's number at the top right, so a page of
+ * cards reads as one chapter of the journey.
+ */
+function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: CanvasImageSource, w: number, h: number, index: number) {
+  const iw = (img as HTMLImageElement).naturalWidth || (img as { width: number }).width || w;
+  const ih = (img as HTMLImageElement).naturalHeight || (img as { height: number }).height || h;
+  const s = Math.max(w / iw, h / ih);
+  const dw = iw * s;
+  const dh = ih * s;
+  ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  // the foot shade (the name sits on it) and a lighter one at the head (chapter, number)
+  const foot = ctx.createLinearGradient(0, h * 0.5, 0, h);
+  foot.addColorStop(0, "rgba(12,20,30,0)");
+  foot.addColorStop(1, "rgba(12,20,30,0.62)");
+  ctx.fillStyle = foot;
+  ctx.fillRect(0, h * 0.5, w, h * 0.5);
+  const head = ctx.createLinearGradient(0, 0, 0, h * 0.28);
+  head.addColorStop(0, "rgba(12,20,30,0.38)");
+  head.addColorStop(1, "rgba(12,20,30,0)");
+  ctx.fillStyle = head;
+  ctx.fillRect(0, 0, w, h * 0.28);
+  const ink = "rgba(250,250,247,0.96)";
+  ctx.fillStyle = ink;
+  ctx.textBaseline = "alphabetic";
+  ctx.font = printFont("sans", 500, INDEX_MM, "ja");
+  track(ctx, INDEX_MM * 0.14);
+  ctx.textAlign = "right";
+  ctx.fillText(String(index + 1).padStart(2, "0"), w - 4.6, 6.6);
+  ctx.textAlign = "left";
+  if (card.chapter) {
+    ctx.font = printFont("sans", 500, CHAPTER_MM, hanLangOf(card.chapter));
+    track(ctx, CHAPTER_MM * 0.1);
+    ctx.fillStyle = "rgba(250,250,247,0.86)";
+    ctx.fillText(card.chapter, 5, 7);
+  }
+  track(ctx, 0);
+  ctx.fillStyle = ink;
+  ctx.shadowColor = "rgba(0,0,0,0.35)";
+  ctx.shadowBlur = 0.8;
+  const label = card.label || card.id;
+  const x = 5;
+  const y = h - 5.4;
+  ctx.font = printFont("serif", 400, LABEL_MM, hanLangOf(label));
+  track(ctx, LABEL_MM * 0.01);
+  ctx.fillText(label, x, y);
+  const lw = ctx.measureText(label).width;
+  if (card.nameLocal && card.nameLocal !== label) {
+    ctx.font = printFont("serif", 400, LABEL_MM * 0.8, "ja");
+    track(ctx, LABEL_MM * 0.06);
+    ctx.fillText(card.nameLocal, x + lw + 1.6, y);
+  }
+  track(ctx, 0);
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = "transparent";
 }

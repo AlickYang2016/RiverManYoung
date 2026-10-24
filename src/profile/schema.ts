@@ -81,7 +81,20 @@ export type PocketItem = BusinessCardItem | ResumeItem | TicketItem | PolaroidIt
 export type ItemKind = PocketItem["kind"];
 
 /** A card in the card album: a photo or a flat colour, plus the label read aloud / shown in the panel. */
-export type AlbumCard = { id: string; label: string; /** Native-script name, e.g. "瓶覗". */ nameLocal?: string; src?: string; color?: string; note?: string; href?: string };
+export type AlbumCard = {
+  id: string;
+  label: string;
+  /** Native-script name, e.g. "瓶覗". */
+  nameLocal?: string;
+  src?: string;
+  color?: string;
+  note?: string;
+  href?: string;
+  /** Folio: the album chapter the card belongs to, printed small at the top left of a picture card (e.g. "II · Europe & beyond"). */
+  chapter?: string;
+  /** Folio: the picture's credit (a licensed photo), shown in the detail view. */
+  credit?: string;
+};
 
 /** A postcard: picture side + message side. */
 export type Postcard = {

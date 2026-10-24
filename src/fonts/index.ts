@@ -352,12 +352,12 @@ const CSS: Record<string, () => Promise<unknown>> = {
   "serif-zh": () => registerHan("serif", () => import("./han-serif")),
   "sans-zh": () => registerHan("sans", () => import("./han-sans")),
   "hand-zh": () => registerHan("hand", () => import("./han-hand")),
-  "serif-ja-400": () => import("@fontsource/shippori-mincho/400.css"),
-  "serif-ja-500": () => import("@fontsource/shippori-mincho/500.css"),
-  "serif-ja-600": () => import("@fontsource/shippori-mincho/600.css"),
-  "sans-ja-400": () => import("@fontsource/zen-kaku-gothic-new/400.css"),
-  "sans-ja-500": () => import("@fontsource/zen-kaku-gothic-new/500.css"),
-  "hand-ja-600": () => import("@fontsource/klee-one/600.css"),
+  "serif-ja-400": () => import("./subset/shippori-mincho-400.css"),
+  "serif-ja-500": () => import("./subset/shippori-mincho-500.css"),
+  "serif-ja-600": () => import("./subset/shippori-mincho-600.css"),
+  "sans-ja-400": () => import("./subset/zen-kaku-gothic-new-400.css"),
+  "sans-ja-500": () => import("./subset/zen-kaku-gothic-new-500.css"),
+  "hand-ja-600": () => import("./subset/klee-one-600.css"),
 };
 const cssLoads = new Map<string, Promise<void>>();
 /** CSS that has been applied (its @font-face rules exist), so document.fonts.check() can be trusted for its family. */

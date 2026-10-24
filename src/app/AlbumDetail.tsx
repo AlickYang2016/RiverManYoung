@@ -183,7 +183,7 @@ export function AlbumDetail({ profile, kind, id, onSelect, onClose, fallbackFocu
           ...run("serif", 500, han, title),
           ...run("serif", 400, subHan, sub),
           ...run("serif", 400, han, isPostcard ? undefined : ac?.note),
-          ...run("sans", 400, han, ...(isPostcard ? [pc?.place, pc?.date ? t.date(pc.date) : "", pc?.from, pc?.credit] : [])),
+          ...run("sans", 400, han, ...(isPostcard ? [pc?.place, pc?.date ? t.date(pc.date) : "", pc?.from, pc?.credit] : [ac?.chapter, ac?.credit])),
           ...run("sans", 400, chromeHan, isPostcard ? undefined : t.spec.seriesValue),
           ...run("sans", 500, chromeHan, t.spec.place, t.spec.postmarked, t.spec.from, t.spec.credit, t.spec.colour, t.spec.series),
         ]
@@ -200,7 +200,8 @@ export function AlbumDetail({ profile, kind, id, onSelect, onClose, fallbackFocu
     play("pageTurn", { gain: 0.4 });
     setBack((b) => !b);
   };
-  const hex = !isPostcard && ac?.color ? ac.color : null;
+  // Folio: a picture card has no colour swatch to copy
+  const hex = !isPostcard && ac?.color && !ac.src ? ac.color : null;
   const copyHex = () => {
     if (hex) void copy(hex);
   };
@@ -234,7 +235,10 @@ export function AlbumDetail({ profile, kind, id, onSelect, onClose, fallbackFocu
             ]
           : []),
         // 色見本 is Japanese on an English page (Shippori's sibling Zen Kaku), 传统色 Chinese on a Chinese one
-        withLang({ k: t.spec.series, v: t.spec.seriesValue }, t.lang === "zh" ? (profile.lang ?? "zh-CN") : "ja", han),
+        ...(ac?.src ? [] : [withLang({ k: t.spec.series, v: t.spec.seriesValue }, t.lang === "zh" ? (profile.lang ?? "zh-CN") : "ja", han)]),
+        // Folio: a picture card names its chapter and, for a licensed photo, its credit
+        ...(ac?.chapter ? [{ k: t.spec.series, v: ac.chapter }] : []),
+        ...(ac?.credit ? [{ k: t.spec.credit, v: ac.credit.replace(/^(Photo|摄影|攝影|写真)\s*[:：]\s*/i, "") }] : []),
       ];
 
   const caption = (

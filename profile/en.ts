@@ -9,86 +9,150 @@ import { seal } from "./seal";
 
 export const CV = "https://alexisyang.com/assets/";
 
-/** Sixteen places, two full sides of the card album. Shared with fr.ts / zh.ts (same ids, colours, local names). */
+/*
+ * The card album: three pages, one chapter each (eight pockets a page), so the album reads in order instead of as a pile.
+ *   page 1 · I   Study & work      a contents card, the six cities of the path so far, and the next one
+ *   page 2 · II  Europe & beyond   journeys
+ *   page 3 · III Japan, October 2026
+ * Every card shows a landmark tied to its place: Yang's own photographs where there are any, otherwise a freely licensed photo
+ * (credited on the card and in public/photos/CREDITS.md). Shared with fr.ts / zh.ts (same ids, pictures, colours, local names);
+ * each language brings its own notes, chapter names and contents label.
+ */
+const C = (file: string, author: string, licence: string) => ({ src: `photos/${file}.webp`, credit: `Photo: ${author} / Wikimedia Commons, ${licence}` });
+const own = (file: string) => ({ src: `photos/${file}.webp` });
 export const places = [
-  { id: "c1", label: "Shanghai", nameLocal: "上海", color: "#c9d6dd" },
-  { id: "c2", label: "Suzhou", nameLocal: "苏州", color: "#bcd0cf" },
-  { id: "c3", label: "Bordeaux", nameLocal: "波尔多", color: "#c4c3cf" },
-  { id: "c4", label: "Cergy", nameLocal: "塞尔吉", color: "#a9c1cb" },
-  { id: "c5", label: "Paris", nameLocal: "巴黎", color: "#8fa9b8" },
-  { id: "c6", label: "Washington", nameLocal: "华盛顿", color: "#7f98a6" },
-  { id: "c7", label: "Osaka", nameLocal: "大阪", color: "#d5dcdf" },
-  { id: "c8", label: "Kobe", nameLocal: "神戸", color: "#c3cdd2" },
-  { id: "c9", label: "Takamatsu", nameLocal: "高松", color: "#b8cfd4" },
-  { id: "c10", label: "Naoshima", nameLocal: "直島", color: "#9fc0c4" },
-  { id: "c11", label: "Okayama", nameLocal: "岡山", color: "#a7b9ad" },
-  { id: "c12", label: "Wakayama", nameLocal: "和歌山", color: "#93ab9f" },
-  { id: "c13", label: "Shirahama", nameLocal: "白浜", color: "#c8d7d0" },
-  { id: "c14", label: "Kyoto", nameLocal: "京都", color: "#a5a9b6" },
-  { id: "c15", label: "Tokyo", nameLocal: "東京", color: "#6f8494" },
-  { id: "c16", label: "Next", nameLocal: "下一站", color: "#3f5b6b" },
+  { id: "c0", chapter: 0, label: "Contents", nameLocal: "目录", color: "#e3ddcf" },
+  { id: "c1", chapter: 0, label: "Shanghai", nameLocal: "上海", color: "#c9d6dd", ...C("cover-shanghai", "YouTable", "CC BY-SA 4.0") },
+  { id: "c2", chapter: 0, label: "Suzhou", nameLocal: "苏州", color: "#bcd0cf", ...C("cover-suzhou", "Christian Gänshirt", "CC BY-SA 4.0") },
+  { id: "c3", chapter: 0, label: "Bordeaux", nameLocal: "波尔多", color: "#c4c3cf", ...C("cover-bordeaux-cadillac", "Henry Salomé", "CC BY-SA 3.0") },
+  { id: "c4", chapter: 0, label: "Cergy", nameLocal: "塞尔吉", color: "#a9c1cb", ...C("cover-cergy-essec", "Rdavout", "CC BY-SA 2.5") },
+  { id: "c5", chapter: 0, label: "Paris", nameLocal: "巴黎", color: "#8fa9b8", ...own("cover-paris") },
+  { id: "c6", chapter: 0, label: "Washington", nameLocal: "华盛顿", color: "#7f98a6", ...own("cover-washington") },
+  { id: "c16", chapter: 0, label: "Next", nameLocal: "下一站", color: "#3f5b6b" },
+  { id: "e1", chapter: 1, label: "Nice", nameLocal: "尼斯", color: "#bfd3dc", ...own("cover-nice") },
+  { id: "e2", chapter: 1, label: "Seville", nameLocal: "塞维利亚", color: "#d6c8b4", ...own("cover-seville") },
+  { id: "e3", chapter: 1, label: "Madrid", nameLocal: "马德里", color: "#c7cdd6", ...own("cover-madrid") },
+  { id: "e4", chapter: 1, label: "Rome", nameLocal: "罗马", color: "#d8cdbd", ...own("cover-rome") },
+  { id: "e5", chapter: 1, label: "Prague", nameLocal: "布拉格", color: "#d4c6a8", ...own("cover-prague") },
+  { id: "e6", chapter: 1, label: "Luxor", nameLocal: "卢克索", color: "#cdb895", ...own("cover-luxor") },
+  { id: "e7", chapter: 1, label: "Red Sea", nameLocal: "红海", color: "#9fc3d1", ...own("cover-red-sea") },
+  { id: "e8", chapter: 1, label: "Iceland", nameLocal: "冰岛", color: "#5f7f78", ...own("cover-iceland") },
+  { id: "c7", chapter: 2, label: "Osaka", nameLocal: "大阪", color: "#d5dcdf", ...C("cover-osaka", "Dick Thomas Johnson", "CC BY 2.0") },
+  { id: "c8", chapter: 2, label: "Kobe", nameLocal: "神戸", color: "#c3cdd2", ...own("cover-kobe") },
+  { id: "c9", chapter: 2, label: "Takamatsu · Naoshima", nameLocal: "高松・直島", color: "#b8cfd4", ...own("cover-naoshima") },
+  { id: "c11", chapter: 2, label: "Okayama", nameLocal: "岡山", color: "#a7b9ad", ...C("cover-okayama", "663highland", "CC BY 2.5") },
+  { id: "c12", chapter: 2, label: "Wakayama", nameLocal: "和歌山", color: "#93ab9f", ...C("cover-wakayama", "Saigen Jiro", "CC0") },
+  { id: "c13", chapter: 2, label: "Shirahama", nameLocal: "白浜", color: "#c8d7d0", ...C("cover-shirahama", "Zairon", "CC BY 4.0") },
+  { id: "c14", chapter: 2, label: "Kyoto", nameLocal: "京都", color: "#a5a9b6", ...C("cover-kyoto", "Martin Falbisoner", "CC BY-SA 4.0") },
+  { id: "c15", chapter: 2, label: "Tokyo", nameLocal: "東京", color: "#6f8494", ...own("cover-tokyo") },
 ] as const;
 
+/** What a language says on the album: the three chapter names, the contents card's label, and how a photo credit begins. */
+export type AlbumWords = { chapters: [string, string, string]; contents: string; photo: string };
+const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026"], contents: "Contents", photo: "Photo" };
+
 const placeNotes = [
-  "Where I grew up, and where the science competitions started.",
-  "Renmin University of China, 2019–2023: Bachelor of Economics in Finance, graduated with distinction.",
-  "KEDGE Business School: dual-degree bachelor’s in supply chain management.",
-  "ESSEC Business School: Master in Management, Real Estate and Sustainable Development Chair.",
-  "AEW Research & Strategy in 2026, BNP Paribas Group Legal in 2024, the Adagio project in 2025.",
-  "GWU School of Business: graduate exchange, August 2025 to January 2026.",
-  "Japan, October 2026: the first stop.",
-  "Japan, October 2026.",
-  "Japan, October 2026: across the Seto Inland Sea.",
-  "Japan, October 2026: an island in the Inland Sea.",
-  "Japan, October 2026.",
-  "Japan, October 2026.",
-  "Japan, October 2026: the coast.",
-  "Japan, October 2026.",
-  "Japan, October 2026: the last stop before Paris, on 17 October.",
+  "Three pages, three chapters. I · Study & work: the cities that shaped the path so far, and the next one. II · Europe & beyond: journeys. III · Japan, October 2026. Each card shows a landmark tied to its place.",
+  "Where I grew up, and where the science competitions started. On the card: Lujiazui, seen from the Bund.",
+  "Renmin University of China, 2019–2023: Bachelor of Economics in Finance, graduated with distinction. On the card: the Gate of the Orient over Jinji Lake.",
+  "KEDGE Business School: dual-degree bachelor’s in supply chain management. On the card: the Château des ducs d’Épernon in Cadillac, a Bordeaux wine appellation whose wines I once helped promote.",
+  "ESSEC Business School: Master in Management, Real Estate and Sustainable Development Chair. On the card: the ESSEC campus.",
+  "AEW Research & Strategy in 2026, BNP Paribas Group Legal in 2024, the Adagio project in 2025. On the card: Haussmann façades, the stone Paris real estate is made of.",
+  "GWU School of Business: graduate exchange, August 2025 to January 2026. On the card: the World War II Memorial and the Washington Monument.",
   "From January 2027: the final-year internship. The city is still open.",
+  "Nice: the seafront.",
+  "Seville: rowing under the bridges of the Plaza de España.",
+  "Madrid: the Santiago Bernabéu, home of Real Madrid.",
+  "Rome: marble and sculpture.",
+  "Prague: the National Museum’s great hall, where Mission: Impossible was filmed.",
+  "Luxor: the temple by night.",
+  "Egypt: diving in the Red Sea.",
+  "Iceland: under the northern lights.",
+  "Japan, October 2026: the first stop. On the card: Osaka Castle.",
+  "Japan, October 2026: the port of Kobe.",
+  "Japan, October 2026: across the Seto Inland Sea to Takamatsu, then the island of Naoshima. On the card: Yayoi Kusama’s Red Pumpkin.",
+  "Japan, October 2026: Okayama Castle above the Kōraku-en garden.",
+  "Japan, October 2026: Wakayama Castle.",
+  "Japan, October 2026: the coast. On the card: Engetsu Island.",
+  "Japan, October 2026: Kiyomizu-dera.",
+  "Japan, October 2026: the last stop before Paris, on 17 October. On the card: Tokyo Tower.",
 ];
 
-/** Twelve postcards, two sheets of six. Shared with fr.ts / zh.ts (same ids, pictures, dates). */
+/*
+ * Postcards: four sheets of six, one theme a sheet.
+ *   I   Work & study           II  Music, science & art        III At the table, by the sea        IV  On the road
+ * Shared with fr.ts / zh.ts (same ids, pictures, dates).
+ */
 export const postcardBase = [
-  { id: "p1", file: "renmin-xiuyuan-drawing", date: "2020-01-03", color: "#e3e3df" },
-  { id: "p2", file: "renmin-kaitai-drawing", date: "2020-01-17", color: "#e1e1dc" },
   { id: "p3", file: "aew-team", date: "2026", color: "#d3dbe0" },
   { id: "p4", file: "bnpp-pro-bono", date: "2024", color: "#d9dad6" },
+  { id: "p13", file: "bnpp-tokyo", date: "2026", color: "#d4dcd6" },
+  { id: "p14", file: "udvar-hazy", date: "", color: "#d6d3cc" },
+  { id: "p1", file: "renmin-xiuyuan-drawing", date: "2020-01-03", color: "#e3e3df" },
+  { id: "p2", file: "renmin-kaitai-drawing", date: "2020-01-17", color: "#e1e1dc" },
   { id: "p5", file: "renmin-choir", date: "", color: "#d8c9c4" },
   { id: "p6", file: "choir-rehearsal", date: "", color: "#d6dadc" },
   { id: "p7", file: "shanghai-lab", date: "", color: "#cfd6da" },
   { id: "p8", file: "shanghai-chemistry-award", date: "2018", color: "#e2cfc5" },
   { id: "p9", file: "shanghai-debate", date: "", color: "#cdd1d8" },
+  { id: "p15", file: "museum-still-life", date: "", color: "#e4e2dc" },
   { id: "p10", file: "paris-kitchen", date: "", color: "#d8d6d0" },
   { id: "p11", file: "shengjian", date: "", color: "#d6cfc4" },
+  { id: "p16", file: "oysters", date: "", color: "#d9d2cc" },
   { id: "p12", file: "diving", date: "", color: "#b9d2da" },
+  { id: "p17", file: "arcachon-dune", date: "", color: "#dcd6c6" },
+  { id: "p18", file: "arcachon-pool-party", date: "", color: "#e9e4da" },
+  { id: "p19", file: "kobe-sherlock", date: "2026", color: "#d9c4c0" },
+  { id: "p20", file: "madrid-bernabeu", date: "", color: "#d3d7de" },
+  { id: "p21", file: "iceland-aurora", date: "", color: "#9fb3ae" },
+  { id: "p22", file: "luxor-temple", date: "", color: "#cdbb9c" },
+  { id: "p23", file: "red-sea-dolphins", date: "", color: "#a9c8d4" },
+  { id: "p24", file: "nice-seafront", date: "", color: "#c9d9e0" },
 ] as const;
 
 export type PostcardText = { label: string; place: string; placeLocal?: string; message: string };
 
 const postcardsEn: PostcardText[] = [
-  { label: "Xiuyuan Building", place: "Renmin University of China", placeLocal: "修远楼", message: "Pen on paper. Not an architect’s drawing; I simply enjoyed looking closely enough at a place to put it on paper." },
-  { label: "Kaitai Building", place: "Renmin University of China", placeLocal: "开太楼", message: "Two weeks later. Growing up with an architect father, I learned to notice proportions, small details and the way people use a building." },
   { label: "AEW", place: "AEW, Paris", message: "Six months with the European Research & Strategy team: city scoring, quarterly reports, and the charts in the July 2026 Office Outlook." },
   { label: "Pro Bono", place: "BNP Paribas, Paris", message: "Group LEGAL Pro Bono: helping relaunch the EMEA programme, with the tracker, the sponsor summaries and the SharePoint site." },
+  { label: "Same green birds", place: "GranTokyo, Tokyo", message: "BNP Paribas in Tokyo: the same logo I worked under in Paris, on the other side of the world." },
+  { label: "Discovery", place: "Udvar-Hazy Center, Virginia", message: "Space Shuttle Discovery, a short drive from Washington, D.C., the city of my exchange semester." },
+  { label: "Xiuyuan Building", place: "Renmin University of China", placeLocal: "修远楼", message: "Pen on paper. Not an architect’s drawing; I simply enjoyed looking closely enough at a place to put it on paper." },
+  { label: "Kaitai Building", place: "Renmin University of China", placeLocal: "开太楼", message: "Two weeks later. Growing up with an architect father, I learned to notice proportions, small details and the way people use a building." },
   { label: "Choir", place: "Renmin University of China", placeLocal: "一二·九合唱音乐节", message: "The 33rd December 9th choral festival. At the piano and among the inner voices." },
   { label: "Rehearsal", place: "Before the concert", message: "Listening across the choir while keeping my own line." },
   { label: "Laboratory", place: "Shanghai", message: "Afternoons in a laboratory: break the problem down, test the assumptions, learn from what did not work." },
   { label: "First Prize", place: "Shanghai", placeLocal: "白猫杯", message: "First Prize, 2018 Shanghai Applied Chemistry & Skills Competition, high-school division." },
   { label: "Debate", place: "Shanghai", message: "First speaker in an English debate exchange: open the case, build the argument, then listen to the reply." },
+  { label: "Still life", place: "In a museum", message: "Flowers in a gilt frame. Looking closely, again: the same habit as the pen drawings." },
   { label: "Kitchen", place: "Paris", message: "Cooking is one of the simplest ways I stay connected to home. Living abroad turned it into a way of sharing where I come from." },
   { label: "Shengjian", place: "Shanghai, wherever I am", placeLocal: "生煎", message: "Pan-fried dumplings, occasionally one batch at a time. Shanghai, wherever I am." },
+  { label: "Oysters", place: "By the sea", message: "A plate of oysters, a squeeze of lemon, the sky turning pink." },
   { label: "Diving", place: "Under water", message: "Underwater, panic makes a difficult situation harder. Breathe steadily, understand what is happening, then act deliberately." },
+  { label: "Dune du Pilat", place: "Arcachon", message: "Four friends, four water guns, one beach near Bordeaux. The next card is its pair." },
+  { label: "Pool Party", place: "Arcachon", message: "The same afternoon, paired with League of Legends’ Pool Party art." },
+  { label: "Detective", place: "Kobe", message: "221b Baker Street, Japan edition: playing Sherlock Holmes." },
+  { label: "Trophy room", place: "Santiago Bernabéu, Madrid", message: "Real Madrid’s trophy room, scarf on." },
+  { label: "Aurora", place: "Iceland", message: "Waiting in the dark and the cold, until the sky turned green." },
+  { label: "Luxor Temple", place: "Luxor, Egypt", message: "The colonnade by night." },
+  { label: "Dolphins", place: "The Red Sea, Egypt", message: "Dolphins beside the boat." },
+  { label: "Riviera", place: "Nice", message: "Palm trees and the Mediterranean." },
 ];
 
-/** The albums for one language, from its own notes and postcard texts. */
-export function albumsFor(notes: string[], cards: PostcardText[], from: string): Profile["albums"] {
+/** The albums for one language, from its own notes, postcard texts and album words. */
+export function albumsFor(notes: string[], cards: PostcardText[], from: string, words: AlbumWords = wordsEn): Profile["albums"] {
   return {
-    cards: places.map((c, i) => ({ ...c, label: c.label, note: notes[i] })),
+    cards: places.map((c, i) => {
+      const { chapter, ...rest } = c as typeof c & { credit?: string; src?: string };
+      const card = { ...rest, note: notes[i], chapter: words.chapters[chapter] } as Profile["albums"]["cards"][number];
+      if (c.id === "c0") card.label = words.contents;
+      if (card.credit) card.credit = card.credit.replace(/^Photo/, words.photo);
+      return card;
+    }),
     postcards: postcardBase.map((b, i) => ({
       id: b.id,
       ...cards[i]!,
-      src: `photos/${b.file}.jpg`,
+      src: `photos/${b.file}.webp`,
       color: b.color,
       from,
       ...(b.date ? { date: b.date } : {}),
@@ -204,7 +268,7 @@ export const profile: Profile = {
       anecdote: "A semester across the Atlantic: graduate exchange at the GWU School of Business.",
       story: "MBA-level courses in US business law (contract, property and tort), quantitative analysis for real estate investment and development, and data analysis with Power BI.",
       caption: "washington, d.c.",
-      image: "photos/washington.jpg",
+      image: "photos/washington.webp",
       tint: "#c9d3da",
       place: "Washington, D.C.",
       date: "Fall 2025",

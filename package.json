@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "bun test src",
-    "seal": "bun scripts/seal.ts"
+    "seal": "bun scripts/seal.ts",
+    "fonts": "python3 scripts/subset-fonts.py"
   },
   "dependencies": {
     "@fontsource/klee-one": "5.3.1",

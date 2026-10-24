@@ -43,6 +43,11 @@ jobs:
       - uses: actions/checkout@v7
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
+      # Folio: cut the CJK faces to the characters the profiles print (scripts/subset-fonts.py), so a new word never falls back
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install fonttools==4.66.1 brotli && python scripts/subset-fonts.py
       # catches a profile that does not match the schema before it reaches the site
       - run: bun run typecheck
       - run: bun run build

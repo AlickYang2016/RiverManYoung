@@ -1,66 +1,254 @@
 [
   {
-    "file": "photos/aew-team.jpg",
+    "file": "photos/aew-team.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/bnpp-pro-bono.jpg",
+    "file": "photos/arcachon-dune.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/choir-rehearsal.jpg",
+    "file": "photos/arcachon-pool-party.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/diving.jpg",
+    "file": "photos/bnpp-pro-bono.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/paris-kitchen.jpg",
+    "file": "photos/bnpp-tokyo.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/renmin-choir.jpg",
+    "file": "photos/choir-rehearsal.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/renmin-kaitai-drawing.jpg",
+    "file": "photos/cover-bordeaux-cadillac.webp",
+    "use": "card cover",
+    "license": "CC BY-SA 3.0",
+    "author": "Henry Salomé",
+    "source": "https://commons.wikimedia.org/wiki/File:Cadillac_33_Ch%C3%A2teau_des_ducs_d%27%C3%89pernon.jpg"
+  },
+  {
+    "file": "photos/cover-cergy-essec.webp",
+    "use": "card cover",
+    "license": "CC BY-SA 2.5",
+    "author": "Rdavout",
+    "source": "https://commons.wikimedia.org/wiki/File:ESSEC_campus_cergy.jpg"
+  },
+  {
+    "file": "photos/cover-iceland.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-kobe.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-kyoto.webp",
+    "use": "card cover",
+    "license": "CC BY-SA 4.0",
+    "author": "Martin Falbisoner",
+    "source": "https://commons.wikimedia.org/wiki/File:Kiyomizu-dera,_Kyoto,_November_2016_-01.jpg"
+  },
+  {
+    "file": "photos/cover-luxor.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-madrid.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-naoshima.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-nice.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-okayama.webp",
+    "use": "card cover",
+    "license": "CC BY 2.5",
+    "author": "663highland",
+    "source": "https://commons.wikimedia.org/wiki/File:160319_Korakuen_Okayama_Japan02n.jpg"
+  },
+  {
+    "file": "photos/cover-osaka.webp",
+    "use": "card cover",
+    "license": "CC BY 2.0",
+    "author": "Dick Thomas Johnson",
+    "source": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_2022-04-23.jpg"
+  },
+  {
+    "file": "photos/cover-paris.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-prague.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-red-sea.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-rome.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-seville.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-shanghai.webp",
+    "use": "card cover",
+    "license": "CC BY-SA 4.0",
+    "author": "YouTable",
+    "source": "https://commons.wikimedia.org/wiki/File:Lujiazui_from_the_Bund_riverside.jpg"
+  },
+  {
+    "file": "photos/cover-shirahama.webp",
+    "use": "card cover",
+    "license": "CC BY 4.0",
+    "author": "Zairon",
+    "source": "https://commons.wikimedia.org/wiki/File:Shirahama_Engetsu_Island_03.jpg"
+  },
+  {
+    "file": "photos/cover-suzhou.webp",
+    "use": "card cover",
+    "license": "CC BY-SA 4.0",
+    "author": "Christian Gänshirt",
+    "source": "https://commons.wikimedia.org/wiki/File:Gate_of_the_Orient_%E4%B8%9C%E6%96%B9%E4%B9%8B%E9%97%A8_dong_fang_zhi_men_Suzhou_photo_Christian_G%C3%A4nshirt_2015.JPG"
+  },
+  {
+    "file": "photos/cover-tokyo.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/cover-wakayama.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "Saigen Jiro",
+    "source": "https://commons.wikimedia.org/wiki/File:Wakayama_Castle,_tenshu-2.jpg"
+  },
+  {
+    "file": "photos/cover-washington.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/diving.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/renmin-xiuyuan-drawing.jpg",
+    "file": "photos/iceland-aurora.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/shanghai-chemistry-award.jpg",
+    "file": "photos/kobe-sherlock.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/shanghai-debate.jpg",
+    "file": "photos/luxor-temple.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/shanghai-lab.jpg",
+    "file": "photos/madrid-bernabeu.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/shengjian.jpg",
+    "file": "photos/museum-still-life.webp",
     "use": "postcard",
     "license": "All rights reserved, Zijiang Yang"
   },
   {
-    "file": "photos/washington.jpg",
+    "file": "photos/nice-seafront.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/oysters.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/paris-kitchen.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/red-sea-dolphins.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/renmin-choir.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/renmin-kaitai-drawing.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/renmin-xiuyuan-drawing.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/shanghai-chemistry-award.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/shanghai-debate.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/shanghai-lab.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/shengjian.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/udvar-hazy.webp",
+    "use": "postcard",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/washington.webp",
     "use": "polaroid",
     "license": "All rights reserved, Zijiang Yang"
   }

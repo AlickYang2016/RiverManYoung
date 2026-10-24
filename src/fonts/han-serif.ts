@@ -4,8 +4,9 @@
  * lazily by src/fonts the first time a string needs the face, so an English page never loads this chunk; a 500 or 600 slice
  * downloads only when text at that weight needs it.
  */
-import css from "@fontsource/noto-serif-sc/400.css?raw";
+// Folio: the characters this folio prints, cut from Noto Serif SC (scripts/subset-fonts.py); one file per weight
+import css from "./subset/noto-serif-sc.css?raw";
 
-const files = import.meta.glob("/node_modules/@fontsource/noto-serif-sc/files/noto-serif-sc-[0-9]*-{400,500,600}-normal.woff2", { query: "?url", import: "default", eager: true, exhaustive: true }) as Record<string, string>;
+const files = import.meta.glob("./subset/files/noto-serif-sc-0-{400,500,600}-normal.woff2", { query: "?url", import: "default", eager: true, exhaustive: true }) as Record<string, string>;
 
 export default { css, files };
