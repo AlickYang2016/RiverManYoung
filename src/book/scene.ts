@@ -8,6 +8,8 @@ import { createPocketGrid, sameGrid, type ContentSource, type PaintEnv } from ".
 import { resolveLayout, spreadOfPage, type LayoutPreset, type LayoutSpec } from "./layout";
 import { carryPage, createPage, freePage, grabPage, grabPoint, holeAngle, pageKnotsInto, pageProgress, posePage, pullPage, restPage, seamFold, stepPage, turnPage, type PageBody, type PageEnv, type Physics } from "./physics";
 import { physicsFor } from "./physics-profile";
+import { prefilteredStudio } from "./pmrem";
+import { compileQuiet, programGuard, shadowStandIns, vsmStandIns } from "./compile";
 import { GLOSS_ROUGHNESS, MM, PITCH, SLAB, panelRoot, restPhi, segOf, sheetGeometry, sheetMaterials, type SheetUniforms } from "./sheet";
 import { DEFAULT_FONT, PALETTE, drawPockets, drawSheetNormal, pocketSteps, sideCanvas } from "./textures";
 import { OCCLUDER_HEIGHT, createWindowLight } from "./window-light";
@@ -536,7 +538,11 @@ export async function createBook(host: HTMLElement, opts: BookOptions): Promise<
   const late = await Promise.race([all.then(() => false), new Promise<boolean>((r) => setTimeout(() => r(true), 600))]);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
   try {
-    const book = buildBook(host, opts, renderer, fonts);
+    // sasshi (2026-10-25): the studio's environment prefiltered with its programs compiled off the main thread first (pmrem.ts)
+    const studio = studioScene();
+    const env = await prefilteredStudio(renderer, studio, 0.02);
+    disposeStudio(studio);
+    const book = buildBook(host, opts, renderer, fonts, env);
     if (late) void all.then(() => book.debug.repaintPrint());
     return book;
   } catch (e) {
@@ -547,7 +553,17 @@ export async function createBook(host: HTMLElement, opts: BookOptions): Promise<
   }
 }
 
-function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRenderer, fonts: PageFonts): Book {
+/** The studio scene's meshes' geometry and materials, once it has been drawn into an environment */
+function disposeStudio(studio: THREE.Scene) {
+  studio.traverse((o) => {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh) return;
+    m.geometry.dispose();
+    (m.material as THREE.Material).dispose();
+  });
+}
+
+function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRenderer, fonts: PageFonts, firstEnv: THREE.WebGLRenderTarget): Book {
   const font = fonts.sans;
   // sasshi: the content and its pocket-grid layout; the sheet's segments, page size and physics all follow the layout. The content
   // may be swapped for one with the same grid (setContent: another language); its items, layout and pictures stay those of the build
@@ -601,21 +617,19 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
 
   const scene = new THREE.Scene();
   readBg();
-  /** The studio's prefiltered environment: a render target (made again when a lost context comes back, see `restored`) */
+  /**
+   * The studio's prefiltered environment: a render target (the first made by createBook ahead, pmrem.ts; made again here when a lost
+   * context comes back, see `restored`)
+   */
   const studioEnv = () => {
     const pmrem = new THREE.PMREMGenerator(renderer);
     const studio = studioScene();
     const rt = pmrem.fromScene(studio, 0.02);
-    studio.traverse((o) => {
-      const m = o as THREE.Mesh;
-      if (!m.isMesh) return;
-      m.geometry.dispose();
-      (m.material as THREE.Material).dispose();
-    });
+    disposeStudio(studio);
     pmrem.dispose();
     return rt;
   };
-  let envRT = studioEnv();
+  let envRT = firstEnv;
   scene.environment = envRT.texture;
   scene.environmentIntensity = 0.6;
 
@@ -2596,7 +2610,9 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
       setRatio(fullRatio);
       needsFrame = true;
     }
-    if (active || needsFrame) {
+    // sasshi (2026-10-25): nothing is drawn before the scene's programs are compiled (`warming`): a draw would compile them itself,
+    // on the main thread, all at once; the frame asked for now is drawn once they are
+    if ((active || needsFrame) && warm) {
       needsFrame = false;
       render();
     }
@@ -2610,6 +2626,15 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   /** The sheets' gloss while the frosted background is drawn (two numbers a sheet; reused) */
   const saved: number[] = [];
   function render() {
+    // sasshi (2026-10-25): anything whose program is not compiled yet sits this frame out (compile.ts programGuard)
+    if (guard.armed) guard.hold();
+    try {
+      drawFrame();
+    } finally {
+      guard.release();
+    }
+  }
+  function drawFrame() {
     // sasshi (round 4, E1): a side this frame shows is never one printed from the content before the last swap
     if (stale.size) freshen();
     const full = bookDirty;
@@ -3570,9 +3595,10 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   const PRINT_WAIT = 2500;
   function becomeReady() {
     if (ready || disposed) return;
+    // sasshi (2026-10-25): the first frame waits for the scene's programs (`warming`), so the canvas fades in on a drawn book
+    if (!warm) return void warming.then(becomeReady);
     ready = true;
     clearTimeout(readyTimer);
-    renderer.compile(scene, camera);
     canvasEl.style.opacity = "1";
     invalidate();
     opts.onReady();
@@ -3617,6 +3643,39 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   }
   loadCaseImages();
   for (const a of addons) adopt(a);
+  /*
+   * sasshi (2026-10-25, the arrival's stalls): the scene's programs compiled ahead (compile.ts: off the main thread, polled without
+   * blocking) — the screen's variants, the shadow pass's depth materials (stand-ins), the frosted case's background pass's — before
+   * the first frame draws anything: drawn first, a frame compiled them itself, all at once (≈ 1.4 s on a cold cache, RTX 2060 / D3D11).
+   */
+  let warm = false;
+  const shadowProbe = new THREE.WebGLRenderTarget(1, 1);
+  const casters = shadowStandIns(scene);
+  const blurs = vsmStandIns(scene);
+  const warming = Promise.all([
+    compileQuiet(renderer, scene, camera),
+    compileQuiet(renderer, casters.group, camera, null, { target: shadowProbe }),
+    compileQuiet(renderer, blurs.group, camera, null, { target: shadowProbe }),
+    frost ? frost.compile(renderer, scene, camera) : null,
+  ])
+    .catch(() => {})
+    .then(() => {
+      warm = true;
+      guard.armed = true;
+      frostCompiled = !!frost;
+      invalidate();
+      // the stand-ins hold the depth programs until the shadow pass has drawn with three's own materials
+      setTimeout(() => {
+        casters.dispose();
+        blurs.dispose();
+        shadowProbe.dispose();
+      }, 5000);
+    });
+  /** sasshi (2026-10-25): what appears later (an addon's things, …) is compiled in the background before it is drawn (compile.ts) */
+  const guard = Object.assign(
+    programGuard(renderer, scene, camera, invalidate, (o) => (frost ? frost.compile(renderer, scene, camera, o) : null)),
+    { armed: false },
+  );
 
   /*
    * ── sasshi: a live case swap (Book.setCover) ──
@@ -4097,6 +4156,7 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
       stopSway();
       windowLight.dispose();
       receiveOnly.dispose();
+      guard.dispose();
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVis);

@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { compileQuiet } from "./compile";
 
 /*
  * The translucency of the frosted PP case: a screen-space "frosted glass".
@@ -470,19 +471,15 @@ varying vec3 vFrostTy;
       uniforms.uFrostTint.value.copy(tint);
     },
     compile(r, sc, camera, extra) {
-      // compile() runs synchronously inside compileAsync, so the quad can wear each blur material in turn
-      quad.material = firstMat;
-      const out: Promise<unknown>[] = [r.compileAsync(quadScene, quadCam)];
-      quad.material = blurMat;
-      out.push(r.compileAsync(quadScene, quadCam));
+      // the blur passes draw into the levels' targets (linear output); a quad of their own for each material (compileQuiet compiles
+      // twice: issued, then polled)
+      const into = { target: levels[0] ?? scene };
+      const out: Promise<unknown>[] = [compileQuiet(r, new THREE.Mesh(tri, firstMat), quadCam, null, into), compileQuiet(r, new THREE.Mesh(tri, blurMat), quadCam, null, into)];
       if (sc && camera) {
         // the background pass draws the scene into a render target: linear output, no tone mapping — other program variants than
         // the screen's, otherwise compiled in the first frame the cover moves
-        const prev = r.getRenderTarget();
-        r.setRenderTarget(scene);
-        out.push(r.compileAsync(sc, camera));
-        if (extra) out.push(r.compileAsync(extra, camera, sc));
-        r.setRenderTarget(prev);
+        out.push(compileQuiet(r, sc, camera, null, { target: scene }));
+        if (extra) out.push(compileQuiet(r, extra, camera, sc, { target: scene }));
       }
       return Promise.all(out);
     },
