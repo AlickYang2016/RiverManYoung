@@ -1,3 +1,9 @@
+# Alexis Yang — Folio
+
+The folio edition of [alexisyang.com](https://alexisyang.com): a business card, résumé, ticket, polaroid and note in a clear pouch, a card album of the places so far, and a postcard album, in English, French and Chinese. Built on [sasshi](https://github.com/qzz0518/sasshi) by qzz0518 (AGPL-3.0); the content in `profile/` and the photos in `public/photos/` are mine (all rights reserved). Integration notes: [FOLIO.md](FOLIO.md).
+
+---
+
 # sasshi
 
 English · [简体中文](README.zh-CN.md)

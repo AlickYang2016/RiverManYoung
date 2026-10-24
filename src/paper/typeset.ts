@@ -63,9 +63,10 @@ export type ResumeLayout = { pages: Op[][]; scale: number; columns: 1 | 2; /** f
 
 /** The printed labels, in the language the résumé is written in. */
 export type ResumeWords = { profile: string; experience: string; education: string; skills: string; languages: string; elsewhere: string; /** between a role and its organisation */ comma: string; /** between the name and the document's title in the foot */ dash: string };
-const WORDS: Record<"en" | "zh", ResumeWords> = {
+const WORDS: Record<"en" | "zh" | "fr", ResumeWords> = {
   en: { profile: "Profile", experience: "Experience", education: "Education", skills: "Skills", languages: "Languages", elsewhere: "Elsewhere", comma: ", ", dash: " — " },
   zh: { profile: "简介", experience: "工作经历", education: "教育", skills: "技能", languages: "语言", elsewhere: "联系", comma: "，", dash: " · " },
+  fr: { profile: "Profil", experience: "Expérience", education: "Formation", skills: "Compétences", languages: "Langues", elsewhere: "Ailleurs", comma: ", ", dash: " — " },
 };
 
 /** The résumé's language: the owner's, else Chinese when the résumé's own words are (a summary in Han without kana). */
@@ -75,7 +76,7 @@ export function resumeLang(item: ResumeItem, owner?: Owner): string | undefined 
   return /\p{Script=Han}/u.test(sample) && hanLangOf(sample) !== "ja" ? "zh-CN" : undefined;
 }
 export function resumeWords(lang?: string): ResumeWords {
-  return /^zh/i.test(lang ?? "") ? WORDS.zh : WORDS.en;
+  return /^zh/i.test(lang ?? "") ? WORDS.zh : /^fr/i.test(lang ?? "") ? WORDS.fr : WORDS.en;
 }
 
 /**

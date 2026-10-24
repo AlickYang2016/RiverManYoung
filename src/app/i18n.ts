@@ -10,7 +10,7 @@ import type { Tab } from "./types";
  * a space between Han and Latin or numbers.
  */
 
-export type Lang = "en" | "zh";
+export type Lang = "en" | "zh" | "fr";
 /** Things the detail view can hold: the five pouch kinds plus the two album kinds. */
 export type HeldName = ItemKind | "colour" | "postcard";
 
@@ -208,6 +208,112 @@ export const en: Dict = {
   },
 };
 
+const MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+/** "2024-09-14" → "14 sept. 2024" */
+function dateFr(d: string): string {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.trim());
+  if (!m) return d;
+  const mon = MONTHS_FR[Number(m[2]) - 1];
+  return mon ? `${Number(m[3])} ${mon} ${m[1]}` : d;
+}
+const FR_NUM = ["aucun", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze"];
+const frWord = (n: number) => FR_NUM[n] ?? String(n);
+
+export const fr: Dict = {
+  ...en,
+  lang: "fr",
+  htmlLang: "fr",
+  booklet: {
+    cards: { name: "Cartes", local: "カード帖", latin: "Cartes", noun: (n) => (n === 1 ? "carte" : "cartes") },
+    postcards: { name: "Cartes postales", local: "絵葉書", latin: "Cartes postales", noun: (n) => (n === 1 ? "carte postale" : "cartes postales") },
+    resume: { name: "CV", local: "履歴書", latin: "Pochette CV", noun: (n) => (n === 1 ? "objet" : "objets") },
+  },
+  nav: { booklets: "Livrets", skip: "Aller au livret" },
+  langs: { label: "Langue" },
+  handling: {
+    resume: "Inclinez le bureau : ce qu’il y a dedans glisse. Sortez un objet pour le lire.",
+    cards: "Tournez une page par son bord, ou avec les flèches. Sortez une carte pour la regarder de près.",
+    postcards: (n) => `${cap(frWord(n))} cartes postales. Tournez la page pour lire les dos.`,
+    closed: "Cliquez sur la couverture pour l’ouvrir.",
+    printed: "Ce bureau a besoin de WebGL : voici la version imprimée.",
+  },
+  hint: { resume: "Inclinez votre téléphone, ou sortez un objet.", cards: "Glissez pour tourner. Touchez une carte pour la sortir.", postcards: "Glissez pour tourner. Touchez une carte pour la sortir.", closed: "Touchez la couverture pour l’ouvrir." },
+  clock: (time, city) => `Heure locale ${time}${city ? ` à ${city}` : ""}`,
+  controls: {
+    ...en.controls,
+    open: "Ouvrir",
+    openFolio: "Ouvrir la pochette",
+    openAlbum: "Ouvrir l’album",
+    close: "Fermer",
+    closeAlbum: "Fermer l’album",
+    closeFolio: "Fermer la pochette",
+    closeFolioShort: "Fermer",
+    shake: "Secouer",
+    tilt: "Incliner",
+    tiltOff: "Inclinaison off",
+    tiltAria: "Incliner la pochette avec le téléphone",
+    prevPage: "Page précédente",
+    nextPage: "Page suivante",
+    pageOf: (i, n) => `Page ${i} sur ${n}`,
+    prev: "Précédent",
+    next: "Suivant",
+    putBack: "Remettre en place",
+    putBackShort: "Remettre",
+    openIt: "Ouvrir",
+    foldIt: "Replier",
+    turnOver: "Retourner",
+    turnBack: "Revenir",
+    pages: (a, b) => (a === b ? `Page ${a}` : `Pages ${a}–${b}`),
+    pagesAria: (a, b, n) => (a === b ? `Page ${a} sur ${n}` : `Pages ${a} à ${b} sur ${n}`),
+    objectOf: (i, n) => `${i} sur ${n}`,
+    openCard: (title) => `Ouvrir ${title}`,
+    copyHex: "Copier",
+    copied: "Copié",
+    toolbar: "Commandes",
+  },
+  colophon: { label: "Contact", email: "E-mail", emailCopied: "E-mail copié", copy: "Copier", copied: "Copié", newTab: "(nouvel onglet)", source: "Source", sound: "Son", on: "Oui", off: "Non", textVersion: "Version texte" },
+  case: { label: "Couverture", aria: "Matière de la couverture", material: { frost: "Givre", cloth: "Toile", leather: "Cuir" } },
+  profile: { open: "Profil", sheet: "Profil", close: "Fermer" },
+  held: {
+    card: { local: "名刺", latin: "Carte de visite" },
+    resume: { local: "履歴書", latin: "CV" },
+    ticket: { local: "入場券", latin: "Billet" },
+    polaroid: { local: "写真", latin: "Polaroid" },
+    note: { local: "一筆箋", latin: "Mot" },
+    colour: { local: "色見本", latin: "Carte" },
+    postcard: { local: "絵葉書", latin: "Carte postale" },
+  },
+  spec: {
+    name: "Nom", role: "Rôle", event: "Événement", talk: "Sujet", date: "Date", time: "Portes", venue: "Lieu", city: "Ville", seat: "Place", serial: "Billet",
+    caption: "Légende", place: "Lieu", from: "De", colour: "Couleur", series: "Série", seriesValue: "色見本", postmarked: "Oblitérée", credit: "Photo", pages: "Pages",
+  },
+  detail: { pdf: "PDF", download: "Télécharger", text: "Texte", readAsText: "Lire en texte", links: "Liens", story: "Histoire", turned: "Le dos", downloadAria: "Télécharger le CV en PDF" },
+  text: {
+    hashira: { local: "本文", latin: "Texte" },
+    back: "Retour au bureau",
+    profile: "Profil", experience: "Expérience", education: "Formation", skills: "Compétences", languages: "Langues", elsewhere: "Ailleurs", pouch: "Dans la pochette", cards: "Cartes", postcards: "Cartes postales", contact: "Contact",
+    json: "JSON", jsonBack: "Version texte", copy: "Copier", copied: "Copié", download: "Télécharger", lookCloser: "Voir de près", printed: "Version imprimée", jsonAria: "Profil en JSON",
+    join: ", ",
+  },
+  loading: { folio: "Ouverture de la pochette", album: "Ouverture de l’album", noGl: "Ce bureau a besoin de WebGL. Voici la version texte", noGlLink: "Version texte" },
+  paper: {
+    resume: "CV",
+    card: "Carte de visite",
+    page: (p, n) => `Page ${p} sur ${n}`,
+    pages: (a, b, n) => `Pages ${a}–${b} sur ${n}`,
+    cardClosed: "fermée",
+    cardOpen: "ouverte",
+    hint: "Faites glisser une page, cliquez-la ou utilisez les flèches pour tourner.",
+    cardHint: "Faites glisser la couverture ou cliquez pour ouvrir et fermer.",
+  },
+  date: dateFr,
+  months: MONTHS_FR,
+  meta: {
+    description: (p) => `${p.name}${p.nameLocal ? ` (${p.nameLocal})` : ""}, ${p.role}${p.location ? ` à ${p.location}` : ""}. ${p.bio}`,
+    title: (p, v) => (v === "folio" ? `${p.name} — ${p.role}` : v === "json" ? `${p.name} — profile.json` : `${p.name} — version texte`),
+  },
+};
+
 export const zh: Dict = {
   lang: "zh",
   htmlLang: "zh-CN",
@@ -307,9 +413,9 @@ export const zh: Dict = {
 
 /** The chrome language for a profile: Chinese when its `lang` is zh-anything, else English. */
 export function langOfProfile(p: Pick<Profile, "lang">): Lang {
-  return /^zh(-|$)/i.test(p.lang ?? "") ? "zh" : "en";
+  return /^zh(-|$)/i.test(p.lang ?? "") ? "zh" : /^fr(-|$)/i.test(p.lang ?? "") ? "fr" : "en";
 }
-export const dictFor = (p: Pick<Profile, "lang">): Dict => (langOfProfile(p) === "zh" ? zh : en);
+export const dictFor = (p: Pick<Profile, "lang">): Dict => { const l = langOfProfile(p); return l === "zh" ? zh : l === "fr" ? fr : en; };
 
 export const I18n = createContext<Dict>(en);
 export const useT = () => useContext(I18n);

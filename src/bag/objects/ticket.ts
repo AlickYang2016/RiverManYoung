@@ -34,7 +34,7 @@ const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", 
 const DAYS_ZH = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
 type Words = { date: string; time: string; seat: string; admit: string; terms: string[] };
-const WORDS: Record<"en" | "zh", Words> = {
+const WORDS: Record<"en" | "zh" | "fr", Words> = {
   en: {
     date: "Date",
     time: "Doors",
@@ -42,13 +42,20 @@ const WORDS: Record<"en" | "zh", Words> = {
     admit: "ADMIT ONE",
     terms: ["Admits one person on the date shown.", "Keep this ticket until you leave; it is checked at the door.", "Not valid once punched for another day.", "No re-entry once the stub is torn off."],
   },
+  fr: {
+    date: "Date",
+    time: "Portes",
+    seat: "Place",
+    admit: "ENTRÉE UNIQUE",
+    terms: ["Valable pour une personne à la date indiquée.", "Conservez ce billet jusqu’à la sortie ; il est contrôlé à l’entrée.", "Non valable une fois poinçonné pour un autre jour.", "Aucune réentrée une fois le talon détaché."],
+  },
   zh: { date: "日期", time: "入场", seat: "座位", admit: "凭票入场", terms: ["凭本票入场一人，仅限当日有效。", "请保留至离场，入口处验票。", "打孔后不再用于他日。", "票根撕下后不可再次入场。"] },
 };
 
 /** The ticket's own words follow the profile's language (zh → Chinese), else the language of its event name. */
 function wordsFor(item: TicketItem, lang?: string): { w: Words; zh: boolean } {
   const zh = /^zh/i.test(lang ?? "") || (!lang && /\p{Script=Han}/u.test(item.event));
-  return { w: zh ? WORDS.zh : WORDS.en, zh };
+  return { w: zh ? WORDS.zh : /^fr/i.test(lang ?? "") ? WORDS.fr : WORDS.en, zh };
 }
 
 /** Samples along the torn edge (bottom to top) and the edge's x (mm from the left) at each: see tornProfile. */
