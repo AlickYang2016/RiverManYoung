@@ -9,7 +9,7 @@ import { resolveLayout, spreadOfPage, type LayoutPreset, type LayoutSpec } from 
 import { carryPage, createPage, freePage, grabPage, grabPoint, holeAngle, pageKnotsInto, pageProgress, posePage, pullPage, restPage, seamFold, stepPage, turnPage, type PageBody, type PageEnv, type Physics } from "./physics";
 import { physicsFor } from "./physics-profile";
 import { prefilteredStudio } from "./pmrem";
-import { compileQuiet, programGuard, shadowStandIns, vsmStandIns } from "./compile";
+import { compileQuiet, programGuard, shadowPassStandIns } from "./compile";
 import { GLOSS_ROUGHNESS, MM, PITCH, SLAB, panelRoot, restPhi, segOf, sheetGeometry, sheetMaterials, type SheetUniforms } from "./sheet";
 import { DEFAULT_FONT, PALETTE, drawPockets, drawSheetNormal, pocketSteps, sideCanvas } from "./textures";
 import { OCCLUDER_HEIGHT, createWindowLight } from "./window-light";
@@ -2745,8 +2745,13 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
       sun.shadow.needsUpdate = true;
       renderer.shadowMap.needsUpdate = true;
     }
+    // sasshi (2026-10-25): three draws a frame's shadow maps before it sets up that frame's lights, with the light state the last
+    // render left; a frosted background drawn with the desk alone left none. Set up the scene's lights first (a compile of nothing),
+    // so the shadow pass is always the one compiled ahead (warming), never a variant of its own compiled mid-frame.
+    renderer.compile(lightsOnly, camera, scene);
     renderer.render(scene, camera);
   }
+  const lightsOnly = new THREE.Group();
 
   /** Advance one frame; returns whether anything is still moving */
   function step(now: number, dt: number): boolean {
@@ -3645,17 +3650,21 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   for (const a of addons) adopt(a);
   /*
    * sasshi (2026-10-25, the arrival's stalls): the scene's programs compiled ahead (compile.ts: off the main thread, polled without
-   * blocking) — the screen's variants, the shadow pass's depth materials (stand-ins), the frosted case's background pass's — before
+   * blocking) — the screen's variants, the shadow pass's own materials (copies), the frosted case's background pass's — before
    * the first frame draws anything: drawn first, a frame compiled them itself, all at once (≈ 1.4 s on a cold cache, RTX 2060 / D3D11).
    */
   let warm = false;
   const shadowProbe = new THREE.WebGLRenderTarget(1, 1);
-  const casters = shadowStandIns(scene);
-  const blurs = vsmStandIns(scene);
+  // the lights on the frosted case's layer too: its depth pass (colour writes off, so nothing it draws is lit) then leaves the light
+  // state as the scene has it, and the background pass's shadow maps are drawn with the scene's lights, not with none
+  scene.traverse((o) => {
+    if ((o as THREE.Light).isLight) o.layers.enable(FROST_LAYER);
+  });
+  // the shadow pass's own materials first (its run also settles three's shadow type, which marks every material for an update)
+  const casters = shadowPassStandIns(renderer, scene, camera);
   const warming = Promise.all([
     compileQuiet(renderer, scene, camera),
-    compileQuiet(renderer, casters.group, camera, null, { target: shadowProbe }),
-    compileQuiet(renderer, blurs.group, camera, null, { target: shadowProbe }),
+    compileQuiet(renderer, casters.group, camera, scene, { target: shadowProbe }),
     frost ? frost.compile(renderer, scene, camera) : null,
   ])
     .catch(() => {})
@@ -3667,7 +3676,6 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
       // the stand-ins hold the depth programs until the shadow pass has drawn with three's own materials
       setTimeout(() => {
         casters.dispose();
-        blurs.dispose();
         shadowProbe.dispose();
       }, 5000);
     });

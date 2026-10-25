@@ -83,7 +83,7 @@ function seg(px: number, py: number, ax: number, ay: number, bx: number, by: num
 
 /** Pencil marks on the sheet, in its own frame (0..1 across, 0..1 down): a sketch of the folio and notes beside it. */
 function sketchSheet(w: number, h: number, seed: number): Float32Array {
-  const { c, g } = makeCanvas(w, h);
+  const { c, g } = makeCanvas(w, h, true);
   const r = rng(seed ^ 0x5e7c);
   const X = (u: number) => u * w, Y = (v: number) => v * h;
   g.lineCap = "round";
@@ -641,7 +641,7 @@ function renderPhoto(S: number, tint: string, seed: number): HTMLCanvasElement {
   // into the print (bilinear: soft, as instant film is), then grain at print resolution
   const small = makeCanvas(N, N);
   small.g.putImageData(img, 0, 0);
-  const out = makeCanvas(S, S);
+  const out = makeCanvas(S, S, true);
   out.g.imageSmoothingEnabled = true;
   out.g.imageSmoothingQuality = "high";
   out.g.drawImage(small.c, 0, 0, S, S);

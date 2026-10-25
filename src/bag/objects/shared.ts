@@ -150,11 +150,16 @@ export function printScaleOf(ctx: Pick<ObjectCtx, "printScale">): number {
   return Number.isFinite(k) ? Math.min(1.6, Math.max(1, k)) : 1;
 }
 
-export function makeCanvas(w: number, h: number): { c: HTMLCanvasElement; g: CanvasRenderingContext2D } {
+/**
+ * A 2D canvas. `read`: its pixels are read back (getImageData) — then it is kept in memory rather than on the GPU (willReadFrequently),
+ * so a read never waits on the GPU process (on a first visit it is busy compiling the scene's shaders: a 1 × 1 read took 120 ms).
+ * The others stay on the GPU, which uploads them to WebGL faster.
+ */
+export function makeCanvas(w: number, h: number, read = false): { c: HTMLCanvasElement; g: CanvasRenderingContext2D } {
   const c = document.createElement("canvas");
   c.width = Math.max(1, Math.round(w));
   c.height = Math.max(1, Math.round(h));
-  const g = c.getContext("2d", { willReadFrequently: false });
+  const g = c.getContext("2d", { willReadFrequently: read });
   if (!g) throw new Error("2D canvas unavailable");
   return { c, g };
 }
@@ -401,7 +406,7 @@ let probeG: CanvasRenderingContext2D | null = null;
 function opaqueRGB(css: string): [number, number, number] | null {
   let v = opaque.get(css);
   if (v !== undefined) return v;
-  probeG ??= makeCanvas(1, 1).g;
+  probeG ??= makeCanvas(1, 1, true).g;
   probeG.clearRect(0, 0, 1, 1);
   probeG.fillStyle = css;
   probeG.fillRect(0, 0, 1, 1);
@@ -815,7 +820,7 @@ export function paperNormal(ctx: Pick<ObjectCtx, "anisotropy">, tr: Tracker, rep
     const o3 = valueNoise(n, n, 4, 4, rand);
     for (let i = 0; i < hf.length; i++) hf[i] = o1[i]! * 0.55 + o2[i]! * 0.18 + o3[i]! * 0.04;
     // short fibres
-    const { c, g } = makeCanvas(n, n);
+    const { c, g } = makeCanvas(n, n, true);
     g.fillStyle = "#808080";
     g.fillRect(0, 0, n, n);
     g.lineCap = "round";
@@ -879,7 +884,7 @@ export function silhouetteShadow(outline: readonly V2[] | readonly (readonly V2[
   const texel = 0.0009;
   const tw = clamp(Math.ceil(w / texel), 32, 256);
   const th = clamp(Math.ceil(h / texel), 32, 256);
-  const { c, g } = makeCanvas(tw, th);
+  const { c, g } = makeCanvas(tw, th, true);
   g.fillStyle = "#000";
   const sx = tw / w;
   const sy = th / h;

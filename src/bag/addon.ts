@@ -29,7 +29,7 @@ import { bodySpec, buildObject, createPouch, POUCH_BOUNDS, type BuiltObject, typ
 import { ensureFonts } from "../fonts";
 import { printFontsPending } from "./objects/fonts";
 import { deferStocks, makeStocks, printWebOn, releaseStocks, remakeStocks, usePrintWeb, type StockJob, type StockRecipe } from "./objects/shared";
-import { compileQuiet, shadowStandIns } from "../book/compile";
+import { compileQuiet, shadowStandInsFor } from "../book/compile";
 import { prewarmStills, renderSnapshot, type SnapshotImage, type SnapshotOptions } from "./snapshot";
 import { createBagSim, frameFromMatrices, type BagSim, type Frame, type FrameOptions, type Placement } from "./sim";
 
@@ -390,8 +390,8 @@ export function createPouchAddon(opts: PouchAddonOptions): PouchAddon {
     const s = studio;
     if (!s?.camera || contextLost()) return Promise.resolve();
     const probe = new THREE.WebGLRenderTarget(1, 1);
-    const shadows = shadowStandIns(o);
-    return Promise.all([compileQuiet(s.renderer, o, s.camera, s.scene), compileQuiet(s.renderer, shadows.group, s.camera, null, { target: probe })]).then(
+    const shadows = shadowStandInsFor(s.renderer, s.scene, s.camera, o);
+    return Promise.all([compileQuiet(s.renderer, o, s.camera, s.scene), compileQuiet(s.renderer, shadows.group, s.camera, s.scene, { target: probe })]).then(
       () => keepFor(shadows, probe),
       () => keepFor(shadows, probe),
     );

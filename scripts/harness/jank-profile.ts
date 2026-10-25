@@ -10,7 +10,7 @@ const url = process.argv[2] ?? "http://127.0.0.1:4181/?lang=zh";
 const browser = await chromium.launch({
   channel: process.env.CHANNEL ?? "msedge",
   headless: false,
-  args: ["--ignore-gpu-blocklist", "--disable-renderer-backgrounding", "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--window-size=1440,900"],
+  args: ["--ignore-gpu-blocklist", "--disable-renderer-backgrounding", "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--window-size=1440,900", "--window-position=-3000,0"],
 });
 const page = await (await browser.newContext({ viewport: { width: 1440, height: 820 } })).newPage();
 const cdp = await page.context().newCDPSession(page);

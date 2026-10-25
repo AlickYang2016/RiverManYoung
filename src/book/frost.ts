@@ -475,6 +475,9 @@ varying vec3 vFrostTy;
       // twice: issued, then polled)
       const into = { target: levels[0] ?? scene };
       const out: Promise<unknown>[] = [compileQuiet(r, new THREE.Mesh(tri, firstMat), quadCam, null, into), compileQuiet(r, new THREE.Mesh(tri, blurMat), quadCam, null, into)];
+      // the case's depth pass (an override material, into the case target), with the scene's lights (scene.ts puts them on its layer),
+      // on a geometry with normals as the case's
+      if (sc) out.push(compileQuiet(r, new THREE.Mesh(new THREE.PlaneGeometry(), depthOnly), quadCam, sc, { target: caseTarget }));
       if (sc && camera) {
         // the background pass draws the scene into a render target: linear output, no tone mapping — other program variants than
         // the screen's, otherwise compiled in the first frame the cover moves
