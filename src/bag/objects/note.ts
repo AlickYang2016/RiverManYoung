@@ -9,7 +9,7 @@ import type { FontRun } from "../../fonts";
 import { createFlexUniforms } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import type { ObjectDef } from "./rig";
-import { colorTexture, dataTexture, disc, drawText, hashStr, makeCanvas, measure, paintStock, paintStockNow, PRINT, printScaleOf, rng, runsOf, setFont, Tracker, wrapText } from "./shared";
+import { colorTexture, dataTexture, disc, drawText, hashStr, makeCanvas, measure, paintStock, paintStockNow, PRINT, printScaleOf, rng, runsOf, setFont, Tracker, wrapText, paperFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx } from "./types";
 import type { NoteItem } from "../../profile/schema";
@@ -143,9 +143,9 @@ export function buildNote(item: NoteItem, ctx: ObjectCtx): ObjectDef {
   const outline0 = roundedRectOutline(NOTE_W, NOTE_H, 0.0003, 3);
   const mask = maskTexture(T, ctx, outline0, NOTE_W, NOTE_H, 3000);
   const paper = { roughness: 0.92, sheen: 0.35, sheenRoughness: 0.9, sheenColor: new THREE.Color("#f6faff") };
-  const front = T.material(new THREE.MeshPhysicalMaterial({ ...paper, map: colorTex, bumpMap: bumpTex, bumpScale: 0.5, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const back = T.material(new THREE.MeshPhysicalMaterial({ ...paper, map: plainTex, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const edge = T.material(new THREE.MeshPhysicalMaterial({ ...paper, color: SHEET_EDGE }));
+  const front = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, map: colorTex, bumpMap: bumpTex, bumpScale: 0.5, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const back = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, map: plainTex, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const edge = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, color: SHEET_EDGE })));
 
   const flexU = createFlexUniforms("y", NOTE_H / 2, 0.0014);
   const { mesh, outline } = slabMesh(T, { outline: outline0, w: NOTE_W, h: NOTE_H, thickness: T_NOTE, bevel: 0.00004, nx: 3, ny: 36, front, back, edge, flex: flexU, name: "note" });

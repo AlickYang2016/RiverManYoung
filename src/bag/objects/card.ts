@@ -11,7 +11,7 @@ import type { FontRun } from "../../fonts";
 import { createFlexUniforms, patchFlex } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import type { ObjectDef } from "./rig";
-import { caps, colorTexture, dataTexture, disc, drawText, hashStr, inkTooth, makeCanvas, measure, paintStock, paintStockNow, PRINT, runsOf, Tracker } from "./shared";
+import { caps, colorTexture, dataTexture, disc, drawText, hashStr, inkTooth, makeCanvas, measure, paintStock, paintStockNow, PRINT, runsOf, Tracker, paperFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx, Owner } from "./types";
 import type { BusinessCardItem } from "../../profile/schema";
@@ -198,11 +198,11 @@ export function buildCard(item: BusinessCardItem, ctx: ObjectCtx): ObjectDef {
   const coverMask = maskTexture(T, ctx, coverOutline, CARD_W, coverH, 7000);
   const panelMask = maskTexture(T, ctx, panelOutline, CARD_W, panelH, 7000);
   const cotton = { roughness: 0.93, sheen: 0.45, sheenRoughness: 0.85, sheenColor: new THREE.Color("#f6faff") };
-  const front = T.material(new THREE.MeshPhysicalMaterial({ ...cotton, map: colorTex, bumpMap: bumpTex, bumpScale: 1.5, roughness: 1, roughnessMap: roughTex, alphaMap: coverMask, alphaTest: 0.5, alphaToCoverage: true }));
-  const plainCover = T.material(new THREE.MeshPhysicalMaterial({ map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.8, alphaMap: coverMask, alphaTest: 0.5, alphaToCoverage: true, ...cotton }));
-  const plainPanel = T.material(new THREE.MeshPhysicalMaterial({ map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.8, alphaMap: panelMask, alphaTest: 0.5, alphaToCoverage: true, ...cotton }));
-  const outerBack = T.material(new THREE.MeshPhysicalMaterial({ ...cotton, map: backTex, bumpMap: backBumpTex, bumpScale: 1.2, roughness: 1, roughnessMap: backRoughTex, alphaMap: panelMask, alphaTest: 0.5, alphaToCoverage: true }));
-  const edge = T.material(new THREE.MeshPhysicalMaterial({ color: COTTON_EDGE, ...cotton }));
+  const front = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...cotton, map: colorTex, bumpMap: bumpTex, bumpScale: 1.5, roughness: 1, roughnessMap: roughTex, alphaMap: coverMask, alphaTest: 0.5, alphaToCoverage: true })));
+  const plainCover = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.8, alphaMap: coverMask, alphaTest: 0.5, alphaToCoverage: true, ...cotton })));
+  const plainPanel = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.8, alphaMap: panelMask, alphaTest: 0.5, alphaToCoverage: true, ...cotton })));
+  const outerBack = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...cotton, map: backTex, bumpMap: backBumpTex, bumpScale: 1.2, roughness: 1, roughnessMap: backRoughTex, alphaMap: panelMask, alphaTest: 0.5, alphaToCoverage: true })));
+  const edge = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ color: COTTON_EDGE, ...cotton })));
 
   const flexU = createFlexUniforms("x", CARD_W / 2, 0.0024);
   // inner panel: flat on the film, from the free edge to the crease
@@ -217,7 +217,7 @@ export function buildCard(item: BusinessCardItem, ctx: ObjectCtx): ObjectDef {
   const creaseGeo = T.add(new THREE.CylinderGeometry(CREASE_R, CREASE_R, CARD_W - 2 * CORNER * 0.3, 16, 30, true, 0, Math.PI));
   creaseGeo.rotateZ(Math.PI / 2); // axis along x; the round half faces +y (out of the card's top edge), z from -R to R
   creaseGeo.translate(0, CARD_H / 2 - CREASE_R, CREASE_R);
-  const creaseMat = T.material(new THREE.MeshPhysicalMaterial({ map: plainTex, ...cotton }));
+  const creaseMat = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ map: plainTex, ...cotton })));
   patchFlex(creaseMat, flexU);
   const crease = new THREE.Mesh(creaseGeo, creaseMat);
   crease.frustumCulled = false;

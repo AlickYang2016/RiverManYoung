@@ -16,7 +16,7 @@ import { createFlexUniforms } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import { paintDeskAtNight } from "./photo";
 import type { ObjectDef } from "./rig";
-import { colorTexture, dataTexture, decodedImage, drawText, hashStr, makeCanvas, measure, mixHex, paintStock, PRINT, printScaleOf, rng, runsOf, setFont, Tracker, wrapText, type TextOpts } from "./shared";
+import { colorTexture, dataTexture, decodedImage, drawText, hashStr, makeCanvas, measure, mixHex, paintStock, PRINT, printScaleOf, rng, runsOf, setFont, Tracker, wrapText, type TextOpts, photoFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx } from "./types";
 import type { PolaroidItem } from "../../profile/schema";
@@ -273,10 +273,10 @@ export function buildPolaroid(item: PolaroidItem, ctx: ObjectCtx): ObjectDef {
 
   const outline0 = roundedRectOutline(POLAROID_W, POLAROID_H, 0.0009, 5);
   const mask = maskTexture(T, ctx, outline0, POLAROID_W, POLAROID_H, 5200);
-  const front = T.material(new THREE.MeshPhysicalMaterial({ map: colorTex, roughness: 1, roughnessMap: glossTex, clearcoat: 1, clearcoatMap: glossTex, clearcoatRoughness: 0.12, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
+  const front = T.material(photoFamily(new THREE.MeshPhysicalMaterial({ map: colorTex, roughness: 1, roughnessMap: glossTex, clearcoat: 1, clearcoatMap: glossTex, clearcoatRoughness: 0.12, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
   // the back: the film's matte dark base
-  const back = T.material(new THREE.MeshPhysicalMaterial({ map: backTex, roughness: 0.86, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const edge = T.material(new THREE.MeshPhysicalMaterial({ color: FRAME_EDGE, roughness: 0.7 }));
+  const back = T.material(photoFamily(new THREE.MeshPhysicalMaterial({ map: backTex, roughness: 0.86, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const edge = T.material(photoFamily(new THREE.MeshPhysicalMaterial({ color: FRAME_EDGE, roughness: 0.7 })));
 
   const flexU = createFlexUniforms("y", POLAROID_H / 2, 0.0011);
   const { mesh, outline } = slabMesh(T, { outline: outline0, w: POLAROID_W, h: POLAROID_H, thickness: T_POLAROID, bevel: 0.00025, nx: 3, ny: 26, front, back, edge, flex: flexU, name: "polaroid" });

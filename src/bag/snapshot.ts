@@ -12,11 +12,12 @@
  * `shadow: true` bakes the page's lift shadow into the still (SHADOW): cast from the object's own alpha, with its holes (the ticket's
  * punch, perforation and tear) cut out of both shadow layers, so the desk shows through them; on a transparent margin, `pad` says how
  * wide it is, so the page can keep the object itself at the size and place it had.
- * Never a long task: shaders compile in parallel (compileAsync), the readback is asynchronous, the PNG is encoded by toBlob, and the
+ * Never a long task: shaders compile in parallel (compileQuiet, book/compile.ts), the readback is asynchronous, the PNG is encoded by toBlob, and the
  * steps in between yield to the page's frames.
  */
 import * as THREE from "three";
 import type { BuiltObject } from "./objects";
+import { compileQuiet } from "../book/compile";
 
 /**
  * The still is lifted out of the pouch into the morning light (the detail view's veil is #e9eef1): a little more light on it than
@@ -251,14 +252,9 @@ const outTarget = (w: number, h: number) =>
  * compileAsync for a render into `target`: three picks a program's tone mapping and output encoding by the render target current when
  * it compiles, so programs compiled for the canvas would be compiled again, at once and blocking, in the still's first render.
  */
+/** Compiled for drawing into `target` (linear output), through the book's compile queue (book/compile.ts: polled without blocking) */
 function compileInto(renderer: THREE.WebGLRenderer, scene: THREE.Object3D, camera: THREE.Camera, target: THREE.WebGLRenderTarget): Promise<unknown> {
-  const prev = renderer.getRenderTarget();
-  renderer.setRenderTarget(target);
-  try {
-    return renderer.compileAsync(scene, camera);
-  } finally {
-    renderer.setRenderTarget(prev);
-  }
+  return compileQuiet(renderer, scene, camera, null, { target });
 }
 
 /**

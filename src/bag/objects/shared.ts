@@ -932,3 +932,53 @@ export function silhouetteShadow(outline: readonly V2[] | readonly (readonly V2[
   tex.needsUpdate = true;
   return { tex, w, h, cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
 }
+
+/*
+ * sasshi (2026-10-25, the arrival's stalls): one program for a family of materials. three compiles a program per combination of
+ * maps (and per pass: the screen, the frosted case's background, the stills), and on a cold cache each costs the GPU a good part of
+ * a second. A material without one of its family's maps gets a neutral one instead, so the whole family compiles once and every
+ * pixel comes out as it did: a white colour, roughness and alpha map (× 1), a bump map at scale 0 (no slope), a black clearcoat map
+ * (clearcoat × 0: the coat adds nothing and takes nothing), alpha-tested at 0.5 with alpha to coverage (alpha 1: nothing is cut).
+ */
+const neutral = new Map<string, THREE.DataTexture>();
+function neutralTex(v: number, srgb: boolean): THREE.DataTexture {
+  const key = `${v}|${srgb}`;
+  let t = neutral.get(key);
+  if (!t) {
+    t = new THREE.DataTexture(new Uint8Array([v, v, v, 255]), 1, 1, THREE.RGBAFormat);
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    t.needsUpdate = true;
+    neutral.set(key, t);
+  }
+  return t;
+}
+/** The paper family (card, note, résumé, ticket): colour, bump, roughness and alpha maps, sheen from the material itself */
+export function paperFamily<M extends THREE.MeshPhysicalMaterial>(m: M): M {
+  m.map ??= neutralTex(255, true);
+  if (!m.bumpMap) {
+    m.bumpMap = neutralTex(255, false);
+    m.bumpScale = 0;
+  }
+  m.roughnessMap ??= neutralTex(255, false);
+  if (!m.alphaMap) {
+    m.alphaMap = neutralTex(255, false);
+    m.alphaTest = 0.5;
+    m.alphaToCoverage = true;
+  }
+  return m;
+}
+/** The photo family (polaroid): colour, roughness, clearcoat and alpha maps */
+export function photoFamily<M extends THREE.MeshPhysicalMaterial>(m: M): M {
+  m.map ??= neutralTex(255, true);
+  m.roughnessMap ??= neutralTex(255, false);
+  if (!m.clearcoatMap) {
+    m.clearcoat = 1;
+    m.clearcoatMap = neutralTex(0, false);
+  }
+  if (!m.alphaMap) {
+    m.alphaMap = neutralTex(255, false);
+    m.alphaTest = 0.5;
+    m.alphaToCoverage = true;
+  }
+  return m;
+}

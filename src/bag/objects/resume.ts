@@ -11,7 +11,7 @@ import { canvasMeasure, layoutResume, layoutRuns, PAGE, paintOps, resumeLang, ty
 import { createFlexUniforms } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import type { ObjectDef } from "./rig";
-import { colorTexture, dataTexture, hashStr, inkTooth, makeCanvas, paintStock, paintStockNow, printWebOn, Tracker, type V2 } from "./shared";
+import { colorTexture, dataTexture, hashStr, inkTooth, makeCanvas, paintStock, paintStockNow, printWebOn, Tracker, type V2, paperFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx } from "./types";
 import type { ResumeItem } from "../../profile/schema";
@@ -190,10 +190,10 @@ export function buildResume(item: ResumeItem, ctx: ObjectCtx): ObjectDef {
   const paper = { roughness: 0.9, sheen: 0.3, sheenRoughness: 0.9, sheenColor: new THREE.Color("#f6faff") };
   const outline1 = roundedRectOutline(RESUME_W, RESUME_H, 0.0004, 3);
   const mask = maskTexture(T, ctx, outline1, RESUME_W, RESUME_H, 3000);
-  const front = T.material(new THREE.MeshPhysicalMaterial({ ...paper, map: topTex, bumpMap: topBumpTex, bumpScale: 0.7, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const underFront = T.material(new THREE.MeshPhysicalMaterial({ ...paper, map: underTex, bumpMap: plainBumpTex, bumpScale: 0.6, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const back = T.material(new THREE.MeshPhysicalMaterial({ ...paper, map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.6, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const edge = T.material(new THREE.MeshPhysicalMaterial({ ...paper, color: EDGE }));
+  const front = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, map: topTex, bumpMap: topBumpTex, bumpScale: 0.7, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const underFront = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, map: underTex, bumpMap: plainBumpTex, bumpScale: 0.6, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const back = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, map: plainTex, bumpMap: plainBumpTex, bumpScale: 0.6, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const edge = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...paper, color: EDGE })));
 
   const flexU = createFlexUniforms("y", RESUME_H / 2, 0.0016);
   // the second sheet, flat on the film: a hair right and lower, turned a little

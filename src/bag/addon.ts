@@ -29,6 +29,7 @@ import { bodySpec, buildObject, createPouch, POUCH_BOUNDS, type BuiltObject, typ
 import { ensureFonts } from "../fonts";
 import { printFontsPending } from "./objects/fonts";
 import { deferStocks, makeStocks, printWebOn, releaseStocks, remakeStocks, usePrintWeb, type StockJob, type StockRecipe } from "./objects/shared";
+import { compileQuiet, shadowStandIns } from "../book/compile";
 import { prewarmStills, renderSnapshot, type SnapshotImage, type SnapshotOptions } from "./snapshot";
 import { createBagSim, frameFromMatrices, type BagSim, type Frame, type FrameOptions, type Placement } from "./sim";
 
@@ -381,14 +382,26 @@ export function createPouchAddon(opts: PouchAddonOptions): PouchAddon {
       if (t.version > 0 && t.image) r.initTexture(t);
     }
   }
-  /** Its programs, compiled in parallel for the host's scene and camera (KHR_parallel_shader_compile): its first frame does not wait on them. */
+  /**
+   * Its programs, compiled in parallel for the host's scene and camera, and its shadow pass's depth programs (stand-ins), through the
+   * book's compile queue (book/compile.ts: polled without blocking): its first frame does not wait on them.
+   */
   function compiled(o: THREE.Object3D): Promise<void> {
     const s = studio;
     if (!s?.camera || contextLost()) return Promise.resolve();
-    return s.renderer.compileAsync(o, s.camera, s.scene).then(
-      () => {},
-      () => {},
+    const probe = new THREE.WebGLRenderTarget(1, 1);
+    const shadows = shadowStandIns(o);
+    return Promise.all([compileQuiet(s.renderer, o, s.camera, s.scene), compileQuiet(s.renderer, shadows.group, s.camera, null, { target: probe })]).then(
+      () => keepFor(shadows, probe),
+      () => keepFor(shadows, probe),
     );
+  }
+  /** The stand-ins hold the depth programs until the shadow pass has drawn the object with three's own depth materials */
+  function keepFor(shadows: { dispose(): void }, probe: THREE.WebGLRenderTarget) {
+    setTimeout(() => {
+      shadows.dispose();
+      probe.dispose();
+    }, 5000);
   }
   /** A built object into the pouch where the sim has it (its programs compiled, its textures on the GPU). */
   function place(i: number, o: BuiltObject) {

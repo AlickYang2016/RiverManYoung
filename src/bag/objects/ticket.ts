@@ -11,7 +11,7 @@ import type { FontRun } from "../../fonts";
 import { createFlexUniforms } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import type { ObjectDef } from "./rig";
-import { caps, colorTexture, dataTexture, disc, drawText, hashStr, inkTooth, luminance, makeCanvas, measure, mixHex, paintStock, PRINT, printScaleOf, rng, runsOf, Tracker, wrapText, type V2 } from "./shared";
+import { caps, colorTexture, dataTexture, disc, drawText, hashStr, inkTooth, luminance, makeCanvas, measure, mixHex, paintStock, PRINT, printScaleOf, rng, runsOf, Tracker, wrapText, type V2, paperFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx } from "./types";
 import type { TicketItem } from "../../profile/schema";
@@ -381,9 +381,9 @@ export function buildTicket(item: TicketItem, ctx: ObjectCtx): ObjectDef {
     gg.fill();
   });
   const board = { roughness: 0.86, sheen: 0.3, sheenRoughness: 0.85, sheenColor: new THREE.Color("#f6faff") };
-  const front = T.material(new THREE.MeshPhysicalMaterial({ ...board, map: colorTex, bumpMap: bumpTex, bumpScale: 0.9, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const backMat = T.material(new THREE.MeshPhysicalMaterial({ ...board, map: backTex, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true }));
-  const edge = T.material(new THREE.MeshPhysicalMaterial({ ...board, color: BOARD_EDGE }));
+  const front = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...board, map: colorTex, bumpMap: bumpTex, bumpScale: 0.9, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const backMat = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...board, map: backTex, alphaMap: mask, alphaTest: 0.5, alphaToCoverage: true })));
+  const edge = T.material(paperFamily(new THREE.MeshPhysicalMaterial({ ...board, color: BOARD_EDGE })));
 
   const flexU = createFlexUniforms("x", TICKET_W / 2, 0.0022);
   const { mesh, outline } = slabMesh(T, { outline: outline0, w: TICKET_W, h: TICKET_H, thickness: T_TICKET, bevel: 0.00011, nx: 40, ny: 3, front, back: backMat, edge, flex: flexU, name: "ticket" });
