@@ -204,8 +204,9 @@ function signature(card: PostcardItem): string {
 }
 /** YY.MM.DD */
 function postmarkDate(date: string | undefined): string | undefined {
-  const m = date && /^(\d{2})(\d{2})-(\d{1,2})-(\d{1,2})/.exec(date);
-  return m ? `${m[2]}.${m[3]!.padStart(2, "0")}.${m[4]!.padStart(2, "0")}` : undefined;
+  // a day's date, or a month's (2024-08: 24.08)
+  const m = date && /^(\d{2})(\d{2})-(\d{1,2})(?:-(\d{1,2}))?/.exec(date);
+  return m ? `${m[2]}.${m[3]!.padStart(2, "0")}${m[4] ? `.${m[4].padStart(2, "0")}` : ""}` : undefined;
 }
 
 function font(ctx: CanvasRenderingContext2D, role: Role, weight: number, size: number, text: string, han?: HanLang) {

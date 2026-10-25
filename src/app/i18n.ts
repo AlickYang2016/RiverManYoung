@@ -89,15 +89,19 @@ export type Dict = {
 
 const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "2024-09-14" → "14 Sep 2024" (anything else is returned as given). */
+/** "2024-09-14" → "14 Sep 2024", "2024-08" → "Aug 2024" (anything else is returned as given). */
 function dateEn(d: string): string {
+  const ym = /^(\d{4})-(\d{2})$/.exec(d.trim());
+  if (ym) return MONTHS_EN[Number(ym[2]) - 1] ? `${MONTHS_EN[Number(ym[2]) - 1]} ${ym[1]}` : d;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.trim());
   if (!m) return d;
   const mon = MONTHS_EN[Number(m[2]) - 1];
   return mon ? `${Number(m[3])} ${mon} ${m[1]}` : d;
 }
-/** "2024-09-14" → "2024 年 9 月 14 日" */
+/** "2024-09-14" → "2024 年 9 月 14 日", "2024-08" → "2024 年 8 月" */
 function dateZh(d: string): string {
+  const ym = /^(\d{4})-(\d{2})$/.exec(d.trim());
+  if (ym) return `${ym[1]} 年 ${Number(ym[2])} 月`;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.trim());
   return m ? `${m[1]} 年 ${Number(m[2])} 月 ${Number(m[3])} 日` : d;
 }
@@ -211,6 +215,8 @@ export const en: Dict = {
 const MONTHS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 /** "2024-09-14" → "14 sept. 2024" */
 function dateFr(d: string): string {
+  const ym = /^(\d{4})-(\d{2})$/.exec(d.trim());
+  if (ym) return MONTHS_FR[Number(ym[2]) - 1] ? `${MONTHS_FR[Number(ym[2]) - 1]} ${ym[1]}` : d;
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.trim());
   if (!m) return d;
   const mon = MONTHS_FR[Number(m[2]) - 1];
@@ -231,9 +237,9 @@ export const fr: Dict = {
   nav: { booklets: "Livrets", skip: "Aller au livret" },
   langs: { label: "Langue" },
   handling: {
-    resume: "Inclinez le bureau : ce qu’il y a dedans glisse. Sortez un objet pour le lire.",
-    cards: "Tournez une page par son bord, ou avec les flèches. Sortez une carte pour la regarder de près.",
-    postcards: (n) => `${cap(frWord(n))} cartes postales. Tournez la page pour lire les dos.`,
+    resume: "Inclinez le bureau : tout ce qui est dans la pochette glisse. Sortez un objet pour le lire de près.",
+    cards: "Tournez une page par son bord, ou avec les flèches du clavier. Sortez une carte pour la voir de plus près.",
+    postcards: (n) => `${cap(frWord(n))} cartes postales. Tournez la page pour lire leur verso.`,
     closed: "Cliquez sur la couverture pour l’ouvrir.",
     printed: "Ce bureau a besoin de WebGL : voici la version imprimée.",
   },

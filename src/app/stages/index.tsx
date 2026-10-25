@@ -8,7 +8,9 @@ import type { StageMap, StageProps } from "../types";
  * fades in last (opacity and a 6 px blur, app.css).
  */
 
+const loaders: (() => Promise<unknown>)[] = [];
 function stage(load: () => Promise<{ default: ComponentType<StageProps> }>): ComponentType<StageProps> {
+  loaders.push(load);
   const Lazy = lazy(load);
   function Stage(props: StageProps) {
     const host = useRef<HTMLDivElement>(null);
@@ -33,6 +35,24 @@ function stage(load: () => Promise<{ default: ComponentType<StageProps> }>): Com
     );
   }
   return Stage;
+}
+
+/**
+ * sasshi (2026-10-25): the other booklets ahead, while one is open and settled (owner: "while they read the CV, have the cards and
+ * postcards ready"): every stage's module (a module loads once, so the open one costs nothing), and the albums' photos, fetched at
+ * idle priority so they never compete with the page. Their scenes are still built when shown; with the code and pictures here, and
+ * the programs they share with the first booklet in the browser's shader cache, that is the short part.
+ */
+export function prefetchStages(photos: readonly string[]): void {
+  for (const load of loaders) void load().catch(() => {});
+  for (const src of new Set(photos)) {
+    if (document.head.querySelector(`link[rel="prefetch"][href="${src}"]`)) continue;
+    const l = document.createElement("link");
+    l.rel = "prefetch";
+    l.as = "image";
+    l.href = src;
+    document.head.append(l);
+  }
 }
 
 export const STAGES: StageMap = {

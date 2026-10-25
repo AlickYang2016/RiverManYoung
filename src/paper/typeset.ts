@@ -2,10 +2,11 @@
  * Résumé typesetting: ResumeItem → A4 pages of draw operations in millimetres, then painted onto canvases.
  *
  * The page (sizes in cqw: 1 % of the page width; A4 is 210 mm wide, so 1 cqw = 2.1 mm): a running head in small tracked Zen Kaku
- * (the section labels are its only capitals: names and addresses never are) over a 0.25 cqw ink rule, the name in Shippori Mincho indented to the content column, sections on a 24 cqw label column
- * with hairlines between them, job lines "Role, Org" in Mincho with the Org at 600 and the years in Zen Kaku on the right, en-rule
- * bullets in Zen Kaku, inline skill lists, indexed link rows, a foot, and the owner's 藍 seal (落款) on the last page when there is
- * room for it. Cool inks on cool white stock; no italics anywhere.
+ * over a 0.25 cqw ink rule; the name in Shippori Mincho indented to the content column, the role, the addresses and a short 藍 rule
+ * under it; sections on a 20 cqw label column (labels in 藍, small tracked capitals) with hairlines between them; entries with the
+ * organisation in Mincho 600 and the years in Zen Kaku on the right, the role under it (owner 2026-10-25); en-rule bullets in Zen
+ * Kaku, inline skill lists, a foot, and the owner's 藍 seal (落款) on the last page when there is room for it. Cool inks on cool
+ * white stock; no italics anywhere.
  *
  * Chinese (and Japanese) text is set per character with kinsoku (src/print/kinsoku.ts): no line starts with ，。、；：？！」』）%
  * and none ends with 「『（; Latin words stay whole. A profile in Chinese (Owner.lang zh…, or a Chinese summary) gets Chinese
@@ -172,7 +173,8 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
   const right = PAGE.w - x0;
   const padTop = two ? c(9) : Math.max(13, c(9) - (s - 1) * 10);
   const padBottom = two ? c(7) : Math.max(11, c(7) - (s - 1) * 6);
-  const labelW = two ? c(24) : 0;
+  // sasshi (2026-10-25, owner: "the CV is ugly"): a narrower label column, so the text has the page
+  const labelW = two ? c(20) : 0;
   const xc = x0 + labelW;
   const colW = right - xc;
 
@@ -192,18 +194,18 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
     name: st("serif", t(7.4), INK.ink, { weight: 500, track: hasCjk(name) ? 0.06 : -0.01 }),
     local: st("serif", t(7.4) * 0.5, INK.mute, { weight: 500, track: 0.08 }),
     role: st("serif", t(3), INK.role),
-    label: st("sans", label, INK.mute, { weight: 500, track: zh ? 0 : 0.04 }),
-    summary: st("serif", t(2.9), INK.ink),
-    job: st("serif", t(2.75), INK.ink),
-    org: st("serif", t(2.75), INK.ink, { weight: 600 }),
-    years: st("sans", t(1.75), INK.mute),
-    body: st("sans", t(2.05), INK.body, { track: zh ? 0.02 : 0.005 }),
-    tag: st("sans", t(2.05), INK.ink, { track: zh ? 0.02 : 0.005 }),
-    index: st("sans", t(1.75), INK.faint),
-    key: st("sans", label, INK.mute, { weight: 500, track: zh ? 0 : 0.04 }),
+    // section labels in the one accent, small tracked capitals (Chinese labels as they are)
+    label: st("sans", label, INK.accent, { weight: 500, track: zh ? 0.04 : 0.14, caps: !zh }),
+    contact: st("sans", t(1.95), INK.mute, { track: zh ? 0.02 : 0.01 }),
+    summary: st("serif", t(2.25), INK.ink),
+    job: st("serif", t(2.2), INK.role),
+    org: st("serif", t(2.5), INK.ink, { weight: 600 }),
+    years: st("sans", t(1.75), INK.mute, { track: 0.02 }),
+    body: st("sans", t(1.95), INK.body, { track: zh ? 0.02 : 0.005 }),
+    tag: st("sans", t(1.95), INK.ink, { track: zh ? 0.02 : 0.005 }),
     foot: st("sans", micro, INK.mute, { weight: 500, track: 0.06 }),
   };
-  const LH = { head: 1.4, name: 1, role: 1.3, label: 1.4, summary: 1.42, job: 1.3, body: 1.5, link: 1.6, foot: 1 };
+  const LH = { head: 1.4, name: 1, role: 1.3, label: 1.4, summary: 1.42, job: 1.3, body: 1.5, foot: 1 };
   const ruleH = c(0.12);
   const secTop = t(3);
   const secBottom = t(3.4);
@@ -245,7 +247,20 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
         y += T.role.size * LH.role;
       }
     }
-    y += t(5);
+    // the addresses, set where a reader looks for them: under the name, not in the running head
+    const contacts = (owner?.links ?? []).map((l) => linkText(l.href).replace(/^www\./, "").replace(/^linkedin\.com\/in\//, "in/"));
+    if (contacts.length) {
+      y += t(1.4);
+      const sep = "   ·   ";
+      const lines = wrap(contacts.join(sep), T.contact, maxW, measure);
+      for (const l of lines) {
+        ops.push({ kind: "text", x: nx, y: y + baseline(T.contact, LH.body), text: l, style: T.contact });
+        y += T.contact.size * LH.body;
+      }
+    }
+    y += t(3.2);
+    ops.push({ kind: "rule", x: nx, y, w: t(9), h: c(0.35), color: INK.accent });
+    y += t(4);
     runs.push({ h: y, ops, before: 0, keep: true });
   }
 
@@ -284,27 +299,26 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
   };
 
   /**
-   * A job line: "Role, **Org**" in the serif (wrapping), the years on the right of its first line. The organisation is never broken
-   * (no "Paperplane / Labs"): when it does not fit after the role it moves to the next line whole.
+   * An entry (owner 2026-10-25): the organisation in the serif at 600, the years on the right of its line, the role under it in the
+   * serif — so a page of jobs reads down its organisations. The organisation is never broken; a long one wraps whole.
    */
-  const jobLine = (role: string, org: string, years: string, before: number, keep: boolean): Run => {
+  const entry = (org: string, role: string, years: string, before: number, keep: boolean): Run => {
     const yw = measure(years, T.years);
-    const lines = wrapSpans(
-      [
-        { text: role ? `${role}${W.comma}` : "", style: T.job },
-        { text: org, style: T.org, keep: true },
-      ],
-      colW - yw - t(2),
-      measure,
-    );
-    const lh = T.job.size * LH.job;
+    const gap = t(2);
+    // the years beside the organisation; beside the role when the organisation needs the whole line
+    const yearsOnOrg = !role || measure(org, T.org) <= colW - yw - gap;
+    const orgLines = wrapSpans([{ text: org, style: T.org, keep: true }], yearsOnOrg ? colW - yw - gap : colW, measure);
+    const roleLines = role ? wrapPretty(role, T.job, yearsOnOrg ? colW : colW - yw - gap, measure) : [];
+    const lo = T.org.size * LH.job;
+    const lr = T.job.size * LH.job;
     const ops: Op[] = [];
-    const yb = baseline(T.job, LH.job);
-    lines.forEach((l, i) => {
-      for (const p of l) ops.push({ kind: "text", x: xc + p.dx, y: i * lh + yb, text: p.text, style: p.style });
+    orgLines.forEach((l, i) => {
+      for (const p of l) ops.push({ kind: "text", x: xc + p.dx, y: i * lo + baseline(T.org, LH.job), text: p.text, style: p.style });
     });
-    ops.push({ kind: "text", x: right, y: yb, text: years, style: T.years, align: "right" });
-    return { h: lines.length * lh, ops, before, keep };
+    const y0 = orgLines.length * lo + t(0.3);
+    roleLines.forEach((l, i) => ops.push({ kind: "text", x: xc, y: y0 + i * lr + baseline(T.job, LH.job), text: l, style: T.job }));
+    ops.push({ kind: "text", x: right, y: yearsOnOrg ? baseline(T.org, LH.job) : y0 + baseline(T.job, LH.job), text: years, style: T.years, align: "right" });
+    return { h: y0 + roleLines.length * lr, ops, before, keep };
   };
 
   /* ── profile ── */
@@ -314,7 +328,7 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
   {
     const blocks: Run[] = [];
     item.experience.forEach((e, i) => {
-      blocks.push(jobLine(e.role, e.org, `${e.from} – ${e.to}`, i === 0 ? 0 : t(3.4), e.bullets.length > 0));
+      blocks.push(entry(e.org, e.role, `${e.from} – ${e.to}`, i === 0 ? 0 : t(4), e.bullets.length > 0));
       e.bullets.forEach((b, j) => {
         const indent = t(2.6);
         const lines = paragraph(wrapPretty(b, T.body, colW - indent, measure), T.body, xc + indent, LH.body, j === 0 ? t(1) : 0, true);
@@ -329,7 +343,7 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
   /* ── education ── */
   section(
     W.education,
-    item.education.map((e, i) => jobLine(e.degree, e.school, `${e.from} – ${e.to}`, i === 0 ? 0 : t(2.4), false)),
+    item.education.map((e, i) => entry(e.school, e.degree, `${e.from} – ${e.to}`, i === 0 ? 0 : t(2.8), false)),
   );
 
   /** An inline list (skills, languages): items with 3.2 cqw between them, 1.2 cqw between rows */
@@ -350,23 +364,6 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
   };
   if (item.skills.length) section(W.skills, tags(item.skills));
   if (item.languages?.length) section(W.languages, tags(item.languages));
-
-  /* ── elsewhere: indexed link rows (index · label · address), hairlines between ── */
-  if (owner?.links?.length) {
-    const lineH = Math.max(T.body.size * LH.body, T.key.size * LH.link);
-    const pad = t(1.4);
-    const yb = pad + baseline(T.body, lineH / T.body.size);
-    const blocks: Run[] = owner.links.map((l, i) => {
-      const ops: Op[] = [];
-      if (i === 0) ops.push({ kind: "rule", x: xc, y: 0, w: colW, h: ruleH, color: INK.rule });
-      ops.push({ kind: "text", x: xc, y: yb, text: String(i + 1).padStart(2, "0"), style: T.index });
-      ops.push({ kind: "text", x: xc + t(6), y: yb, text: l.label, style: T.key });
-      ops.push({ kind: "text", x: xc + t(22), y: yb, text: linkText(l.href), style: { ...T.body, color: INK.ink } });
-      ops.push({ kind: "rule", x: xc, y: lineH + 2 * pad - ruleH, w: colW, h: ruleH, color: INK.rule });
-      return { h: lineH + 2 * pad, ops, before: 0, keep: false };
-    });
-    section(W.elsewhere, blocks);
-  }
 
   /* ── paginate: greedy fill, keeping chains together ── */
   const capacity = limit - contentTop;
@@ -454,15 +451,12 @@ export function layoutResume(item: ResumeItem, owner: Owner | undefined, scale: 
 
   /* ── running head, foot, seal ── */
   const n = pages.length;
-  const email = owner?.links?.find((l) => l.href.startsWith("mailto:"));
-  const web = owner?.links?.filter((l) => /^https?:/.test(l.href));
-  const site = web?.find((l) => /site|web|home|portfolio|read\.cv/i.test(l.label)) ?? web?.[web.length - 1];
   const fill: number[] = plan.map((p) => Math.min(1, p.used / capacity));
   pages.forEach((ops, p) => {
-    // page 1: name · site · email; later pages: name · place · handle
-    const mid = p === 0 ? (site ? linkText(site.href) : owner?.location) : owner?.location;
-    const end = p === 0 ? (email ? linkText(email.href) : owner?.handle) : owner?.handle;
-    const head: Op[] = [{ kind: "text", x: x0, y: headBase, text: name, style: T.headName }];
+    // page 1: the document's title and the place (the name and addresses are under it, large); later pages: name · place · handle
+    const mid = p === 0 ? undefined : owner?.location;
+    const end = p === 0 ? owner?.location : owner?.handle;
+    const head: Op[] = [{ kind: "text", x: x0, y: headBase, text: p === 0 ? item.label : name, style: p === 0 ? { ...T.headName, color: INK.accent } : T.headName }];
     const endW = end ? measure(end, T.head) : 0;
     if (end) head.push({ kind: "text", x: right, y: headBase, text: end, style: T.head, align: "right" });
     const midX = two ? xc : x0 + measure(name, T.headName) + t(4);

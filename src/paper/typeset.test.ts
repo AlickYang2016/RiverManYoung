@@ -149,7 +149,8 @@ describe("layoutResume", () => {
       L.pages.forEach((p, i) => {
         const t = texts(p);
         expect(t.some((o) => o.text === `${i + 1} / ${n}` && o.y > PAGE.h - 24)).toBe(true);
-        expect(t.some((o) => o.text === sample.name && o.y < 30)).toBe(true);
+        // page 1 heads with the document's title (the name is set large under it); later pages with the name
+        expect(t.some((o) => o.text === (i === 0 ? resume.label : sample.name) && o.y < 30)).toBe(true);
       });
     }
   });

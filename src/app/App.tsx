@@ -14,7 +14,7 @@ import { JsonView, Letter, ProfileView } from "./ProfileView";
 import { Shell } from "./Shell";
 import { play, soundKit, useMuted } from "./sound";
 import { StagePlaceholder } from "./StagePlaceholder";
-import { STAGES } from "./stages";
+import { prefetchStages, STAGES } from "./stages";
 import { DEFAULT_TAB, TAB_IDS, type Detail, type Langs, type StageApi, type StageMap, type StageProps, type Tab, type View } from "./types";
 import { findItem, prefersReducedMotion, storeLang, typingTarget, writeUrlLang } from "./util";
 
@@ -392,6 +392,22 @@ export function App({ profile: firstProfile = sample, folio, lang: firstLang, st
   const stageProps: StageProps = { profile: stageProfile, material, insets, ...(narrow !== undefined ? { narrow } : {}), slip, labels, onPickItem, onPickCard, active: true, ambient, onUnsupported, onStage };
 
   const ready = !!stage?.ready || fallback;
+  // the other booklets' code and pictures, a few quiet seconds after this one is up (stages/index.tsx prefetchStages)
+  useEffect(() => {
+    if (!stage?.ready || fallback || view !== "folio") return;
+    const albums = stageProfile.albums;
+    const photos = [...albums.cards, ...albums.postcards].flatMap((a) => (a.src ? [a.src] : []));
+    // after the cover's opening and the pouch's first paints, in an idle moment
+    let idle = 0;
+    const t = window.setTimeout(() => {
+      idle = typeof requestIdleCallback === "function" ? requestIdleCallback(() => prefetchStages(photos), { timeout: 8000 }) : window.setTimeout(() => prefetchStages(photos), 0);
+    }, 4000);
+    return () => {
+      clearTimeout(t);
+      if (typeof cancelIdleCallback === "function") cancelIdleCallback(idle);
+      else clearTimeout(idle);
+    };
+  }, [stage?.ready, fallback, view, stageProfile]);
   const dawn = useDaybreak(!!stage?.ready, fallback || view !== "folio");
   const flat = !!stage?.flat;
   const handling = fallback

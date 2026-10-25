@@ -1,15 +1,15 @@
 import type { Folio } from "../src/profile/folio";
-import { profile } from "./en";
+import { profileFr } from "./fr";
 
 /*
- * Three languages, like the main site: English ships in the entry chunk; French and Chinese are fetched the first time a visitor picks
- * them or arrives with ?lang=fr / ?lang=zh.
+ * Three languages, like the main site. French is the default (owner 2026-10-25: the folio is for recruiters in Paris) and ships in
+ * the entry chunk; English and Chinese are fetched the first time a visitor picks them or arrives with ?lang=en / ?lang=zh.
  */
 export const folio: Folio = {
-  primary: "en",
+  primary: "fr",
   profiles: {
-    en: profile,
-    fr: () => import("./fr").then((m) => m.profileFr),
+    fr: profileFr,
+    en: () => import("./en").then((m) => m.profile),
     zh: () => import("./zh").then((m) => m.profileZh),
   },
 };
