@@ -136,7 +136,7 @@ function PouchItem({ item, i, profile, onOpenItem }: { item: PocketItem; i: numb
           {item.label}
           {/* the kind's local name, unless the title already says it (名片 · 名片) */}
           {item.label.includes(local) ? null : (
-            <span className="lt-kind" {...textProps(local, t.lang === "zh" ? "zh-CN" : "ja", han)}>
+            <span className="lt-kind" {...textProps(local, "zh-CN", han)}>
               {local}
             </span>
           )}
@@ -191,7 +191,7 @@ export function Letter({ profile, focus, compact, onOpenItem, onOpenCard }: Lett
     ...run("sans", 400, han, profile.bio, ...profile.items.map((i) => i.anecdote), ...cards.map((c) => c.label + (c.nameLocal ?? "")), ...postcards.map((p) => p.place), ...resumes.flatMap((r) => [r.summary, ...r.experience.flatMap((e) => e.bullets)])),
     ...run("hand", 600, han, ...postcards.map((p) => p.message), ...profile.items.map((i) => (i.kind === "note" ? i.text : ""))),
     // the kinds' local names (名刺 …) and the 和色 names: the faces they are set in, at 400
-    ...run("serif", 400, t.lang === "zh" ? "zh-Hans" : "ja", ...profile.items.map((i) => t.held[i.kind].local)),
+    ...run("serif", 400, "zh-Hans", ...profile.items.map((i) => t.held[i.kind].local)),
     ...run("serif", 400, t.lang === "zh" ? han : "ja", ...cards.map((c) => c.nameLocal)),
     // the organisations are set bold (600)
     ...run("serif", 600, han, ...resumes.flatMap((r) => [...r.experience.map((e) => e.org), ...r.education.map((e) => e.school)])),

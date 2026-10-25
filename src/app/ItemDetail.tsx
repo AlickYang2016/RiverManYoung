@@ -376,7 +376,7 @@ export function ItemDetail({ profile, index, onIndex, onClose, fallbackFocus, sn
           ...run("serif", 400, han, item.anecdote),
           ...run("sans", 400, han, item.story, ...specRows(item, t).map((r) => r.v)),
           ...run("sans", 500, han, ...specRows(item, t).map((r) => r.k)),
-          ...run("serif", 400, t.lang === "zh" ? "zh-Hans" : "ja", local),
+          ...run("serif", 400, "zh-Hans", local),
           ...run("sans", 500, han, ...(item.links ?? []).map((l) => l.label)),
         ]
       : [],
@@ -454,7 +454,7 @@ export function ItemDetail({ profile, index, onIndex, onClose, fallbackFocus, sn
       </h2>
       {/* the kind's local name, unless the title already says it (大会门票 · 门票) */}
       {local && !item.label.includes(local) ? (
-        <p className="cap-local" {...textProps(local, t.lang === "zh" ? "zh-CN" : "ja", han)}>
+        <p className="cap-local" {...textProps(local, "zh-CN", han)}>
           {local}
         </p>
       ) : null}

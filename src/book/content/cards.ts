@@ -15,6 +15,9 @@ const LABEL_MM = 4;
 const INDEX_MM = 1.6;
 /** Folio: the chapter line on a picture card */
 const CHAPTER_MM = 2.2;
+/** Folio: a card's badge (AlbumCard.badge): its title and the line under it */
+const BADGE_MM = 5.2;
+const BADGE_LINE_MM = 2.1;
 
 /** The strings the faces print. */
 function cardRuns(cards: readonly AlbumCard[]): FontRun[] {
@@ -24,6 +27,10 @@ function cardRuns(cards: readonly AlbumCard[]): FontRun[] {
   const runs: FontRun[] = [{ role: "serif", weight: 400, text: latin, han: hanLangOf(latin) }, { role: "sans", weight: 500, text: "0123456789", han: "ja" }];
   if (chapters.trim()) runs.push({ role: "sans", weight: 500, text: chapters, han: hanLangOf(chapters) });
   if (local) runs.push({ role: "serif", weight: 400, text: local, han: "ja" });
+  const badges = cards.map((c) => c.badge?.title ?? "").join(" ");
+  const lines = cards.map((c) => c.badge?.line ?? "").join(" ");
+  if (badges.trim()) runs.push({ role: "serif", weight: 600, text: badges, han: hanLangOf(badges) });
+  if (lines.trim()) runs.push({ role: "sans", weight: 500, text: lines, han: hanLangOf(lines) });
   return runs;
 }
 
@@ -148,6 +155,7 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
     ctx.fillText(card.chapter, 5, 7);
   }
   track(ctx, 0);
+  if (card.badge) paintBadge(ctx, card.badge);
   ctx.fillStyle = ink;
   ctx.shadowColor = "rgba(0,0,0,0.35)";
   ctx.shadowBlur = 0.8;
@@ -166,4 +174,48 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
   track(ctx, 0);
   ctx.shadowBlur = 0;
   ctx.shadowColor = "transparent";
+}
+
+/**
+ * Folio: a card's badge — a white label laid on the picture under the chapter line, like a tag slipped into the pocket with the card:
+ * the title in Mincho 600 (sumi), the line under it in Zen Kaku (藍鼠), and a hairline of the album's indigo down its left edge.
+ */
+function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard["badge"]>) {
+  const x = 5;
+  const y = 9.6;
+  const padX = 2.2;
+  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title));
+  track(ctx, BADGE_MM * 0.04);
+  const tw = ctx.measureText(badge.title).width;
+  let lw = 0;
+  if (badge.line) {
+    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line));
+    track(ctx, BADGE_LINE_MM * 0.08);
+    lw = ctx.measureText(badge.line).width;
+  }
+  const bw = Math.max(tw, lw) + padX * 2 + 0.8;
+  const bh = badge.line ? 11.4 : 7.8;
+  ctx.save();
+  ctx.shadowColor = "rgba(12,20,30,0.3)";
+  ctx.shadowBlur = 1.4;
+  ctx.shadowOffsetY = 0.3;
+  roundRectPath(ctx, x, y, bw, bh, 0.9);
+  ctx.fillStyle = "rgba(250,250,247,0.95)";
+  ctx.fill();
+  ctx.restore();
+  ctx.fillStyle = "#2f4f73";
+  ctx.fillRect(x, y + 1.2, 0.45, bh - 2.4);
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = "#1c232b";
+  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title));
+  track(ctx, BADGE_MM * 0.04);
+  ctx.fillText(badge.title, x + padX + 0.8, y + 5.8);
+  if (badge.line) {
+    ctx.fillStyle = "#4f5d69";
+    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line));
+    track(ctx, BADGE_LINE_MM * 0.08);
+    ctx.fillText(badge.line, x + padX + 0.8, y + 9.4);
+  }
+  track(ctx, 0);
 }

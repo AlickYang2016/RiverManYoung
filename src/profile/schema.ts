@@ -94,6 +94,11 @@ export type AlbumCard = {
   chapter?: string;
   /** Folio: the picture's credit (a licensed photo), shown in the detail view. */
   credit?: string;
+  /**
+   * Folio: a tag on the card's face (owner 2026-10-25: AEW should stand out in the album): a white label at the top left, its title
+   * set large (an employer's name, "AEW") and a line under it ("Research & Strategy · 2026").
+   */
+  badge?: { title: string; line?: string };
 };
 
 /** A postcard: picture side + message side. */

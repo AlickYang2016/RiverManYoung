@@ -372,8 +372,9 @@ export function App({ profile: firstProfile = sample, folio, lang: firstLang, st
   const fallback = !!unsupported[tab] || !Stage;
   const onUnsupported = useCallback(() => markUnsupported(tab), [markUnsupported, tab]);
   const onStage = useCallback((api: StageApi | null) => setStage(api), []);
-  const chromeHan = t.lang === "zh" ? "zh-Hans" : "ja";
-  const stageHan = st.lang === "zh" ? "zh-Hans" : "ja";
+  // the chrome's and the stage's local titles are Chinese on every page (owner 2026-10-25), so they are set in the SC faces
+  const chromeHan = "zh-Hans";
+  const stageHan = "zh-Hans";
   const labels = useMemo(() => {
     // the book's keyboard links and page counter speak the page's language too (its defaults are English)
     const common = { prev: st.controls.prevPage, next: st.controls.nextPage, pageOf: st.controls.pageOf, openCard: st.controls.openCard };

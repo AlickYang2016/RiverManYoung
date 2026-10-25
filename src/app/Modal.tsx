@@ -204,7 +204,7 @@ export function DetailFrame({ profile, rect, obj = rect, hashira, caption, actio
   const t = useT();
   const f = useFrame();
   const han = profileHan(profile);
-  const chromeHan = t.lang === "zh" ? "zh-Hans" : "ja";
+  const chromeHan = "zh-Hans";
   const phone = f.cls === "p" || f.cls === "t";
   // more caption below the fold: the column's foot fades (and a fine pointer has its hairline scrollbar)
   const cap = useRef<HTMLDivElement>(null);

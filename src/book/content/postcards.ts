@@ -18,12 +18,12 @@ import { BLACK, WHITE, css, drawCover, grainPattern, hueShift, mix, printFont, r
 
 export type PostcardItem = Postcard & { date?: string };
 
-/** The postcard's printed header (the format's own name, so it is Japanese in every language). */
-const HEADER = "郵便はがき";
+/** The postcard's printed header: the format's own name, in Chinese on every page (owner 2026-10-25: the folio is titled in Chinese). */
+const HEADER = "明信片";
 
 /** The strings the faces print. */
 function postcardRuns(cards: readonly PostcardItem[]): FontRun[] {
-  const runs: FontRun[] = [{ role: "serif", weight: 600, text: HEADER, han: "ja" }];
+  const runs: FontRun[] = [{ role: "serif", weight: 600, text: HEADER, han: "zh-Hans" }];
   const by = new Map<string, FontRun>();
   const add = (role: Role, weight: number, text: string | undefined) => {
     if (!text?.trim()) return;
@@ -221,9 +221,9 @@ function messageSide(ctx: CanvasRenderingContext2D, card: PostcardItem, cell: Sl
   ctx.scale(u, u);
   const W = 148;
   const H = h / u;
-  // the header: 郵便はがき, Mincho 600 in 藍, tracked .5 em, at (10, 8)
+  // the header: 明信片, Mincho 600 in 藍, tracked .5 em, at (10, 8)
   const hs = 4.2;
-  font(ctx, "serif", 600, hs, HEADER, "ja");
+  font(ctx, "serif", 600, hs, HEADER, "zh-Hans");
   track(ctx, hs * 0.5);
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";

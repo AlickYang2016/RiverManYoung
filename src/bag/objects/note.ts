@@ -82,7 +82,7 @@ export function buildNote(item: NoteItem, ctx: ObjectCtx): ObjectDef {
     zh = /^zh/i.test(lang ?? "") || (!lang && /\p{Script=Han}/u.test(item.text) && !/[ぁ-ヿ]/.test(item.text));
     sign = item.from ? (zh ? `—— ${item.from}` : `— ${item.from}`) : "";
     date = noteDate(item.date, zh);
-    return [...runsOf("hand", 600, [item.text, sign, date], lang), ...runsOf("serif", 500, ["一筆箋"], lang, "ja")];
+    return [...runsOf("hand", 600, [item.text, sign, date], lang), ...runsOf("serif", 500, ["便笺"], lang, "zh-Hans")];
   };
   const runs = words();
   const { c, g } = makeCanvas(PW, PH);
@@ -112,7 +112,7 @@ export function buildNote(item: NoteItem, ctx: ObjectCtx): ObjectDef {
     // the foot: a tiny ○ and the sheet's name
     g.fillStyle = PRINT.ai;
     disc(g, mm(41), mm(163.2), mm(0.75));
-    drawText(g, "一筆箋", mm(41) + mm(0.45), mm(171.6), { role: "serif", px: mm(2.4), weight: 500, color: PRINT.muted, align: "center", ls: mm(0.9), han: "ja" });
+    drawText(g, "便笺", mm(41) + mm(0.45), mm(171.6), { role: "serif", px: mm(2.4), weight: 500, color: PRINT.muted, align: "center", ls: mm(0.9), han: "zh-Hans" });
 
     // the note, by hand, on the lines
     const px = mm(zh ? 5 : 5.3);

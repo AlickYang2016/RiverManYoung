@@ -106,10 +106,10 @@ function Hagaki({ p, lang, han }: { p: Postcard; lang: string | undefined; han: 
   const pm = postmark(p);
   // the message in the handwriting its words need (Klee One; LXGW WenKai for Chinese), signed as the 3D back film signs it
   const msgHan = hasHan(p.message) ? hanLangOf(p.message, lang) : "ja";
-  useFontRuns([...run("hand", 600, msgHan, p.message, p.from), ...run("serif", 600, "ja", t.hagaki), ...run("sans", 500, han, pm.place)]);
+  useFontRuns([...run("hand", 600, msgHan, p.message, p.from), ...run("serif", 600, "zh-Hans", t.hagaki), ...run("sans", 500, han, pm.place)]);
   return (
     <div className="hagaki">
-      <span className="hd" {...textProps(t.hagaki, "ja", han)}>
+      <span className="hd" {...textProps(t.hagaki, "zh-CN", han)}>
         {t.hagaki}
       </span>
       <p className="msg" {...textProps(p.message, lang, han)} {...(hasHan(p.message) ? {} : { "data-han": "ja" as const })}>
@@ -168,7 +168,7 @@ export function AlbumDetail({ profile, kind, id, onSelect, onClose, fallbackFocu
   const isPostcard = kind === "postcards";
   const pc = entry as Postcard | undefined;
   const ac = entry as AlbumCard | undefined;
-  const chromeHan = t.lang === "zh" ? "zh-Hans" : "ja";
+  const chromeHan = "zh-Hans";
   const local = entry ? (isPostcard ? pc?.placeLocal : ac?.nameLocal) : undefined;
   // A colour card's 和色 name is printed in the Japanese face on the card itself (book/content/cards.ts), so the caption sets it in
   // the same face. A Chinese page reads 月白 as its own traditional colour name: there it is the title (SC face), the romaji under it.
@@ -235,7 +235,7 @@ export function AlbumDetail({ profile, kind, id, onSelect, onClose, fallbackFocu
             ]
           : []),
         // 色見本 is Japanese on an English page (Shippori's sibling Zen Kaku), 传统色 Chinese on a Chinese one
-        ...(ac?.src ? [] : [withLang({ k: t.spec.series, v: t.spec.seriesValue }, t.lang === "zh" ? (profile.lang ?? "zh-CN") : "ja", han)]),
+        ...(ac?.src ? [] : [withLang({ k: t.spec.series, v: t.spec.seriesValue }, profile.lang ?? "zh-CN", han)]),
         // Folio: a picture card names its chapter and, for a licensed photo, its credit
         ...(ac?.chapter ? [{ k: t.spec.series, v: ac.chapter }] : []),
         ...(ac?.credit ? [{ k: t.spec.credit, v: ac.credit.replace(/^(Photo|摄影|攝影|写真)\s*[:：]\s*/i, "") }] : []),

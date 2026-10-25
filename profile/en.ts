@@ -26,7 +26,7 @@ export const places = [
   { id: "c2", chapter: 0, label: "Suzhou", nameLocal: "苏州", color: "#bcd0cf", ...C("cover-suzhou", "Christian Gänshirt", "CC BY-SA 4.0") },
   { id: "c3", chapter: 0, label: "Bordeaux", nameLocal: "波尔多", color: "#c4c3cf", ...C("cover-bordeaux-cadillac", "Henry Salomé", "CC BY-SA 3.0") },
   { id: "c4", chapter: 0, label: "Cergy", nameLocal: "塞尔吉", color: "#a9c1cb", ...C("cover-cergy-essec", "Rdavout", "CC BY-SA 2.5") },
-  { id: "c5", chapter: 0, label: "Paris", nameLocal: "巴黎", color: "#8fa9b8", ...own("cover-paris") },
+  { id: "c5", chapter: 0, label: "Paris", nameLocal: "巴黎", badge: "AEW", color: "#8fa9b8", ...own("cover-paris") },
   { id: "c6", chapter: 0, label: "Washington", nameLocal: "华盛顿", color: "#7f98a6", ...own("cover-washington") },
   { id: "c16", chapter: 0, label: "Next", nameLocal: "下一站", color: "#3f5b6b" },
   { id: "e1", chapter: 1, label: "Nice", nameLocal: "尼斯", color: "#bfd3dc", ...own("cover-nice") },
@@ -48,8 +48,9 @@ export const places = [
 ] as const;
 
 /** What a language says on the album: the three chapter names, the contents card's label, and how a photo credit begins. */
-export type AlbumWords = { chapters: [string, string, string]; contents: string; photo: string };
-const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026"], contents: "Contents", photo: "Photo" };
+/** …and the line under a card's badge (by card id: the AEW card's role and year) */
+export type AlbumWords = { chapters: [string, string, string]; contents: string; photo: string; badges?: Record<string, string> };
+const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" } };
 
 const placeNotes = [
   "Three pages, three chapters. I · Study & work: the cities that shaped the path so far, and the next one. II · Europe & beyond: journeys. III · Japan, October 2026. Each card shows a landmark tied to its place.",
@@ -57,7 +58,7 @@ const placeNotes = [
   "Renmin University of China, 2019–2023: Bachelor of Economics in Finance, graduated with distinction. On the card: the Gate of the Orient over Jinji Lake.",
   "KEDGE Business School: dual-degree bachelor’s in supply chain management. On the card: the Château des ducs d’Épernon in Cadillac, a Bordeaux wine appellation whose wines I once helped promote.",
   "ESSEC Business School: Master in Management, Real Estate and Sustainable Development Chair. On the card: the ESSEC campus.",
-  "AEW Research & Strategy in 2026, BNP Paribas Group Legal in 2024, the Adagio project in 2025. On the card: Haussmann façades, the stone Paris real estate is made of.",
+  "AEW (Natixis Investment Managers), Research & Strategy, February to August 2026: automated scoring of European cities, from 45 to 72, and the data and every chart of the July 2026 European Office Outlook. Paris also brought BNP Paribas Group Legal in 2024 and the Adagio project in 2025. On the card: Haussmann façades, the stone Paris real estate is made of.",
   "GWU School of Business: graduate exchange, August 2025 to January 2026. On the card: the World War II Memorial and the Washington Monument.",
   "From January 2027: the final-year internship. The city is still open.",
   "Nice: the seafront.",
@@ -143,8 +144,9 @@ const postcardsEn: PostcardText[] = [
 export function albumsFor(notes: string[], cards: PostcardText[], from: string, words: AlbumWords = wordsEn): Profile["albums"] {
   return {
     cards: places.map((c, i) => {
-      const { chapter, ...rest } = c as typeof c & { credit?: string; src?: string };
+      const { chapter, badge, ...rest } = c as typeof c & { credit?: string; src?: string; badge?: string };
       const card = { ...rest, note: notes[i], chapter: words.chapters[chapter] } as Profile["albums"]["cards"][number];
+      if (badge) card.badge = { title: badge, ...(words.badges?.[c.id] ? { line: words.badges[c.id] } : {}) };
       if (c.id === "c0") card.label = words.contents;
       if (card.credit) card.credit = card.credit.replace(/^Photo/, words.photo);
       return card;

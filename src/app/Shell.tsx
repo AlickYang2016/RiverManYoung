@@ -185,11 +185,24 @@ export function Identity({ profile, han, onProfile, asHeading = true }: { profil
 }
 
 /* ------------------------------------------------------------------ 目次 the booklets */
+/*
+ * The booklets as a pile on the desk (owner 2026-10-25: "a stack of three books, or who can tell there are three"): each lies flat,
+ * its spine to the reader in its own case colour, the name stamped on it as its case is (silver foil, or blind on the postcards), the
+ * count at its tail. The one open on the desk is drawn out of the pile; pointing at another draws it out a little. Each spine is the
+ * link to its booklet (arrow keys move along the pile).
+ */
+const PILE: Record<Tab, { w: number; x: number; r: number }> = {
+  // width (share of the column; the largest at the bottom), offset (u) and a hair of turn: a pile set down by hand, not a chart
+  cards: { w: 0.82, x: 9, r: -0.6 },
+  postcards: { w: 0.92, x: 2, r: 0.4 },
+  resume: { w: 1, x: 0, r: -0.2 },
+};
 function Toc({ profile, tab, onTab }: { profile: Profile; tab: Tab; onTab(t: Tab): void }) {
   const t = useT();
   const refs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const index = BOOKLETS.findIndex((b) => b.id === tab);
-  useFontRuns(run("serif", 400, t.lang === "zh" ? "zh-Hans" : "ja", ...BOOKLETS.map((b) => t.booklet[b.id].name)));
+  // a second name on the spine of a Chinese page: 卡册 Cards
+  const latin = t.lang === "zh";
+  useFontRuns(run("serif", 500, t.lang === "zh" ? "zh-Hans" : "ja", ...BOOKLETS.map((b) => t.booklet[b.id].name)));
   const onKey = (e: ReactKeyboardEvent<HTMLElement>) => {
     const d = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0;
     if (!d) return;
@@ -199,14 +212,15 @@ function Toc({ profile, tab, onTab }: { profile: Profile; tab: Tab; onTab(t: Tab
     refs.current[(i + d + BOOKLETS.length) % BOOKLETS.length]?.focus();
   };
   return (
-    <nav className="toc" aria-label={t.nav.booklets} onKeyDown={onKey} style={{ "--i": index } as CSSProperties}>
-      <i className="toc-disc" aria-hidden="true" />
-      <ol>
+    <nav className="toc" aria-label={t.nav.booklets} onKeyDown={onKey}>
+      <ol className="pile">
         {BOOKLETS.map((b, i) => {
           const n = countOf(profile, b.id);
           const name = t.booklet[b.id].name;
+          const hex = caseHex(b);
+          const pile = PILE[b.id];
           return (
-            <li key={b.id}>
+            <li key={b.id} style={{ "--c": hex.base, "--w": pile.w, "--x": pile.x, "--r": `${pile.r}deg` } as CSSProperties} data-ink={hex.dark ? "light" : "dark"} data-foil={b.foil}>
               <a
                 ref={(el) => {
                   refs.current[i] = el;
@@ -220,12 +234,10 @@ function Toc({ profile, tab, onTab }: { profile: Profile; tab: Tab; onTab(t: Tab
                   onTab(b.id);
                 }}
               >
-                <span className="nm" aria-hidden="true">
-                  {name}
-                </span>
-                <span className="lead" aria-hidden="true" />
-                <span className="n" aria-hidden="true">
-                  {pad2(n)}
+                <span className="sp" aria-hidden="true">
+                  <span className="nm">{name}</span>
+                  {latin ? <span className="la">{t.booklet[b.id].latin.split(" ")[0]}</span> : null}
+                  <span className="n">{pad2(n)}</span>
                 </span>
               </a>
             </li>

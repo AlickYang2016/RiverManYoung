@@ -113,7 +113,7 @@ export function PolaroidBack({ item }: { item: PolaroidItem }) {
 export function NoteArt({ item }: { item: NoteItem }) {
   const t = useT();
   const h = handHan(item.text);
-  useFontRuns([...run("hand", 600, h, item.text, item.from), ...run("serif", 500, "ja", "一筆箋")]);
+  useFontRuns([...run("hand", 600, h, item.text, item.from), ...run("serif", 500, "zh-Hans", "便笺")]);
   return (
     <div className="note" role="img" aria-label={`${item.label}: ${item.text} — ${item.from}`}>
       <p className="note-text" data-han={h}>
@@ -123,9 +123,9 @@ export function NoteArt({ item }: { item: NoteItem }) {
         — {item.from}
         {item.date ? <span className="note-date">{t.date(item.date)}</span> : null}
       </p>
-      <p className="note-foot" lang="ja" data-han="ja">
+      <p className="note-foot" lang="zh-CN" data-han="zh-Hans">
         <i aria-hidden="true" />
-        一筆箋
+        便笺
       </p>
     </div>
   );
