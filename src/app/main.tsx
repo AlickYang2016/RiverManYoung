@@ -13,9 +13,10 @@ import "./app.css";
 
 /*
  * Entry: the grid's numbers and the font stacks go on <html> before React renders anything, so the first paint is already laid
- * out; the two Latin files every page needs are preloaded. The folio is the page's content (profile/index.ts: the demo persona in
- * English and in Simplified Chinese, the Chinese one its own chunk). The language shown first (brief r4 E1): ?lang= (or the older
- * ?sample=zh), else the visitor's last choice, else English (never the browser's language); the page's switch changes it in place.
+ * out; the two Latin files every page needs are preloaded. The folio is the page's content (profile/index.ts: Alexis Yang in French,
+ * English and Simplified Chinese; French in the entry chunk, English and Chinese each their own). The language shown first (brief r4
+ * E1): ?lang= (or the older ?sample=zh), else the visitor's last choice, else French, the folio's primary since 2026-10-25 (never the
+ * browser's language); the page's switch changes it in place.
  */
 
 initFrame();

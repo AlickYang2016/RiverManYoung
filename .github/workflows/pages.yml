@@ -51,6 +51,8 @@ jobs:
       - run: pip install fonttools==4.66.1 brotli && python scripts/subset-fonts.py
       # catches a profile that does not match the schema before it reaches the site
       - run: bun run typecheck
+      # a failing test stops the deploy
+      - run: bun test src
       - run: bun run build
       - uses: actions/upload-pages-artifact@v5
         with:
