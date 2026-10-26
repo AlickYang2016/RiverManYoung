@@ -37,5 +37,5 @@ export {
 } from "./content";
 export { FlatBook } from "./FlatBook";
 export { DEFAULT_LABELS, type BookLabelItem, type BookLabels } from "./labels";
-export { BOOKLET_COVERS, COVER_COLORS, COVER_FOILS, COVER_MATERIALS, DEFAULT_COVER, parseCover, type CoverColor, type CoverFoil, type CoverMaterial, type CoverSpec } from "./cover";
+export { BOOKLET_COVERS, BOOKLET_WINDOWS, COVER_COLORS, COVER_FOILS, COVER_MATERIALS, DEFAULT_COVER, parseCover, type CoverColor, type CoverFoil, type CoverMaterial, type CoverSpec } from "./cover";
 export { COVER_HEX, FOIL_HEX } from "./cover-style";

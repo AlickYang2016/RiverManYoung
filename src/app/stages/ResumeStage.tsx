@@ -4,7 +4,7 @@ import type { PerspectiveCamera } from "three";
 import type { PouchAddon, PouchAddonOptions } from "../../bag";
 import { BookView, type BookViewHandle } from "../../book/BookView";
 import type { CaseSpec } from "../../book/binder";
-import type { CoverSpec } from "../../book/cover";
+import { BOOKLET_WINDOWS, type CoverSpec } from "../../book/cover";
 import type { BookState } from "../../book/scene";
 import { canRender3d } from "../../book/support";
 import { booklet } from "../booklets";
@@ -85,7 +85,7 @@ export default function ResumeStage({ profile, material, insets, narrow, labels,
     }),
     [profile],
   );
-  const cover = useMemo<CoverSpec>(() => ({ material, color: B.color, foil: B.foil, window: null, title: profile.coverTitle }), [material, profile.coverTitle]);
+  const cover = useMemo<CoverSpec>(() => ({ material, color: B.color, foil: B.foil, window: { src: BOOKLET_WINDOWS.resume }, title: profile.coverTitle }), [material, profile.coverTitle]);
 
   // Called by BookView for every scene it builds (StrictMode builds two); the book disposes what it was given. The profile is read
   // when it is called (a ref): another language reprints the pouch in place (below), it never makes a new pouch by itself

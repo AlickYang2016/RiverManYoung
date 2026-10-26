@@ -29,6 +29,11 @@ const placeNotes = [
   "Japon, octobre 2026 : la côte. Sur la carte : l’île d’Engetsu.",
   "Japon, octobre 2026 : le Kiyomizu-dera.",
   "Japon, octobre 2026 : la dernière étape avant Paris, le 17 octobre. La photo date d’un premier passage : la tour de Tokyo, en août 2024.",
+  "RER B, MI 79 : bicourant, 1 500 V continu sur la partie RATP et 25 kV alternatif sur la partie SNCF, pour traverser Paris d’un seul train de Roissy jusqu’au sud.",
+  "Métro de Paris, ligne 12 à Abbesses, la station la plus profonde du réseau, à environ 36 m ; un MF 67, l’ancien matériel sur roues en fer.",
+  "Métro de Paris, MP 14 sur la ligne 11 : un métro sur pneus. La ligne 11 a été la première au monde à en rouler, en 1956.",
+  "Lisbonne, un « Remodelado » : un tram des années 1930 reconstruit dans les années 1990, sur voie de 900 mm, qui grimpe encore les collines de la ville.",
+  "Métro de Washington, série 7000 sur la ligne Silver : construite par le japonais Kawasaki et assemblée à Lincoln, dans le Nebraska. Le semestre à GWU.",
   "Narita Express, série E259 : une porte dans le nez, pour que deux rames de six voitures roulent attelées depuis l’aéroport puis se séparent à Tokyo, vers Shinjuku et Yokohama.",
   "La ligne Yamanote, série E235 : une voie étroite de 1 067 mm, mais une caisse de 2,95 m de large ; l’intérieur est bien plus spacieux que la voie ne le laisse croire.",
   "Shinkansen Tōhoku, E5 « Hayabusa » : 320 km/h, et un nez de 15 mètres pour adoucir la détonation à l’entrée des tunnels.",
@@ -56,11 +61,6 @@ const placeNotes = [
   "Yufuin no Mori : un train surélevé, les sièges plus haut que dans une voiture ordinaire, du bois à l’intérieur, de Hakata aux sources chaudes de Yufuin.",
   "Aso Boy!, Kiha 183-1000 : un train pour les familles vers la caldeira d’Aso, avec le chien Kuro pour mascotte ; encore un dessin d’Eiji Mitooka, aujourd’hui retiré.",
   "Ibusuki no Tamatebako : moitié noir, moitié blanc, comme le coffret du conte d’Urashima Tarō, et une bouffée de brume quand les portes s’ouvrent.",
-  "RER B, MI 79 : bicourant, 1 500 V continu sur la partie RATP et 25 kV alternatif sur la partie SNCF, pour traverser Paris d’un seul train de Roissy jusqu’au sud.",
-  "Métro de Paris, ligne 12 à Abbesses, la station la plus profonde du réseau, à environ 36 m ; un MF 67, l’ancien matériel sur roues en fer.",
-  "Métro de Paris, MP 14 sur la ligne 11 : un métro sur pneus. La ligne 11 a été la première au monde à en rouler, en 1956.",
-  "Métro de Washington, série 7000 sur la ligne Silver : construite par le japonais Kawasaki et assemblée à Lincoln, dans le Nebraska. Le semestre à GWU.",
-  "Lisbonne, un « Remodelado » : un tram des années 1930 reconstruit dans les années 1990, sur voie de 900 mm, qui grimpe encore les collines de la ville.",
 ];
 
 const postcardsFr: PostcardText[] = [

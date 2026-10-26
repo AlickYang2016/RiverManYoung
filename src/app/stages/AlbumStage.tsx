@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CaseSpec } from "../../book/binder";
 import { BookView, type BookViewHandle } from "../../book/BookView";
-import type { CoverSpec } from "../../book/cover";
+import { BOOKLET_WINDOWS, type CoverSpec } from "../../book/cover";
 import type { BookState } from "../../book/scene";
 import { booklet } from "../booklets";
 import { play } from "../sound";
@@ -27,7 +27,7 @@ function AlbumStage({ kind, profile, material, insets, narrow, slip, labels, amb
   const [flat, setFlat] = useState(false);
   const onPick = useCallback((_: number, o: { id: string }) => onPickCard(kind, o.id), [kind, onPickCard]);
   const title = labels?.region ?? kind;
-  const cover = useMemo<CoverSpec>(() => ({ material, color: b.color, foil: b.foil, window: null, title }), [material, b, title]);
+  const cover = useMemo<CoverSpec>(() => ({ material, color: b.color, foil: b.foil, window: { src: BOOKLET_WINDOWS[kind] }, title }), [material, b, title, kind]);
   const caseSpec = useMemo<CaseSpec | undefined>(() => (slip ? { slip: { title: slip.title, han: slip.han } } : undefined), [slip]);
   const items = profile.albums[kind];
   const onBook = useWindowLight(ambient);

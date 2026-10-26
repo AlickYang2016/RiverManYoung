@@ -47,6 +47,11 @@ export const places = [
   { id: "c13", chapter: 2, label: "Shirahama", nameLocal: "白浜", color: "#c8d7d0", ...C("cover-shirahama", "Zairon", "CC BY 4.0") },
   { id: "c14", chapter: 2, label: "Kyoto", nameLocal: "京都", color: "#a5a9b6", ...C("cover-kyoto", "Martin Falbisoner", "CC BY-SA 4.0") },
   { id: "c15", chapter: 2, label: "Tokyo", nameLocal: "東京", color: "#6f8494", ...own("cover-tokyo") },
+  { id: "r28", chapter: 3, label: "RER B, Paris", color: "#d8c7c4", ...own("rail-rer-b") },
+  { id: "r29", chapter: 3, label: "Métro, Abbesses", color: "#d6d0c2", ...own("rail-paris-mf67") },
+  { id: "r30", chapter: 3, label: "Métro MP 14, Paris", color: "#bcd2e0", ...own("rail-paris-mp14") },
+  { id: "r32", chapter: 3, label: "Lisbon Tram", nameLocal: "Elétrico", color: "#e3cf8f", ...own("rail-lisbon-tram") },
+  { id: "r31", chapter: 3, label: "Silver Line, Washington DC", color: "#8f97a3", ...own("rail-washington-silver") },
   { id: "r1", chapter: 3, label: "Narita Express", nameLocal: "成田エクスプレス", color: "#d9dcdc", ...own("rail-narita-express") },
   { id: "r2", chapter: 3, label: "Yamanote Line, Tokyo", nameLocal: "山手線", color: "#c3d7a4", ...own("rail-yamanote") },
   { id: "r3", chapter: 3, label: "Shinkansen E5, Hayabusa", nameLocal: "新幹線 はやぶさ", color: "#a8d3cf", ...own("rail-shinkansen-e5") },
@@ -74,11 +79,6 @@ export const places = [
   { id: "r25", chapter: 3, label: "Yufuin no Mori", nameLocal: "ゆふいんの森", color: "#9fc3a6", ...own("rail-yufuin-no-mori") },
   { id: "r26", chapter: 3, label: "Aso Boy!", nameLocal: "あそぼーい！", color: "#a8a8a2", ...own("rail-aso-boy") },
   { id: "r27", chapter: 3, label: "Ibusuki no Tamatebako", nameLocal: "指宿のたまて箱", color: "#d8d2c4", ...own("rail-ibutama") },
-  { id: "r28", chapter: 3, label: "RER B, Paris", color: "#d8c7c4", ...own("rail-rer-b") },
-  { id: "r29", chapter: 3, label: "Métro, Abbesses", color: "#d6d0c2", ...own("rail-paris-mf67") },
-  { id: "r30", chapter: 3, label: "Métro MP 14, Paris", color: "#bcd2e0", ...own("rail-paris-mp14") },
-  { id: "r31", chapter: 3, label: "Silver Line, Washington DC", color: "#8f97a3", ...own("rail-washington-silver") },
-  { id: "r32", chapter: 3, label: "Lisbon Tram", nameLocal: "Elétrico", color: "#e3cf8f", ...own("rail-lisbon-tram") },
 ] as const;
 
 /** The rail cards' names in each language (the original-script name stays beside them unless local is null). */

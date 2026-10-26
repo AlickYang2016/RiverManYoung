@@ -35,6 +35,11 @@ const placeNotes = [
   "Japan, October 2026: the coast. On the card: Engetsu Island.",
   "Japan, October 2026: Kiyomizu-dera.",
   "Japan, October 2026: the last stop before Paris, on 17 October. The photo is from an earlier visit: Tokyo Tower, August 2024.",
+  "RER B, the MI 79: dual-voltage, 1,500 V DC on the RATP section and 25 kV AC on the SNCF one, so one train runs straight through Paris from Roissy to the south.",
+  "Paris Métro, line 12 at Abbesses, the deepest station of the network, about 36 m down; an MF 67, the older steel-wheeled stock.",
+  "Paris Métro, the MP 14 on line 11: rubber tyres on a metro. Line 11 was the first in the world to run them, in 1956.",
+  "Lisbon, a “Remodelado”: a 1930s tram rebuilt in the 1990s, on a 900 mm gauge, still climbing the city’s hills.",
+  "Washington Metro, the 7000 series on the Silver line: built by Kawasaki, a Japanese maker, and assembled in Lincoln, Nebraska. The semester at GWU.",
   "Narita Express, E259 series: a door in the nose, so two six-car trains can run coupled from the airport and split at Tokyo for Shinjuku and Yokohama.",
   "The Yamanote line, E235 series: narrow gauge, 1,067 mm, yet a body 2.95 m wide, so there is far more room inside than the track suggests.",
   "Tohoku Shinkansen, the E5 “Hayabusa”: 320 km/h, and a nose 15 metres long to soften the boom as it enters a tunnel.",
@@ -62,11 +67,6 @@ const placeNotes = [
   "Yufuin no Mori: a high-deck train, seats raised above the windows of ordinary cars, wood inside, from Hakata to the hot springs of Yufuin.",
   "Aso Boy!, Kiha 183-1000: a family train for the Aso caldera, with Kuro the dog as its mascot; another Eiji Mitooka design, now retired.",
   "Ibusuki no Tamatebako: half black, half white, after the treasure box of the Urashima Tarō tale, and a puff of mist when the doors open.",
-  "RER B, the MI 79: dual-voltage, 1,500 V DC on the RATP section and 25 kV AC on the SNCF one, so one train runs straight through Paris from Roissy to the south.",
-  "Paris Métro, line 12 at Abbesses, the deepest station of the network, about 36 m down; an MF 67, the older steel-wheeled stock.",
-  "Paris Métro, the MP 14 on line 11: rubber tyres on a metro. Line 11 was the first in the world to run them, in 1956.",
-  "Washington Metro, the 7000 series on the Silver line: built by Kawasaki, a Japanese maker, and assembled in Lincoln, Nebraska. The semester at GWU.",
-  "Lisbon, a “Remodelado”: a 1930s tram rebuilt in the 1990s, on a 900 mm gauge, still climbing the city’s hills.",
 ];
 
 const postcardsEn: PostcardText[] = [

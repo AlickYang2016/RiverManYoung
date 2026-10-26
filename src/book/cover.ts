@@ -43,6 +43,13 @@ export const BOOKLET_COVERS = {
   resume: { material: "leather", color: "aitetsu", foil: "silver" },
 } as const satisfies Record<"cards" | "postcards" | "resume", Pick<CoverSpec, "material" | "color" | "foil">>;
 
+/** The picture each booklet shows through the window in its front cover (owner 2026-10-26: "the three books need covers") */
+export const BOOKLET_WINDOWS = {
+  cards: "photos/rail-yufuin-no-mori.webp",
+  postcards: "photos/lisbon-miradouro.webp",
+  resume: "photos/cover-washington.webp",
+} as const satisfies Record<"cards" | "postcards" | "resume", string>;
+
 export const DEFAULT_COVER: CoverSpec = Object.freeze({ material: "frost", color: "paper", foil: "silver", title: "", window: null });
 
 const pick = <T extends string>(list: readonly T[], v: unknown, fallback: T): T => (typeof v === "string" && (list as readonly string[]).includes(v) ? (v as T) : fallback);
