@@ -170,28 +170,61 @@ export async function createResumeModel(firstItem: ResumeItem, firstOwner: Owner
     return t;
   }
 
+  /** The printed CV's page image (ResumeItem.page), loaded once per URL; null when it cannot be had (then the fields are typeset) */
+  const printedCache = new Map<string, Promise<HTMLImageElement | null>>();
+  function printedPage(src: string) {
+    let p = printedCache.get(src);
+    if (!p) {
+      const img = new Image();
+      img.decoding = "async";
+      img.src = src;
+      p = img.decode().then(() => img, () => null);
+      printedCache.set(src, p);
+    }
+    return p;
+  }
+  /** The page image on the paper: the print multiplies onto the paper's tone and grain, so white is the paper, not a white card */
+  function paintPrinted(img: HTMLImageElement, heightPx: number) {
+    const c = document.createElement("canvas");
+    c.height = Math.round(heightPx);
+    c.width = Math.round((c.height * PAGE_W) / PAGE_H);
+    const g = c.getContext("2d")!;
+    paintPaper(g, c.width, c.height, 7);
+    g.globalCompositeOperation = "multiply";
+    g.imageSmoothingQuality = "high";
+    g.drawImage(img, 0, 0, c.width, c.height);
+    g.globalCompositeOperation = "source-over";
+    return c;
+  }
+
   /** (Re)typeset and (re)build the sheets for this on-screen size. Keeps the current page where possible. */
   async function layout(o: LayoutOpts) {
     const s = scaleFor(o.pxPerMm, o.narrow);
     const lo = o.narrow ? Math.min(s, Math.max(1, BODY_PX_MIN / (BODY_MM * o.pxPerMm))) : s;
     const px = pageTexPx(o.pxPerMm, o.dpr, ctx.maxTexture);
     narrow = o.narrow;
-    const isBook = !o.narrow;
+    // the printed one-page CV lies as a single sheet, on any host
+    const printed = item.page ? await printedPage(item.page) : null;
+    const isBook = !o.narrow && !printed;
     // same binding, type scale (±10 %) and texture size (enough texels, not far too many): nothing to do
     if (!o.force && sheets.length && isBook === book && Math.abs(s / wanted - 1) < 0.1 && px <= texPx * TEX.grow && px >= texPx * TEX.shrink) return;
     wanted = s;
     texPx = px;
     // the first printed page on view now stays on view
     const first = sheets.length ? onView()[0] : 1;
-    await ctx.fontsReady;
-    const measure = canvasMeasure(ctx.lang);
-    // the fewest pages between the wanted scale and the smallest allowed one; the largest scale that gets there
-    let L = layoutResume(item, owner, s, measure);
-    for (let k = s - 0.02; k >= lo - 1e-9; k -= 0.02) {
-      const t = layoutResume(item, owner, k, measure);
-      if (t.pages.length < L.pages.length) L = t;
+    let canvases: HTMLCanvasElement[];
+    if (printed) canvases = [paintPrinted(printed, px)];
+    else {
+      await ctx.fontsReady;
+      const measure = canvasMeasure(ctx.lang);
+      // the fewest pages between the wanted scale and the smallest allowed one; the largest scale that gets there
+      let L = layoutResume(item, owner, s, measure);
+      for (let k = s - 0.02; k >= lo - 1e-9; k -= 0.02) {
+        const t = layoutResume(item, owner, k, measure);
+        if (t.pages.length < L.pages.length) L = t;
+      }
+      canvases = paintResume(L, px, ctx.lang);
     }
-    const canvases = paintResume(L, px, ctx.lang);
     // the blank back of every sheet (paper only)
     if (!backTex || (backTex.image as HTMLCanvasElement).height !== canvases[0]!.height) {
       backTex?.dispose();

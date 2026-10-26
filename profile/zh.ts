@@ -141,6 +141,7 @@ export const profileZh: Profile = {
       skills: ["市场研究", "定量与回归分析", "多指标评分", "数据可视化", "Excel · PowerPoint · Power BI", "VBA 与 R（课程）"],
       languages: ["中文（母语）", "英语（IELTS 7.5）", "法语（TCF B2）"],
       pdf: `${CV}Zijiang_Yang_CV_ZH.27b1d2c45515e0ee.pdf`,
+      page: "cv/cv-zh.webp",
     },
     {
       ...ticket!,

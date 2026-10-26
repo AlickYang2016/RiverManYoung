@@ -46,6 +46,11 @@ export type ResumeItem = ItemBase & {
   languages?: string[];
   /** Optional PDF the visitor can download. */
   pdf?: string;
+  /**
+   * Optional image of the printed one-page CV (A4, portrait). When set, the paper shows this page as it was laid out rather than
+   * typesetting the fields above, which stay for the detail text and search.
+   */
+  page?: string;
 };
 
 export type TicketItem = ItemBase & {

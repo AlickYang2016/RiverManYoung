@@ -11,7 +11,7 @@ import { canvasMeasure, layoutResume, layoutRuns, PAGE, paintOps, resumeLang, ty
 import { createFlexUniforms } from "./flex";
 import { maskTexture, slabMesh } from "./parts";
 import type { ObjectDef } from "./rig";
-import { colorTexture, dataTexture, hashStr, inkTooth, makeCanvas, paintStock, paintStockNow, printWebOn, Tracker, type V2, paperFamily } from "./shared";
+import { colorTexture, dataTexture, decodedImage, hashStr, inkTooth, makeCanvas, paintStock, paintStockNow, printWebOn, Tracker, type V2, paperFamily } from "./shared";
 import { roundedRectOutline } from "./slab";
 import type { BodySpec, ObjectCtx } from "./types";
 import type { ResumeItem } from "../../profile/schema";
@@ -77,6 +77,24 @@ function paintCrease(g: CanvasRenderingContext2D, w: number, h: number, ppm: num
 export function buildResume(item: ResumeItem, ctx: ObjectCtx): ObjectDef {
   const T = new Tracker();
   const seed = hashStr(item.id) ^ 0x7e57;
+  let disposed = false;
+  T.onFree(() => {
+    disposed = true;
+  });
+  /** the printed one-page CV (ResumeItem.page): undefined while it decodes (blank paper), null when there is none or it failed */
+  let printed: HTMLImageElement | null | undefined = null;
+  const loadPrinted = (src: string | undefined): Promise<void> => {
+    if (!src) return Promise.resolve(void (printed = null));
+    printed = undefined;
+    return decodedImage(src).then(
+      (img) => void (src === item.page && (printed = img)),
+      () => void (src === item.page && (printed = null)),
+    ).then(() => {
+      if (disposed || src !== item.page) return;
+      paint();
+      ctx.onChange?.();
+    });
+  };
   // whose and in which language (relabel() sets them again for another one)
   let owner: PrintOwner | undefined;
   let lang: string | undefined;
@@ -115,14 +133,27 @@ export function buildResume(item: ResumeItem, ctx: ObjectCtx): ObjectDef {
   })();
 
   let runs: FontRun[] = [];
-  const paint = () => {
+  /** a printed one-page CV is one loose sheet: no second sheet, no staple */
+  const single = !!item.page;
+  const paint = (): void => {
     // the pages are typeset like the paper viewer's (print scale), then printed on A5
     const t = typeset();
     const { L, local } = t;
+    // the printed one-page CV when there is one (blank paper until its image is in), else the typeset first page
     paintStock(top.g, PW, PH, { color: PAPER, seed, mottle: 1.4, grain: 1.8, bump: topBump.g, tooth: 10 });
-    paintOps(top.g, L.pages[0] ?? [], PPM * K, lang, local);
+    if (printed) {
+      top.g.globalCompositeOperation = "multiply";
+      top.g.imageSmoothingQuality = "high";
+      top.g.drawImage(printed, 0, 0, PW, PH);
+      top.g.globalCompositeOperation = "source-over";
+    } else if (printed === null) paintOps(top.g, L.pages[0] ?? [], PPM * K, lang, local);
     inkTooth(top.g, PW, PH, PAPER, seed ^ 0x3, 0.16, 0.04);
     paintCrease(top.g, PW, PH, PPM);
+    if (single) {
+      topTex.needsUpdate = topBumpTex.needsUpdate = true;
+      runs = t.runs;
+      return;
+    }
     // the staple's shadow on the sheet (the window light is top right: it falls down and to the left)
     {
       const [a, b] = legs as [V2, V2];
@@ -178,6 +209,7 @@ export function buildResume(item: ResumeItem, ctx: ObjectCtx): ObjectDef {
     // exactly the strings the two sheets print, each in its own face and weight (not every string in every face)
     runs = t.runs;
   };
+  const ready = loadPrinted(item.page);
   paint();
 
   const plain = makeCanvas(256, 362);
@@ -218,17 +250,20 @@ export function buildResume(item: ResumeItem, ctx: ObjectCtx): ObjectDef {
     spec: { id: item.id, ...RESUME_BODY },
     thickness: 2 * LEAF + GAP + FOLD_RISE + STAPLE.wire,
     outline: roundedRectOutline(BW, BH, 0.0006, 3),
-    shadowPolys: [upperOutline, lowerOutline],
-    parts: [lower.mesh, upper.mesh],
+    shadowPolys: single ? [upperOutline] : [upperOutline, lowerOutline],
+    parts: single ? [upper.mesh] : [lower.mesh, upper.mesh],
     flex: { uniforms: flexU, axis: "y" },
     tracker: T,
     repaint: paint,
+    ready,
     runs,
     relabel(next, nctx) {
       if (next.kind !== "resume") return null;
+      const pageChanged = next.page !== item.page;
       item = next;
       ctx = nctx;
       words();
+      if (pageChanged) void loadPrinted(item.page);
       return typeset().runs;
     },
   };

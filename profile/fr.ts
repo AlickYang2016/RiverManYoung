@@ -142,6 +142,7 @@ export const profileFr: Profile = {
       skills: ["Études de marché", "Analyse quantitative et régressions", "Scoring multicritère", "Visualisation de données", "Excel · PowerPoint · Power BI", "VBA et R (cours)"],
       languages: ["Mandarin (langue maternelle)", "Anglais (IELTS 7,5)", "Français (TCF B2)"],
       pdf: `${CV}Zijiang_Yang_CV_FR.421120a8865312b7.pdf`,
+      page: "cv/cv-fr.webp",
     },
     {
       ...ticket!,
