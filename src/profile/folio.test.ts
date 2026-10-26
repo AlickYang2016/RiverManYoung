@@ -68,8 +68,10 @@ describe("loading", () => {
     expect(await loadProfile(f, "zh")).toBe(sampleZh);
     await expect(loadProfile(f, "fr")).rejects.toThrow();
   });
-  test("the sample folio carries English and Chinese", async () => {
-    expect(folioLangs(sampleFolio)).toEqual(["en", "zh"]);
+  test("the site's folio is French first, then English and Chinese", async () => {
+    expect(folioLangs(sampleFolio)).toEqual(["fr", "en", "zh"]);
+    expect(loadedProfile(sampleFolio, "fr")?.lang).toBe("fr");
+    expect((await loadProfile(sampleFolio, "en")).lang).toBe("en");
     expect((await loadProfile(sampleFolio, "zh")).lang).toBe("zh-CN");
   });
 });

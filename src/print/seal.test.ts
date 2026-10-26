@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { profile } from "../../profile/en";
 import { seal } from "../../profile/seal";
 import { sealArtFor, sealChars, sealRun } from "./seal";
 
@@ -55,7 +56,7 @@ describe("sealArtFor", () => {
     expect(sealArtFor(null, "林文", "Lin Wen")).toBeNull();
     expect(sealArtFor({ name: "林文", glyphs: [] }, "林文", "Lin Wen")).toBeNull();
   });
-  test("the demo persona's seal is cut in small seal script: 林文之印", () => {
-    expect(sealArtFor(seal, "林文", "Lin Wen")?.glyphs.map((g) => g.char).join("")).toBe("林文之印");
+  test("the owner's seal is cut in small seal script: 杨子江印", () => {
+    expect(sealArtFor(seal, profile.nameLocal, profile.name)?.glyphs.map((g) => g.char).join("")).toBe("杨子江印");
   });
 });

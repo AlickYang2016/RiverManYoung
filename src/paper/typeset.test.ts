@@ -4,6 +4,7 @@ import { profile as sample } from "../../profile/en";
 import { profileZh as sampleZh } from "../../profile/zh";
 import type { ResumeItem } from "../profile/schema";
 import { PAGE, SINGLE_COLUMN, layoutResume, resumeLang, wrap, wrapPretty, type Measure, type Op } from "./typeset";
+import { demoOwner, demoOwnerZh, demoResume, demoResumeZh } from "./typeset.fixture";
 
 /** Stub measure: every Latin character is 0.5 em wide, a CJK character a full em, plus tracking. */
 const measure: Measure = (t, st) => [...(st.caps ? t.toUpperCase() : t)].reduce((w, ch) => w + st.size * ((/[\u2e80-\u9fff\uff00-\uffef]/.test(ch) ? 1 : 0.5) + (st.track ?? 0)), 0);
@@ -62,8 +63,9 @@ describe("wrap", () => {
 });
 
 describe("layoutResume", () => {
+  // page counts and section placement are checked on the fixed demo résumé (typeset.fixture.ts), not the real CV
   test("print scale: exactly two pages, both well filled, the label column kept", () => {
-    const L = layoutResume(resume, owner, 1, measure);
+    const L = layoutResume(demoResume, demoOwner, 1, measure);
     expect(L.columns).toBe(2);
     expect(L.pages.length).toBe(2);
     // no near-empty page
@@ -71,10 +73,13 @@ describe("layoutResume", () => {
     // identity, profile and experience on page 1; education onward on page 2
     const p1 = texts(L.pages[0]!).map((o) => o.text);
     const p2 = texts(L.pages[1]!).map((o) => o.text);
-    expect(p1).toContain(sample.name);
+    expect(p1).toContain(demoOwner.name);
     expect(p1).toContain("Experience");
+    // the addresses sit under the name (redesign 2026-10-25), not in a section of their own
+    expect(p1.some((t) => t.includes("github.com/qzz0518"))).toBe(true);
     expect(p2).toContain("Education");
-    expect(p2).toContain("Elsewhere");
+    expect(p2).toContain("Languages");
+    expect([...p1, ...p2]).not.toContain("Elsewhere");
   });
 
   test("everything stays inside the margins", () => {
@@ -105,8 +110,8 @@ describe("layoutResume", () => {
   });
 
   test("bigger type flows onto more pages and drops the label column", () => {
-    const small = layoutResume(resume, owner, 1, measure);
-    const big = layoutResume(resume, owner, 1.9, measure);
+    const small = layoutResume(demoResume, demoOwner, 1, measure);
+    const big = layoutResume(demoResume, demoOwner, 1.9, measure);
     expect(big.columns).toBe(1);
     expect(1.9).toBeGreaterThan(SINGLE_COLUMN);
     expect(big.pages.length).toBeGreaterThan(small.pages.length);
@@ -166,13 +171,15 @@ describe("a Chinese résumé", () => {
   });
   test("Chinese labels and punctuation, kinsoku on every line, everything on the page", () => {
     for (const s of [1, 1.6]) {
-      const L = layoutResume(zh, zhOwner, s, measure);
+      const L = layoutResume(demoResumeZh, demoOwnerZh, s, measure);
       const all = L.pages.flatMap(texts);
       const words = all.map((o) => o.text);
       expect(words).toContain("工作经历");
       expect(words).toContain("教育");
       expect(words).not.toContain("Experience");
-      expect(words.some((w) => w.includes("资深设计工程师，"))).toBe(true);
+      // the role on its own line under the organisation; the Chinese comma between role and city
+      expect(words).toContain("资深设计工程师");
+      expect(words).toContain("设计工程师，上海");
       for (const o of all) {
         expect(NO_START.has(Array.from(o.text.trimStart())[0] ?? "")).toBe(false);
         expect(o.x).toBeGreaterThanOrEqual(10);
@@ -180,14 +187,14 @@ describe("a Chinese résumé", () => {
       }
       // every bullet's characters are on a page, in order
       const flat = all.map((o) => o.text).join("");
-      for (const e of zh.experience) for (const b of e.bullets) expect(flat.replace(/\s/g, "")).toContain(b.replace(/\s/g, "").slice(0, 6));
+      for (const e of demoResumeZh.experience) for (const b of e.bullets) expect(flat.replace(/\s/g, "")).toContain(b.replace(/\s/g, "").slice(0, 6));
     }
   });
   test("print scale: two pages, the second starting at a section (the jobs are not split across pages)", () => {
-    const L = layoutResume(zh, zhOwner, 1, measure);
+    const L = layoutResume(demoResumeZh, demoOwnerZh, 1, measure);
     expect(L.pages.length).toBe(2);
     const p1 = texts(L.pages[0]!).map((o) => o.text).join("");
-    for (const e of zh.experience) expect(p1).toContain(e.org.split(" ")[0]!);
+    for (const e of demoResumeZh.experience) expect(p1).toContain(e.org.split(" ")[0]!);
     expect(texts(L.pages[1]!).some((o) => o.text === "教育")).toBe(true);
   });
 });
