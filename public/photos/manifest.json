@@ -269,14 +269,6 @@
     "note": "cropped"
   },
   {
-    "file": "photos/rail-west-683.webp",
-    "use": "card cover",
-    "license": "CC0",
-    "author": "MaedaAkihiko",
-    "source": "https://commons.wikimedia.org/wiki/File:JRW_Series683-2000R_R11.jpg",
-    "note": "cropped"
-  },
-  {
     "file": "photos/rail-shinkansen-n700s.webp",
     "use": "card cover",
     "license": "CC0",
@@ -371,5 +363,115 @@
     "author": "Benoît Prieur",
     "source": "https://commons.wikimedia.org/wiki/File:Port_Hercule_-_novembre_2021_(3).jpg",
     "note": "cropped"
+  },
+  {
+    "file": "photos/rail-haruka-281.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-kanku-225.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-kuroshio-283.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-panda-kuroshio.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-thunderbird-683.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-marine-liner.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-shikoku-8000.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-shikoku-8600.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-anpanman-2000.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-anpanman-2700.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-shikoku-2700.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-tsurugi-185.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-kiha47-tokushima.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-shikoku-1000.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-hobby-train.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-kotoden-1200.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-hiroden-5000.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-hiroden-5100.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-hiroden-800.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-yufuin-no-mori.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-aso-boy.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-ibutama.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
   }
 ]

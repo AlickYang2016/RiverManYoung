@@ -1,5 +1,5 @@
 import type { Profile } from "../src/profile/schema";
-import { albumsFor, CV, source, type AlbumWords, type PostcardText } from "./shared";
+import { albumsFor, CV, railNames, source, type AlbumWords, type PostcardText } from "./shared";
 import { seal } from "./seal";
 
 /*
@@ -8,7 +8,7 @@ import { seal } from "./seal";
  * To change a fact, change it in all three files.
  */
 
-const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026", "IV · On the rails"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" } };
+const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026", "IV · On the rails"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" }, names: railNames.en };
 
 const placeNotes = [
   "Four chapters. I · Study & work: the cities that shaped the path so far, and the next one. II · Europe & beyond: journeys. III · Japan, October 2026. IV · On the rails: trains, metros and trams I have ridden. Each card shows a landmark tied to its place.",
@@ -36,11 +36,32 @@ const placeNotes = [
   "Japan, October 2026: Kiyomizu-dera.",
   "Japan, October 2026: the last stop before Paris, on 17 October. The photo is from an earlier visit: Tokyo Tower, August 2024.",
   "Narita Express, E259 series: a door in the nose, so two six-car trains can run coupled from the airport and split at Tokyo for Shinjuku and Yokohama.",
-  "JR Kyushu, the 787 series: gunmetal grey, drawn by the designer Eiji Mitooka; Blue Ribbon Award, 1993.",
-  "JR West, the 683 series: the limited expresses from Osaka and Nagoya to the Hokuriku coast, up to 130 km/h on narrow gauge.",
-  "Tokaido Shinkansen, the N700S: the first high-speed train that can still move on its own batteries when the power fails. Here past the tea fields of Shizuoka.",
-  "Tohoku Shinkansen, the E5 “Hayabusa”: 320 km/h, and a nose 15 metres long to soften the boom as it enters a tunnel.",
   "The Yamanote line, E235 series: narrow gauge, 1,067 mm, yet a body 2.95 m wide, so there is far more room inside than the track suggests.",
+  "Tohoku Shinkansen, the E5 “Hayabusa”: 320 km/h, and a nose 15 metres long to soften the boom as it enters a tunnel.",
+  "Tokaido Shinkansen, the N700S: the first high-speed train that can still move on its own batteries when the power fails. Here past the tea fields of Shizuoka.",
+  "Haruka, the 281 series: built in 1994 for the opening of Kansai Airport, the limited express from Kyoto and Osaka to the terminal.",
+  "Kansai Airport and Kishuji Rapid, 225 series: one train leaves Osaka, then divides at Hineno, one half to the airport, the other to Wakayama.",
+  "Kuroshio, the 283 “Ocean Arrow”: a tilting train with a panoramic front, for the Pacific coast of the Kii peninsula.",
+  "Panda Kuroshio, 287 series: dressed for Adventure World in Shirahama, for years home to Japan’s largest family of giant pandas.",
+  "JR West, the 683 series: the limited expresses from Osaka and Nagoya to the Hokuriku coast, up to 130 km/h on narrow gauge. Here at Ōtsukyō, by Lake Biwa.",
+  "Marine Liner, 5000 series: a double-deck front car with panoramic seats, across the Seto Ōhashi bridge from Okayama to Takamatsu.",
+  "JR Shikoku, the 8000 series: a tilting electric express of 1992, for the curves of the Yosan line to Matsuyama.",
+  "JR Shikoku, the 8600 series: it leans into curves on its air springs instead of a pendulum, and its round face is said to recall a steam locomotive.",
+  "Yosan line Anpanman train, 2000 series: the 2000 series was the world’s first tilting diesel train, in 1989.",
+  "The yellow Anpanman train, 2700 series, on the Dosan line to Kōchi: Takashi Yanase, who drew Anpanman, came from Kōchi.",
+  "JR Shikoku, the 2700 series: a tilting diesel express that combines a pendulum with air springs, on the Nanpu and Uzushio services.",
+  "Tsurugi, Kiha 185: a stainless-steel diesel express built in 1986, the last year of Japanese National Railways, still running up the Tokushima line.",
+  "Kiha 47 at Tokushima: a diesel railcar from the National Railways era, late 1970s, still on everyday locals.",
+  "JR Shikoku 1000 type, bound for Susaki: a one-man diesel railcar of the Kōchi locals, with a door in the middle of its face.",
+  "The Railway Hobby Train on the Yodo line: a small Kiha 32 railcar dressed as a 0 series Shinkansen, “the world’s slowest Shinkansen”.",
+  "Kotoden 1200 type, Takamatsu: a former Keikyu train from Tokyo, given a second life on the line to Kotohira.",
+  "Hiroden 5000, “Green Mover”: a low-floor tram built by Siemens in Germany and shipped to Hiroshima in 1999.",
+  "Hiroden 5100, “Green Mover Max”, in Carp colours: Japan’s first fully low-floor tram made in Japan, after the imported 5000.",
+  "Hiroden 800, bound for Hiroshima Port: Hiroshima runs the largest tram network in Japan.",
+  "JR Kyushu, the 787 series: gunmetal grey, drawn by the designer Eiji Mitooka; Blue Ribbon Award, 1993.",
+  "Yufuin no Mori: a high-deck train, seats raised above the windows of ordinary cars, wood inside, from Hakata to the hot springs of Yufuin.",
+  "Aso Boy!, Kiha 183-1000: a family train for the Aso caldera, with Kuro the dog as its mascot; another Eiji Mitooka design, now retired.",
+  "Ibusuki no Tamatebako: half black, half white, after the treasure box of the Urashima Tarō tale, and a puff of mist when the doors open.",
   "RER B, the MI 79: dual-voltage, 1,500 V DC on the RATP section and 25 kV AC on the SNCF one, so one train runs straight through Paris from Roissy to the south.",
   "Paris Métro, line 12 at Abbesses, the deepest station of the network, about 36 m down; an MF 67, the older steel-wheeled stock.",
   "Paris Métro, the MP 14 on line 11: rubber tyres on a metro. Line 11 was the first in the world to run them, in 1956.",

@@ -1,5 +1,5 @@
 import type { Profile } from "../src/profile/schema";
-import { albumsFor, card, CV, note, polaroid, resume, source, ticket, type PostcardText } from "./shared";
+import { albumsFor, card, CV, note, polaroid, railNames, resume, source, ticket, type PostcardText } from "./shared";
 import { seal } from "./seal";
 
 /* Zijiang (Alexis) Yang — édition française du folio. Mêmes objets que en.ts, textes repris de alexisyang.com/?lang=fr. */
@@ -30,11 +30,32 @@ const placeNotes = [
   "Japon, octobre 2026 : le Kiyomizu-dera.",
   "Japon, octobre 2026 : la dernière étape avant Paris, le 17 octobre. La photo date d’un premier passage : la tour de Tokyo, en août 2024.",
   "Narita Express, série E259 : une porte dans le nez, pour que deux rames de six voitures roulent attelées depuis l’aéroport puis se séparent à Tokyo, vers Shinjuku et Yokohama.",
-  "JR Kyushu, série 787 : gris acier, dessinée par le designer Eiji Mitooka ; Blue Ribbon Award 1993.",
-  "JR West, série 683 : les express d’Osaka et de Nagoya vers la côte du Hokuriku, jusqu’à 130 km/h sur voie étroite.",
-  "Shinkansen Tōkaidō, N700S : le premier train à grande vitesse capable d’avancer sur ses propres batteries en cas de coupure. Ici le long des champs de thé de Shizuoka.",
-  "Shinkansen Tōhoku, E5 « Hayabusa » : 320 km/h, et un nez de 15 mètres pour adoucir la détonation à l’entrée des tunnels.",
   "La ligne Yamanote, série E235 : une voie étroite de 1 067 mm, mais une caisse de 2,95 m de large ; l’intérieur est bien plus spacieux que la voie ne le laisse croire.",
+  "Shinkansen Tōhoku, E5 « Hayabusa » : 320 km/h, et un nez de 15 mètres pour adoucir la détonation à l’entrée des tunnels.",
+  "Shinkansen Tōkaidō, N700S : le premier train à grande vitesse capable d’avancer sur ses propres batteries en cas de coupure. Ici le long des champs de thé de Shizuoka.",
+  "Haruka, série 281 : construite en 1994 pour l’ouverture de l’aéroport du Kansai, l’express qui relie Kyoto et Osaka au terminal.",
+  "Rapide Kansai Airport et Kishuji, série 225 : un seul train quitte Osaka puis se divise à Hineno, une moitié vers l’aéroport, l’autre vers Wakayama.",
+  "Kuroshio, la 283 « Ocean Arrow » : un train pendulaire à l’avant panoramique, pour la côte Pacifique de la péninsule de Kii.",
+  "Kuroshio panda, série 287 : aux couleurs d’Adventure World à Shirahama, longtemps la plus grande famille de pandas géants du Japon.",
+  "JR West, série 683 : les express d’Osaka et de Nagoya vers la côte du Hokuriku, jusqu’à 130 km/h sur voie étroite. Ici à Ōtsukyō, au bord du lac Biwa.",
+  "Marine Liner, série 5000 : une voiture de tête à deux niveaux aux places panoramiques, sur le pont de Seto Ōhashi, d’Okayama à Takamatsu.",
+  "JR Shikoku, série 8000 : un express électrique pendulaire de 1992, pour les courbes de la ligne Yosan jusqu’à Matsuyama.",
+  "JR Shikoku, série 8600 : elle s’incline dans les courbes grâce à ses ressorts pneumatiques plutôt qu’à un pendule, et son visage rond rappellerait une locomotive à vapeur.",
+  "Train Anpanman de la ligne Yosan, série 2000 : la série 2000 a été le premier train diesel pendulaire au monde, en 1989.",
+  "Le train Anpanman jaune, série 2700, sur la ligne Dosan vers Kōchi : Takashi Yanase, le dessinateur d’Anpanman, venait de Kōchi.",
+  "JR Shikoku, série 2700 : un express diesel pendulaire qui combine pendule et ressorts pneumatiques, sur les services Nanpū et Uzushio.",
+  "Tsurugi, Kiha 185 : un express diesel en inox construit en 1986, la dernière année des chemins de fer nationaux japonais, toujours en service sur la ligne de Tokushima.",
+  "Kiha 47 à Tokushima : un autorail diesel de l’époque des chemins de fer nationaux, fin des années 1970, toujours sur les omnibus du quotidien.",
+  "JR Shikoku type 1000, direction Susaki : un autorail diesel à agent seul des omnibus de Kōchi, avec une porte au milieu du visage.",
+  "Le Railway Hobby Train de la ligne Yodo : un petit autorail Kiha 32 déguisé en Shinkansen série 0, « le Shinkansen le plus lent du monde ».",
+  "Kotoden type 1200, Takamatsu : un ancien train Keikyu de Tokyo, qui a trouvé une seconde vie sur la ligne de Kotohira.",
+  "Hiroden 5000, « Green Mover » : un tram à plancher bas construit par Siemens en Allemagne et livré à Hiroshima en 1999.",
+  "Hiroden 5100, « Green Mover Max », aux couleurs des Carp : le premier tram entièrement à plancher bas fabriqué au Japon, après la 5000 importée.",
+  "Hiroden 800, direction le port d’Hiroshima : Hiroshima exploite le plus grand réseau de tramway du Japon.",
+  "JR Kyushu, série 787 : gris acier, dessinée par le designer Eiji Mitooka ; Blue Ribbon Award 1993.",
+  "Yufuin no Mori : un train surélevé, les sièges plus haut que dans une voiture ordinaire, du bois à l’intérieur, de Hakata aux sources chaudes de Yufuin.",
+  "Aso Boy!, Kiha 183-1000 : un train pour les familles vers la caldeira d’Aso, avec le chien Kuro pour mascotte ; encore un dessin d’Eiji Mitooka, aujourd’hui retiré.",
+  "Ibusuki no Tamatebako : moitié noir, moitié blanc, comme le coffret du conte d’Urashima Tarō, et une bouffée de brume quand les portes s’ouvrent.",
   "RER B, MI 79 : bicourant, 1 500 V continu sur la partie RATP et 25 kV alternatif sur la partie SNCF, pour traverser Paris d’un seul train de Roissy jusqu’au sud.",
   "Métro de Paris, ligne 12 à Abbesses, la station la plus profonde du réseau, à environ 36 m ; un MF 67, l’ancien matériel sur roues en fer.",
   "Métro de Paris, MP 14 sur la ligne 11 : un métro sur pneus. La ligne 11 a été la première au monde à en rouler, en 1956.",
@@ -198,5 +219,5 @@ export const profileFr: Profile = {
       date: "2026-10-24",
     },
   ],
-  albums: albumsFor(placeNotes, postcardsFr, "Alexis", { chapters: ["I · Études & travail", "II · Europe & au-delà", "III · Japon 2026", "IV · Sur les rails"], contents: "Sommaire", photo: "Photo", badges: { c5: "Recherche & Stratégie · 2026" } }),
+  albums: albumsFor(placeNotes, postcardsFr, "Alexis", { chapters: ["I · Études & travail", "II · Europe & au-delà", "III · Japon 2026", "IV · Sur les rails"], contents: "Sommaire", photo: "Photo", badges: { c5: "Recherche & Stratégie · 2026" }, names: railNames.fr }),
 };

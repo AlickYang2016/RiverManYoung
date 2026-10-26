@@ -32,7 +32,6 @@ Trains, metros and trams (album chapter IV) and travel postcards, added 2026-10-
 |---|---|---|---|---|
 | `rail-narita-express.webp` | Narita Express (JR East E259 series, N'EX) | Sui-setz | Public domain | https://commons.wikimedia.org/wiki/File:JR_East_E259_Narita-Express.jpg |
 | `rail-kyushu-787.webp` | JR Kyushu 787 series (Nichirin Seagaia) | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:Series787-BM13_Nichirin-Seagaia-5.jpg |
-| `rail-west-683.webp` | JR West 683 series (2000 subseries, Thunderbird/Shirasagi family) | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:JRW_Series683-2000R_R11.jpg |
 | `rail-shinkansen-n700s.webp` | Tokaido Shinkansen N700S | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:Tokaido-Shinkansen_N700S_Kikugawa.jpg |
 | `rail-shinkansen-e5.webp` | Tohoku Shinkansen E5 series | Toshinori baba | CC0 | https://commons.wikimedia.org/wiki/File:JRE-TEC-E5_omiya.JPG |
 | `rail-yamanote.webp` | JR East Yamanote Line E235 series | aqz-tmin | CC0 | https://commons.wikimedia.org/wiki/File:JRE_E235_Yamanote_Line_04_set_Tokyo_Station_2017-07-09_(35765917051).jpg |
