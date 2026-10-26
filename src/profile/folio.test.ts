@@ -3,6 +3,8 @@ import { folioLangs, langName, loadedProfile, loadProfile, matchLang, pickLang, 
 import { folio as sampleFolio } from "../../profile";
 import { profile as sample } from "../../profile/en";
 import { profileZh as sampleZh } from "../../profile/zh";
+import { profileJa } from "../../profile/ja";
+import { profileFr } from "../../profile/fr";
 
 const two: Folio = { primary: "en", profiles: { en: sample, zh: async () => sampleZh } };
 
@@ -68,17 +70,31 @@ describe("loading", () => {
     expect(await loadProfile(f, "zh")).toBe(sampleZh);
     await expect(loadProfile(f, "fr")).rejects.toThrow();
   });
-  test("the site's folio is French first, then English and Chinese", async () => {
-    expect(folioLangs(sampleFolio)).toEqual(["fr", "en", "zh"]);
+  test("the site's folio is French first, then English, Chinese and Japanese", async () => {
+    expect(folioLangs(sampleFolio)).toEqual(["fr", "en", "zh", "ja"]);
     expect(loadedProfile(sampleFolio, "fr")?.lang).toBe("fr");
     expect((await loadProfile(sampleFolio, "en")).lang).toBe("en");
     expect((await loadProfile(sampleFolio, "zh")).lang).toBe("zh-CN");
+    expect((await loadProfile(sampleFolio, "ja")).lang).toBe("ja");
   });
 });
 
 describe("in-place switching", () => {
   test("the sample's two languages describe the same things", () => {
     expect(shapeDiff(sample, sampleZh)).toEqual([]);
+  });
+  test("the folio's French and Japanese editions describe the same things as the English", () => {
+    expect(shapeDiff(sample, profileFr)).toEqual([]);
+    expect(shapeDiff(sample, profileJa)).toEqual([]);
+    // every card and postcard has its Japanese words (the notes and texts are index-aligned with en.ts)
+    expect(profileJa.albums.cards.every((c) => !!c.note && !!c.chapter)).toBe(true);
+    expect(profileJa.albums.postcards.every((p) => !!p.message && !!p.place)).toBe(true);
+  });
+  test("?lang=ja and ja-JP reach the Japanese edition", async () => {
+    expect(matchLang(sampleFolio, "ja")).toBe("ja");
+    expect(matchLang(sampleFolio, "ja-JP")).toBe("ja");
+    expect((await loadProfile(sampleFolio, "ja")).lang).toBe("ja");
+    expect(langName("ja")).toBe("日本語");
   });
   test("a different shape is named", () => {
     const fewer = { ...sampleZh, albums: { ...sampleZh.albums, postcards: sampleZh.albums.postcards.slice(1) } };

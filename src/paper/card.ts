@@ -55,7 +55,7 @@ export { MAX_PX_PER_MM as CARD_MAX_PX_PER_MM };
 type Script = { t0: number; from: number; to: number; dur: number; release: boolean };
 type CardOwner = { nameLocal?: string; name?: string; role?: string };
 /** the inside's micro-label over the contact rows */
-export const CONTACT = { en: "Contact", zh: "联系方式" };
+export const CONTACT = { en: "Contact", zh: "联系方式", ja: "連絡先" };
 
 export async function createCardModel(firstItem: BusinessCardItem, firstOwner: CardOwner | undefined, ctx: ModelCtx): Promise<Model> {
   /** what is printed: setItem() swaps it (another language), the next repaint() prints it */
@@ -521,7 +521,8 @@ export function paintCard(item: BusinessCardItem, owner: CardOwner | undefined, 
     paintText(g, s, x, y, style, style.size, lang, align);
   };
   const st = (face: TextStyle["face"], size: number, color: string, extra: Partial<TextStyle> = {}): TextStyle => ({ face, size, color, ...extra });
-  const zh = /^zh/i.test(lang ?? "") || /\p{Script=Han}/u.test(item.inside.map((r) => r.k).join(""));
+  const ja = /^ja/i.test(lang ?? "");
+  const zh = ja || /^zh/i.test(lang ?? "") || /\p{Script=Han}/u.test(item.inside.map((r) => r.k).join(""));
 
   /* the cover's back (top half): the inside note in Mincho, centred under a small 藍 ○ */
   const note = item.insideNote?.trim();
@@ -545,7 +546,7 @@ export function paintCard(item: BusinessCardItem, owner: CardOwner | undefined, 
 
   /* the inner panel (bottom half): the contact rows, label left and value right, on hairlines */
   const rows = item.inside.slice(0, 4);
-  press((g, c) => text(g, zh ? CONTACT.zh : CONTACT.en, 9, 54 + 11.2, st("sans", 2, c, { weight: 500, track: zh ? 0.12 : 0.08 })), PRINT.muted, 36);
+  press((g, c) => text(g, ja ? CONTACT.ja : zh ? CONTACT.zh : CONTACT.en, 9, 54 + 11.2, st("sans", 2, c, { weight: 500, track: zh ? 0.12 : 0.08 })), PRINT.muted, 36);
   const top = 54 + 15.4;
   const rowH = Math.min(9.6, 30 / Math.max(1, rows.length));
   rows.forEach((row, i) => {

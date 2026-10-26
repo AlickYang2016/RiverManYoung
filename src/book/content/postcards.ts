@@ -1,4 +1,4 @@
-import { hanLangOf, type FontRun, type HanLang, type Role } from "../../fonts";
+import { hanLangOf, pageLang, type FontRun, type HanLang, type Role } from "../../fonts";
 import { wrapUnits } from "../../print/kinsoku";
 import type { Postcard } from "../../profile/schema";
 import type { LayoutPreset, LayoutSpec } from "../layout";
@@ -27,7 +27,7 @@ function postcardRuns(cards: readonly PostcardItem[]): FontRun[] {
   const by = new Map<string, FontRun>();
   const add = (role: Role, weight: number, text: string | undefined) => {
     if (!text?.trim()) return;
-    const han = hanLangOf(text);
+    const han = hanLangOf(text, pageLang());
     const k = `${role}${weight}${han}`;
     const r = by.get(k);
     if (r) r.text += text;
@@ -200,7 +200,7 @@ function postmarkPlace(card: PostcardItem): string {
 }
 /** "— Lin", or "—— 林" under a Chinese message. */
 function signature(card: PostcardItem): string {
-  return /\p{Script=Han}/u.test(card.message) && hanLangOf(card.message) !== "ja" ? `—— ${card.from}` : `— ${card.from}`;
+  return /\p{Script=Han}/u.test(card.message) && hanLangOf(card.message, pageLang()) !== "ja" ? `—— ${card.from}` : `— ${card.from}`;
 }
 /** YY.MM.DD */
 function postmarkDate(date: string | undefined): string | undefined {
@@ -210,7 +210,7 @@ function postmarkDate(date: string | undefined): string | undefined {
 }
 
 function font(ctx: CanvasRenderingContext2D, role: Role, weight: number, size: number, text: string, han?: HanLang) {
-  ctx.font = printFont(role, weight, size, han ?? hanLangOf(text));
+  ctx.font = printFont(role, weight, size, han ?? hanLangOf(text, pageLang()));
 }
 
 function messageSide(ctx: CanvasRenderingContext2D, card: PostcardItem, cell: SlotCell, env: PaintEnv, w: number, h: number) {

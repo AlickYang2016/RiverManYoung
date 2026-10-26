@@ -1,4 +1,4 @@
-import { hanLangOf, type FontRun } from "../../fonts";
+import { hanLangOf, pageLang, type FontRun } from "../../fonts";
 import type { AlbumCard } from "../../profile/schema";
 import type { LayoutPreset, LayoutSpec } from "../layout";
 import { createPocketGrid, type ContentSource, type PaintEnv, type SlotCell } from "./grid";
@@ -24,13 +24,13 @@ function cardRuns(cards: readonly AlbumCard[]): FontRun[] {
   const latin = cards.map((c) => c.label || c.id).join(" ");
   const local = cards.map((c) => c.nameLocal ?? "").join("");
   const chapters = cards.map((c) => c.chapter ?? "").join(" ");
-  const runs: FontRun[] = [{ role: "serif", weight: 400, text: latin, han: hanLangOf(latin) }, { role: "sans", weight: 500, text: "0123456789", han: "ja" }];
-  if (chapters.trim()) runs.push({ role: "sans", weight: 500, text: chapters, han: hanLangOf(chapters) });
+  const runs: FontRun[] = [{ role: "serif", weight: 400, text: latin, han: hanLangOf(latin, pageLang()) }, { role: "sans", weight: 500, text: "0123456789", han: "ja" }];
+  if (chapters.trim()) runs.push({ role: "sans", weight: 500, text: chapters, han: hanLangOf(chapters, pageLang()) });
   if (local) runs.push({ role: "serif", weight: 400, text: local, han: "ja" });
   const badges = cards.map((c) => c.badge?.title ?? "").join(" ");
   const lines = cards.map((c) => c.badge?.line ?? "").join(" ");
-  if (badges.trim()) runs.push({ role: "serif", weight: 600, text: badges, han: hanLangOf(badges) });
-  if (lines.trim()) runs.push({ role: "sans", weight: 500, text: lines, han: hanLangOf(lines) });
+  if (badges.trim()) runs.push({ role: "serif", weight: 600, text: badges, han: hanLangOf(badges, pageLang()) });
+  if (lines.trim()) runs.push({ role: "sans", weight: 500, text: lines, han: hanLangOf(lines, pageLang()) });
   return runs;
 }
 
@@ -97,7 +97,7 @@ export function paintAlbumCard(ctx: CanvasRenderingContext2D, card: AlbumCard, c
     const label = card.label || card.id;
     const x = 5;
     const y = h - 5.4;
-    ctx.font = printFont("serif", 400, LABEL_MM, hanLangOf(label));
+    ctx.font = printFont("serif", 400, LABEL_MM, hanLangOf(label, pageLang()));
     track(ctx, LABEL_MM * 0.01);
     ctx.fillText(label, x, y);
     const lw = ctx.measureText(label).width;
@@ -149,7 +149,7 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
   ctx.fillText(String(index + 1).padStart(2, "0"), w - 4.6, 6.6);
   ctx.textAlign = "left";
   if (card.chapter) {
-    ctx.font = printFont("sans", 500, CHAPTER_MM, hanLangOf(card.chapter));
+    ctx.font = printFont("sans", 500, CHAPTER_MM, hanLangOf(card.chapter, pageLang()));
     track(ctx, CHAPTER_MM * 0.1);
     ctx.fillStyle = "rgba(250,250,247,0.86)";
     ctx.fillText(card.chapter, 5, 7);
@@ -162,7 +162,7 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
   const label = card.label || card.id;
   const x = 5;
   const y = h - 5.4;
-  ctx.font = printFont("serif", 400, LABEL_MM, hanLangOf(label));
+  ctx.font = printFont("serif", 400, LABEL_MM, hanLangOf(label, pageLang()));
   track(ctx, LABEL_MM * 0.01);
   ctx.fillText(label, x, y);
   const lw = ctx.measureText(label).width;
@@ -182,12 +182,12 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
  */
 function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard["badge"]>, w: number, h: number) {
   const padX = 2.2;
-  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title));
+  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title, pageLang()));
   track(ctx, BADGE_MM * 0.04);
   const tw = ctx.measureText(badge.title).width;
   let lw = 0;
   if (badge.line) {
-    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line));
+    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line, pageLang()));
     track(ctx, BADGE_LINE_MM * 0.08);
     lw = ctx.measureText(badge.line).width;
   }
@@ -209,12 +209,12 @@ function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard[
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#1c232b";
-  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title));
+  ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title, pageLang()));
   track(ctx, BADGE_MM * 0.04);
   ctx.fillText(badge.title, x + padX + 0.8, y + 5.8);
   if (badge.line) {
     ctx.fillStyle = "#4f5d69";
-    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line));
+    ctx.font = printFont("sans", 500, BADGE_LINE_MM, hanLangOf(badge.line, pageLang()));
     track(ctx, BADGE_LINE_MM * 0.08);
     ctx.fillText(badge.line, x + padX + 0.8, y + 9.4);
   }

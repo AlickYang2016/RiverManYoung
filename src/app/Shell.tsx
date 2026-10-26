@@ -243,8 +243,8 @@ const PILE: Record<Tab, { w: number; x: number; r: number }> = {
 function Toc({ profile, tab, onTab }: { profile: Profile; tab: Tab; onTab(t: Tab): void }) {
   const t = useT();
   const refs = useRef<(HTMLAnchorElement | null)[]>([]);
-  // a second name on the spine of a Chinese page: 卡册 Cards
-  const latin = t.lang === "zh";
+  // a second name on the spine of a Chinese or Japanese page: 卡册 Cards, カード Cards
+  const latin = t.lang === "zh" || t.lang === "ja";
   useFontRuns(run("serif", 500, t.lang === "zh" ? "zh-Hans" : "ja", ...BOOKLETS.map((b) => t.booklet[b.id].name)));
   const onKey = (e: ReactKeyboardEvent<HTMLElement>) => {
     const d = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0;

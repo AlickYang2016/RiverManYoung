@@ -37,9 +37,14 @@ def collect(ja: bool = False) -> set[int]:
         text = p.read_text(encoding="utf-8")
         if ja and p.name == "zh.ts" and p.parent.name == "profile":
             continue
+        # and the Chinese faces leave out the Japanese edition: on a Japanese page all its Han text takes the Japanese faces
+        if not ja and p.name == "ja.ts" and p.parent.name == "profile":
+            continue
         if ja and p.name == "i18n.ts":
             text = re.sub(r"export const zh: Dict = \{.*?\n\};", "", text, flags=re.S)
             text = re.sub(r"const ZH_NUM.*?\n\}", "", text, flags=re.S)
+        if not ja and p.name == "i18n.ts":
+            text = re.sub(r"export const ja: Dict = \{.*?\n\};", "", text, flags=re.S)
         for ch in text:
             c = ord(ch)
             if c > 0x7F:

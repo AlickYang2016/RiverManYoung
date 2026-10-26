@@ -32,9 +32,10 @@ const PPM_BASE = 10;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const DAYS_ZH = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+const DAYS_JA = ["日曜", "月曜", "火曜", "水曜", "木曜", "金曜", "土曜"];
 
 type Words = { date: string; time: string; seat: string; admit: string; terms: string[] };
-const WORDS: Record<"en" | "zh" | "fr", Words> = {
+const WORDS: Record<"en" | "zh" | "fr" | "ja", Words> = {
   en: {
     date: "Date",
     time: "Doors",
@@ -50,12 +51,17 @@ const WORDS: Record<"en" | "zh" | "fr", Words> = {
     terms: ["Valable pour une personne à la date indiquée.", "Conservez ce billet jusqu’à la sortie ; il est contrôlé à l’entrée.", "Non valable une fois poinçonné pour un autre jour.", "Aucune réentrée une fois le talon détaché."],
   },
   zh: { date: "日期", time: "入场", seat: "座位", admit: "凭票入场", terms: ["凭本票入场一人，仅限当日有效。", "请保留至离场，入口处验票。", "打孔后不再用于他日。", "票根撕下后不可再次入场。"] },
+  ja: { date: "日付", time: "開場", seat: "座席", admit: "入場券", terms: ["表示の日付に限り、お一人様有効です。", "退場までお持ちください。入口で確認します。", "他の日付で入鋏済みのものは無効です。", "半券を切り離した後の再入場はできません。"] },
 };
 
-/** The ticket's own words follow the profile's language (zh → Chinese), else the language of its event name. */
-function wordsFor(item: TicketItem, lang?: string): { w: Words; zh: boolean } {
+/**
+ * The ticket's own words follow the profile's language (zh → Chinese, ja → Japanese), else the language of its event name. `zh`:
+ * set the CJK way (「」 round the talk, the dates in 年月日, the stub's words upright); `days`: the weekday names.
+ */
+function wordsFor(item: TicketItem, lang?: string): { w: Words; zh: boolean; days: string[] } {
+  if (/^ja/i.test(lang ?? "")) return { w: WORDS.ja, zh: true, days: DAYS_JA };
   const zh = /^zh/i.test(lang ?? "") || (!lang && /\p{Script=Han}/u.test(item.event));
-  return { w: zh ? WORDS.zh : /^fr/i.test(lang ?? "") ? WORDS.fr : WORDS.en, zh };
+  return { w: zh ? WORDS.zh : /^fr/i.test(lang ?? "") ? WORDS.fr : WORDS.en, zh, days: DAYS_ZH };
 }
 
 /** Samples along the torn edge (bottom to top) and the edge's x (mm from the left) at each: see tornProfile. */
@@ -124,11 +130,11 @@ function backTitle(item: TicketItem, pd: { y: string } | null): string {
 
 /** Every string the ticket prints. */
 function ticketRuns(item: TicketItem, lang?: string): FontRun[] {
-  const { w, zh } = wordsFor(item, lang);
+  const { w, zh, days } = wordsFor(item, lang);
   const pd = parseDate(item.date);
   const talk = item.talk ? (zh ? `「${item.talk}」` : `“${item.talk}”`) : undefined;
-  const dateText = pd ? (zh ? `${pd.y} 年 ${pd.mo} 月 ${pd.d} 日 ${DAYS_ZH[pd.wd]}` : `${DAYS[pd.wd]?.slice(0, 3)} ${pd.d} ${pd.m} ${pd.y}`) : item.date;
-  const micro = [item.label, w.date, w.time, w.seat, item.serial, pd ? (zh ? `${pd.y} 年 ${pd.mo} 月` : `${pd.m} ${pd.y}`) : undefined, pd ? (zh ? DAYS_ZH[pd.wd] : DAYS[pd.wd]) : undefined].map((t) => (t ? caps(t) : undefined));
+  const dateText = pd ? (zh ? `${pd.y} 年 ${pd.mo} 月 ${pd.d} 日 ${days[pd.wd]}` : `${DAYS[pd.wd]?.slice(0, 3)} ${pd.d} ${pd.m} ${pd.y}`) : item.date;
+  const micro = [item.label, w.date, w.time, w.seat, item.serial, pd ? (zh ? `${pd.y} 年 ${pd.mo} 月` : `${pd.m} ${pd.y}`) : undefined, pd ? (zh ? days[pd.wd] : DAYS[pd.wd]) : undefined].map((t) => (t ? caps(t) : undefined));
   return [
     ...runsOf("serif", 500, [item.event, pd?.d, backTitle(item, pd)], lang),
     ...runsOf("serif", 400, [talk], lang),
@@ -146,7 +152,7 @@ export function buildTicket(item: TicketItem, ctx: ObjectCtx): ObjectDef {
   const seed = hashStr(item.id + item.event);
   // its words, in the item's language (relabel() sets them again for another one); the paper, the edge and the outline stay
   let lang = ctx.lang;
-  let { w: words, zh } = wordsFor(item, lang);
+  let { w: words, zh, days } = wordsFor(item, lang);
   const { c, g } = makeCanvas(PW, PH);
   const bump = makeCanvas(PW, PH);
   const colorTex = T.add(colorTexture(c, ctx));
@@ -181,7 +187,7 @@ export function buildTicket(item: TicketItem, ctx: ObjectCtx): ObjectDef {
       const px = mm(21);
       const dw = measure(g, pd.d, { role: "serif", weight: 500, ls: -mm(0.3), lang }, px);
       drawText(g, pd.d, mm(right) - dw, mm(31.2), { role: "serif", px, weight: 500, color: PRINT.ink, ls: -mm(0.3), lang });
-      micro(zh ? (DAYS_ZH[pd.wd] ?? "") : (DAYS[pd.wd] ?? ""), right, 35.4, "right");
+      micro(zh ? (days[pd.wd] ?? "") : (DAYS[pd.wd] ?? ""), right, 35.4, "right");
     }
     // the event and the talk
     const evW = right - x0 - (pd ? numW : 0);
@@ -408,7 +414,7 @@ export function buildTicket(item: TicketItem, ctx: ObjectCtx): ObjectDef {
       item = next;
       ctx = nctx;
       lang = ctx.lang;
-      ({ w: words, zh } = wordsFor(item, lang));
+      ({ w: words, zh, days } = wordsFor(item, lang));
       spot = item.color ?? PRINT.ai;
       onSpot = luminance(spot) > 0.62 ? PRINT.ink : "#f4f6f7";
       serial = item.serial ?? `No. ${String(Math.floor(rng(seed)() * 9999)).padStart(4, "0")}`;

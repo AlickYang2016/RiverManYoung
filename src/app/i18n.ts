@@ -10,7 +10,7 @@ import type { Tab } from "./types";
  * a space between Han and Latin or numbers.
  */
 
-export type Lang = "en" | "zh" | "fr";
+export type Lang = "en" | "zh" | "fr" | "ja";
 /** Things the detail view can hold: the five pouch kinds plus the two album kinds. */
 export type HeldName = ItemKind | "colour" | "postcard";
 
@@ -418,11 +418,119 @@ export const zh: Dict = {
   },
 };
 
-/** The chrome language for a profile: Chinese when its `lang` is zh-anything, else English. */
-export function langOfProfile(p: Pick<Profile, "lang">): Lang {
-  return /^zh(-|$)/i.test(p.lang ?? "") ? "zh" : /^fr(-|$)/i.test(p.lang ?? "") ? "fr" : "en";
+/** "2024-09-14" → "2024年9月14日", "2024-08" → "2024年8月" (Japanese sets no space between the numbers and 年月日) */
+function dateJa(d: string): string {
+  const ym = /^(\d{4})-(\d{2})$/.exec(d.trim());
+  if (ym) return `${ym[1]}年${Number(ym[2])}月`;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d.trim());
+  return m ? `${m[1]}年${Number(m[2])}月${Number(m[3])}日` : d;
 }
-export const dictFor = (p: Pick<Profile, "lang">): Dict => { const l = langOfProfile(p); return l === "zh" ? zh : l === "fr" ? fr : en; };
+
+/*
+ * Japanese chrome: plain and quiet like the others, Japanese punctuation (、。「」), no space between kana / kanji and numbers. The
+ * local titles (卡册 · 明信片 · 简历, the kinds' 名片 …) stay Chinese, as on every page (owner 2026-10-25); the rest is Japanese.
+ */
+export const ja: Dict = {
+  lang: "ja",
+  htmlLang: "ja",
+  booklet: {
+    cards: { name: "カード", local: "卡册", latin: "Cards", noun: () => "枚のカード" },
+    postcards: { name: "絵はがき", local: "明信片", latin: "Postcards", noun: () => "枚の絵はがき" },
+    resume: { name: "レジュメ", local: "简历", latin: "Résumé folio", noun: () => "点" },
+  },
+  nav: { booklets: "冊子", skip: "冊子へ移動", home: "ウェブサイトに戻る" },
+  langs: { label: "言語" },
+  handling: {
+    resume: "デスクを傾けると、中のものが滑ります。ひとつ取り出せば、近くで読めます。",
+    cards: "ページの端をつかむか、矢印キーでめくります。カードを取り出すと、近くで見られます。",
+    postcards: (n) => `${n}の場所、${n}の朝。ページをめくって、裏面を読んでください。`,
+    closed: "表紙をクリックして開きます。",
+    printed: "このデスクにはWebGLが必要です。こちらは印刷版です。",
+  },
+  hint: { resume: "スマートフォンを傾けるか、ひとつ取り出してください。", cards: "スワイプでめくり、タップでカードを取り出します。", postcards: "スワイプでめくり、タップで絵はがきを取り出します。", closed: "表紙をタップして開きます。" },
+  clock: (time, city) => `${city ? `${city}の` : ""}現地時間 ${time}`,
+  controls: {
+    open: "開く",
+    openFolio: "フォルダーを開く",
+    openAlbum: "アルバムを開く",
+    close: "閉じる",
+    closeAlbum: "アルバムを閉じる",
+    closeFolio: "フォルダーを閉じる",
+    closeFolioShort: "閉じる",
+    shake: "振る",
+    tilt: "傾ける",
+    tiltOff: "傾きオフ",
+    tiltAria: "スマートフォンでフォルダーを傾ける",
+    prevPage: "前のページ",
+    nextPage: "次のページ",
+    pageOf: (i, n) => `${n}ページ中${i}ページ目`,
+    prev: "前へ",
+    next: "次へ",
+    putBack: "元に戻す",
+    putBackShort: "戻す",
+    openIt: "開く",
+    foldIt: "たたむ",
+    turnOver: "裏返す",
+    turnBack: "表に戻す",
+    pages: (a, b) => (a === b ? `${a}ページ` : `${a}–${b}ページ`),
+    pagesAria: (a, b, n) => (a === b ? `${n}ページ中${a}ページ目` : `${n}ページ中${a}〜${b}ページ目`),
+    objectOf: (i, n) => `${n}点中${i}点目`,
+    openCard: (title) => `「${title}」を開く`,
+    copyHex: "コピー",
+    copied: "コピーしました",
+    toolbar: "操作",
+  },
+  colophon: { label: "連絡先", email: "メール", emailCopied: "メールアドレスをコピーしました", copy: "コピー", copied: "コピーしました", newTab: "（新しいタブで開きます）", source: "ソース", sound: "サウンド", on: "オン", off: "オフ", textVersion: "テキスト版" },
+  case: { label: "表紙", aria: "表紙の素材", material: { frost: "フロスト", cloth: "クロス", leather: "レザー" } },
+  profile: { open: "プロフィール", sheet: "プロフィール", close: "閉じる" },
+  held: {
+    card: { local: "名片", latin: "Business card" },
+    resume: { local: "简历", latin: "Résumé" },
+    ticket: { local: "门票", latin: "Ticket" },
+    polaroid: { local: "拍立得", latin: "Polaroid" },
+    note: { local: "便笺", latin: "Note" },
+    colour: { local: "色卡", latin: "Colour card" },
+    postcard: { local: "明信片", latin: "Postcard" },
+  },
+  spec: {
+    name: "名前", role: "役職", event: "イベント", talk: "テーマ", date: "日付", time: "開場", venue: "会場", city: "都市", seat: "役割", serial: "番号",
+    caption: "キャプション", place: "場所", from: "差出人", colour: "色", series: "シリーズ", seriesValue: "传统色", postmarked: "消印", credit: "写真", pages: "ページ",
+  },
+  detail: { pdf: "PDF", download: "ダウンロード", text: "テキスト", readAsText: "テキストで読む", links: "リンク", story: "ストーリー", turned: "裏面", downloadAria: "レジュメをPDFでダウンロード" },
+  hagaki: "明信片",
+  text: {
+    hashira: { local: "本文", latin: "Text" },
+    back: "デスクに戻る",
+    profile: "プロフィール", experience: "職歴", education: "学歴", skills: "スキル", languages: "語学", elsewhere: "リンク", pouch: "ポーチの中身", cards: "カード", postcards: "絵はがき", contact: "連絡先",
+    json: "JSON", jsonBack: "テキスト版", copy: "コピー", copied: "コピーしました", download: "ダウンロード", lookCloser: "近くで見る", printed: "印刷版", jsonAria: "JSON形式のプロフィール",
+    join: "、",
+  },
+  loading: { folio: "フォルダーを開いています", album: "アルバムを開いています", noGl: "このデスクにはWebGLが必要です。こちらはテキスト版です", noGlLink: "テキスト版" },
+  paper: {
+    resume: "レジュメ",
+    card: "名刺",
+    page: (p, n) => `${n}ページ中${p}ページ目`,
+    pages: (a, b, n) => `${n}ページ中${a}〜${b}ページ目`,
+    cardClosed: "閉じている",
+    cardOpen: "開いている",
+    hint: "ページをドラッグするか、クリックか矢印キーでめくります。",
+    cardHint: "表紙をドラッグするか、クリックして開け閉めします。",
+  },
+  date: dateJa,
+  months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+  meta: {
+    description: (p) => `${p.name}${p.nameLocal ? `（${p.nameLocal}）` : ""}、${p.role}${p.location ? `、${p.location}` : ""}。${p.bio}`,
+    title: (p, v) => (v === "folio" ? `${p.name} — ${p.role}` : v === "json" ? `${p.name} — profile.json` : `${p.name} — テキスト版`),
+  },
+};
+
+/** The chrome language for a profile: by its `lang` (zh-anything → Chinese, fr → French, ja → Japanese), else English. */
+export function langOfProfile(p: Pick<Profile, "lang">): Lang {
+  const l = p.lang ?? "";
+  return /^zh(-|$)/i.test(l) ? "zh" : /^fr(-|$)/i.test(l) ? "fr" : /^ja(-|$)/i.test(l) ? "ja" : "en";
+}
+const DICTS: Record<Lang, Dict> = { en, fr, zh, ja };
+export const dictFor = (p: Pick<Profile, "lang">): Dict => DICTS[langOfProfile(p)];
 
 export const I18n = createContext<Dict>(en);
 export const useT = () => useContext(I18n);

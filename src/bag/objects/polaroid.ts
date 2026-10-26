@@ -102,7 +102,7 @@ export function buildPolaroid(item: PolaroidItem, ctx: ObjectCtx): ObjectDef {
   let zh = false;
   const words = (): FontRun[] => {
     lang = ctx.lang;
-    zh = /^zh/i.test(lang ?? "") || /\p{Script=Han}/u.test(item.caption + (item.back ?? ""));
+    zh = /^(zh|ja)/i.test(lang ?? "") || /\p{Script=Han}/u.test(item.caption + (item.back ?? ""));
     return [...runsOf("hand", 600, [item.caption, item.back, handDate(item.date, zh)], lang), ...runsOf("sans", 500, [filmNo], lang)];
   };
   const { c, g } = makeCanvas(PW, PH);

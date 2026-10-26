@@ -4,8 +4,8 @@ import { seal } from "./seal";
 
 /*
  * Zijiang (Alexis) Yang — the folio edition of alexisyang.com. Every line below is taken from the main site and its CV; the photos in
- * public/photos are the site's own. fr.ts and zh.ts carry the same things in French and Chinese, in the same order, with the same ids.
- * To change a fact, change it in all three files.
+ * public/photos are the site's own. fr.ts, zh.ts and ja.ts carry the same things in French, Chinese and Japanese, in the same order, with the same ids.
+ * To change a fact, change it in all four files.
  */
 
 const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026", "IV · On the rails"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" }, names: railNames.en };

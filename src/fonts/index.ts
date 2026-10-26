@@ -63,6 +63,14 @@ export function hanLangOf(text: string, lang?: string): HanLang {
   return "zh-Hans";
 }
 
+/**
+ * The page's language (`<html lang>`, set from the profile on view before anything is printed), for print that is not handed the
+ * profile's own: kanji-only words on a Japanese page (山手線, 鉄道) take the Japanese faces there, as hanLangOf(text, "ja") would.
+ */
+export function pageLang(): string | undefined {
+  return typeof document === "undefined" ? undefined : document.documentElement.lang || undefined;
+}
+
 /** The Han faces of a profile's own name: the face its 名 nameplate, seal and other name-bearing print use. */
 export function profileHan(p: { lang?: string; nameLocal?: string }): HanLang {
   return hanLangOf(p.nameLocal ?? "", p.lang);

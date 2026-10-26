@@ -81,7 +81,8 @@ export function buildNote(item: NoteItem, ctx: ObjectCtx): ObjectDef {
     lang = ctx.lang;
     zh = /^zh/i.test(lang ?? "") || (!lang && /\p{Script=Han}/u.test(item.text) && !/[ぁ-ヿ]/.test(item.text));
     sign = item.from ? (zh ? `—— ${item.from}` : `— ${item.from}`) : "";
-    date = noteDate(item.date, zh);
+    // a Japanese note is dated the way a Chinese one is (2026.10.24), signed with the one dash
+    date = noteDate(item.date, zh || /^ja/i.test(lang ?? ""));
     return [...runsOf("hand", 600, [item.text, sign, date], lang), ...runsOf("serif", 500, ["便笺"], lang, "zh-Hans")];
   };
   const runs = words();

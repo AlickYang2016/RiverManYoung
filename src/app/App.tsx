@@ -378,7 +378,7 @@ export function App({ profile: firstProfile, folio, lang: firstLang, stages = ST
     // the book's keyboard links and page counter speak the page's language too (its defaults are English)
     const common = { prev: st.controls.prevPage, next: st.controls.nextPage, pageOf: st.controls.pageOf, openCard: st.controls.openCard };
     return tab === "resume"
-      ? { ...common, region: st.lang === "zh" ? st.booklet.resume.name : st.booklet.resume.latin, openBook: st.controls.openFolio, closeBook: st.controls.closeFolio, loading: st.loading.folio, cardsHere: st.booklet.resume.name }
+      ? { ...common, region: st.lang === "zh" || st.lang === "ja" ? st.booklet.resume.name : st.booklet.resume.latin, openBook: st.controls.openFolio, closeBook: st.controls.closeFolio, loading: st.loading.folio, cardsHere: st.booklet.resume.name }
       : { ...common, region: st.booklet[tab].name, openBook: st.controls.openAlbum, closeBook: st.controls.closeAlbum, loading: st.loading.album, cardsHere: st.booklet[tab].name };
   }, [st, tab]);
   const slip = useMemo(() => ({ title: st.booklet[tab].local, han: stageHan }) as const, [st, tab, stageHan]);
