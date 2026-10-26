@@ -98,7 +98,7 @@ export type AlbumCard = {
    * Folio: a tag on the card's face (owner 2026-10-25: AEW should stand out in the album): a white label at the top left, its title
    * set large (an employer's name, "AEW") and a line under it ("Research & Strategy · 2026").
    */
-  badge?: { title: string; line?: string };
+  badge?: { title: string; line?: string; /** where on the face (default top: under the chapter line; bottom: bottom right) */ at?: "top" | "bottom" };
 };
 
 /** A postcard: picture side + message side. */

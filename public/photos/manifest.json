@@ -95,6 +95,11 @@
     "source": "https://commons.wikimedia.org/wiki/File:Osaka_Castle_2022-04-23.jpg"
   },
   {
+    "file": "photos/cover-aew.webp",
+    "use": "card cover",
+    "license": "All rights reserved, Zijiang Yang"
+  },
+  {
     "file": "photos/cover-paris.webp",
     "use": "card cover",
     "license": "All rights reserved, Zijiang Yang"

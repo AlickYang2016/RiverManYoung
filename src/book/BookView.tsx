@@ -279,6 +279,9 @@ export function BookView({
               onOpenCard: (i, newTab) => !dead && live.current.onPick?.(i, { newTab }),
               onReady: () => {
                 if (dead) return;
+                // sasshi (2026-10-26): marked at once in the DOM, not at React's next commit (the pouch's first paints may hold the main
+                // thread for a while right then, and the booklet would wait to fade in)
+                rootRef.current?.setAttribute("data-ready", "");
                 setReady(true);
                 live.current.onReady?.();
               },

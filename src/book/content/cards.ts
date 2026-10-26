@@ -155,7 +155,7 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
     ctx.fillText(card.chapter, 5, 7);
   }
   track(ctx, 0);
-  if (card.badge) paintBadge(ctx, card.badge);
+  if (card.badge) paintBadge(ctx, card.badge, w, h);
   ctx.fillStyle = ink;
   ctx.shadowColor = "rgba(0,0,0,0.35)";
   ctx.shadowBlur = 0.8;
@@ -180,9 +180,7 @@ function paintPictureCard(ctx: CanvasRenderingContext2D, card: AlbumCard, img: C
  * Folio: a card's badge — a white label laid on the picture under the chapter line, like a tag slipped into the pocket with the card:
  * the title in Mincho 600 (sumi), the line under it in Zen Kaku (藍鼠), and a hairline of the album's indigo down its left edge.
  */
-function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard["badge"]>) {
-  const x = 5;
-  const y = 9.6;
+function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard["badge"]>, w: number, h: number) {
   const padX = 2.2;
   ctx.font = printFont("serif", 600, BADGE_MM, hanLangOf(badge.title));
   track(ctx, BADGE_MM * 0.04);
@@ -195,6 +193,9 @@ function paintBadge(ctx: CanvasRenderingContext2D, badge: NonNullable<AlbumCard[
   }
   const bw = Math.max(tw, lw) + padX * 2 + 0.8;
   const bh = badge.line ? 11.4 : 7.8;
+  // top: under the chapter line; bottom: bottom right, clear of the name at the bottom left
+  const x = badge.at === "bottom" ? w - 4.6 - bw : 5;
+  const y = badge.at === "bottom" ? h - 4.6 - bh : 9.6;
   ctx.save();
   ctx.shadowColor = "rgba(12,20,30,0.3)";
   ctx.shadowBlur = 1.4;

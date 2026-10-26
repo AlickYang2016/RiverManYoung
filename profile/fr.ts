@@ -10,7 +10,7 @@ const placeNotes = [
   "Université Renmin de Chine, 2019–2023 : licence d’économie (finance), mention excellence. Sur la carte : la Porte de l’Orient, au bord du lac Jinji.",
   "KEDGE Business School : bachelor en double diplôme, supply chain management. Sur la carte : le château des ducs d’Épernon à Cadillac, appellation bordelaise dont j’ai un jour aidé à promouvoir les vins.",
   "ESSEC Business School : Master in Management, Chaire Immobilier et Développement durable. Sur la carte : le campus de l’ESSEC.",
-  "AEW (Natixis Investment Managers), Recherche & Stratégie, de février à août 2026 : le scoring automatisé des villes européennes, de 45 à 72, puis les données et tous les graphiques de l’European Office Outlook de juillet 2026. Paris, c’est aussi BNP Paribas Direction juridique en 2024 et le projet Adagio en 2025. Sur la carte : des façades haussmanniennes, la pierre dont est fait l’immobilier parisien.",
+  "AEW (Natixis Investment Managers), Recherche & Stratégie, de février à août 2026 : le scoring automatisé des villes européennes, de 45 à 72, puis les données et tous les graphiques de l’European Office Outlook de juillet 2026. Paris, c’est aussi BNP Paribas Direction juridique en 2024 et le projet Adagio en 2025. Sur la carte : l’équipe d’AEW, Paris, 2026.",
   "GWU School of Business : échange de master, d’août 2025 à janvier 2026. Sur la carte : le mémorial de la Seconde Guerre mondiale et le Washington Monument.",
   "À partir de janvier 2027 : le stage de fin d’études. La ville reste ouverte.",
   "Nice : le bord de mer.",

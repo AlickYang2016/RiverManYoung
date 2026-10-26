@@ -20,7 +20,12 @@ function stage(load: () => Promise<{ default: ComponentType<StageProps> }>): Com
     useEffect(() => {
       const el = host.current;
       if (!el) return;
-      const check = () => setReady(!!el.querySelector(".folio-book[data-ready]"));
+      // the host's attribute set here, at once (a mutation callback), as well as through React: the fade-in never waits for a commit
+      const check = () => {
+        const on = !!el.querySelector(".folio-book[data-ready]");
+        el.toggleAttribute("data-ready", on);
+        setReady(on);
+      };
       check();
       const mo = new MutationObserver(check);
       mo.observe(el, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-ready"] });

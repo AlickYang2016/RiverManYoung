@@ -184,6 +184,47 @@ export function Identity({ profile, han, onProfile, asHeading = true }: { profil
   );
 }
 
+/* ------------------------------------------------------------------ the way home */
+/*
+ * Back to the owner's site (owner 2026-10-25: "I can go from the site to the folio, but not quickly back"): their site link (the one
+ * whose label says site / website / 网站, or the last web link), in the top margin over the name. A visitor who came from there goes
+ * Back (the browser keeps that page: it is there at once); anyone else opens the site in the folio's language.
+ */
+function HomeLink({ profile }: { profile: Profile }) {
+  const t = useT();
+  const web = profile.links.filter((l) => /^https?:/.test(l.href));
+  const site = web.find((l) => /site|web|网站|網站/i.test(l.label)) ?? web[web.length - 1];
+  if (!site) return null;
+  let home: URL;
+  try {
+    home = new URL(site.href);
+  } catch {
+    return null;
+  }
+  home.searchParams.set("lang", t.lang);
+  const fromThere = (() => {
+    try {
+      return !!document.referrer && new URL(document.referrer).hostname.replace(/^www\./, "") === home.hostname.replace(/^www\./, "");
+    } catch {
+      return false;
+    }
+  })();
+  return (
+    <a
+      className="home"
+      href={home.toString()}
+      aria-label={t.nav.home}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || !fromThere || history.length < 2) return;
+        e.preventDefault();
+        history.back();
+      }}
+    >
+      <span aria-hidden="true">←</span> {home.hostname.replace(/^www\./, "")}
+    </a>
+  );
+}
+
 /* ------------------------------------------------------------------ 目次 the booklets */
 /*
  * The booklets as a pile on the desk (owner 2026-10-25: "a stack of three books, or who can tell there are three"): each lies flat,
@@ -779,6 +820,7 @@ export function Shell({ profile, langs, fade = null, tab, next, printed = false,
       </main>
       {folio ? (
         <>
+          <HomeLink profile={profile} />
           <aside className="words" aria-label={profile.name}>
             <Identity profile={profile} han={han} onProfile={compact ? () => setSheet(true) : undefined} />
             {/* phones and the tablet: the switch in the header, at the identity's right (one tap, clear of the booklet tabs) */}

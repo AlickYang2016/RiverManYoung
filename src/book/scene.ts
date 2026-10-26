@@ -9,6 +9,7 @@ import { resolveLayout, spreadOfPage, type LayoutPreset, type LayoutSpec } from 
 import { carryPage, createPage, freePage, grabPage, grabPoint, holeAngle, pageKnotsInto, pageProgress, posePage, pullPage, restPage, seamFold, stepPage, turnPage, type PageBody, type PageEnv, type Physics } from "./physics";
 import { physicsFor } from "./physics-profile";
 import { prefilteredStudio } from "./pmrem";
+import { bakedStudio, type StudioEnv } from "./studio-env";
 import { compileQuiet, programGuard, shadowPassStandIns } from "./compile";
 import { GLOSS_ROUGHNESS, MM, PITCH, SLAB, panelRoot, restPhi, segOf, sheetGeometry, sheetMaterials, type SheetUniforms } from "./sheet";
 import { DEFAULT_FONT, PALETTE, drawPockets, drawSheetNormal, pocketSteps, sideCanvas } from "./textures";
@@ -539,10 +540,18 @@ export async function createBook(host: HTMLElement, opts: BookOptions): Promise<
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
   try {
     // sasshi (2026-10-25): the studio's environment prefiltered with its programs compiled off the main thread first (pmrem.ts)
-    const studio = studioScene();
-    const env = await prefilteredStudio(renderer, studio, 0.02);
-    disposeStudio(studio);
-    const book = buildBook(host, opts, renderer, fonts, env);
+    // sasshi (2026-10-26): the book is built and its programs compiled while the studio's environment is still being made: until it
+    // is in, the scene wears a stand-in of the same CubeUV size, so the programs come out the same (the first frame waits for both)
+    // the environment baked ahead (studio-env.ts), else made here as before
+    const env = bakedStudio(`${import.meta.env.BASE_URL ?? "/"}env/studio.bin.gz`)
+      .catch(async () => {
+        const studio = studioScene();
+        const rt = await prefilteredStudio(renderer, studio, 0.02);
+        disposeStudio(studio);
+        return rt;
+      })
+
+    const book = buildBook(host, opts, renderer, fonts, cubeUVStandIn(), env);
     if (late) void all.then(() => book.debug.repaintPrint());
     return book;
   } catch (e) {
@@ -563,7 +572,14 @@ function disposeStudio(studio: THREE.Scene) {
   });
 }
 
-function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRenderer, fonts: PageFonts, firstEnv: THREE.WebGLRenderTarget): Book {
+/** A render target shaped as the studio's prefiltered environment (fromScene's 256: 768 × 1024 CubeUV), standing in for it meanwhile */
+function cubeUVStandIn(): THREE.WebGLRenderTarget {
+  const rt = new THREE.WebGLRenderTarget(3 * 256, 4 * 256, { type: THREE.HalfFloatType, depthBuffer: false });
+  rt.texture.mapping = THREE.CubeUVReflectionMapping;
+  return rt;
+}
+
+function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRenderer, fonts: PageFonts, firstEnv: StudioEnv, studioReady: Promise<StudioEnv>): Book {
   const font = fonts.sans;
   // sasshi: the content and its pocket-grid layout; the sheet's segments, page size and physics all follow the layout. The content
   // may be swapped for one with the same grid (setContent: another language); its items, layout and pictures stay those of the build
@@ -631,6 +647,15 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   };
   let envRT = firstEnv;
   scene.environment = envRT.texture;
+  // the studio's own environment in place of the stand-in once it is made (the same program: only the texture changes)
+  const studioIn = studioReady.then((rt) => {
+    if (disposed) return void rt.dispose();
+    const standIn = envRT;
+    envRT = rt;
+    scene.environment = rt.texture;
+    standIn.dispose();
+    invalidate();
+  });
   scene.environmentIntensity = 0.6;
 
   const camera = new THREE.PerspectiveCamera(24, 1, 0.5, 40);
@@ -3663,6 +3688,7 @@ function buildBook(host: HTMLElement, opts: BookOptions, renderer: THREE.WebGLRe
   // the shadow pass's own materials first (its run also settles three's shadow type, which marks every material for an update)
   const casters = shadowPassStandIns(renderer, scene, camera);
   const warming = Promise.all([
+    studioIn,
     compileQuiet(renderer, scene, camera),
     compileQuiet(renderer, casters.group, camera, scene, { target: shadowProbe }),
     frost ? frost.compile(renderer, scene, camera) : null,
@@ -4338,7 +4364,7 @@ function range(a: number, b: number) {
  * flat reflects just the dark grey of the zenith, so card colours stay clean; as soon as a page lifts, the softbox's highlight slides
  * across it
  */
-function studioScene() {
+export function studioScene() {
   const env = new THREE.Scene();
   const dome = new THREE.SphereGeometry(10, 48, 24);
   const pos = dome.attributes.position!;

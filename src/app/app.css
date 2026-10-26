@@ -288,6 +288,14 @@ button.id-name, button.nameplate { cursor: pointer; text-align: start; }
 :root[data-layout="l"] .toc { margin-top: 20px; }
 :root[data-layout="l"] .pile li { --h: 30px; }
 :root[data-layout="l"] .pile .nm { font-size: 14px; }
+/* the way home (Shell.tsx HomeLink): small, in the top margin over the words column; on phones over the header */
+.home { position: fixed; z-index: 6; left: calc(var(--x0) + var(--m)); top: calc(var(--m) * .32); display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 0; font: var(--gw5) calc(11.5 * var(--u))/1.4 var(--gothic); letter-spacing: .04em; color: var(--ainezu); text-decoration: none; transition: color .18s var(--ease); }
+.home::after { content: ""; position: absolute; inset: -6px -10px; }
+.home span { transition: transform .18s var(--ease); }
+@media (hover: hover) and (pointer: fine) { .home:hover { color: var(--sumi); } .home:hover span { transform: translateX(-2px); } }
+.home:focus-visible { outline: 2px solid var(--ai); outline-offset: 3px; }
+:root[data-layout="p"] .home, :root[data-layout="t"] .home { top: calc(var(--m) - 8px); font-size: 12px; }
+:root[data-layout="p"] .words > .id, :root[data-layout="t"] .words > .id { margin-top: 20px; }
 .page[data-lang-out] :is(.words > .id, .words > .jo, .toc .nm, .handling, .oku dt, .prefs, .case-l, .cs-t, .ctl > .w:not(.ar), .pf-t, .hint, .panel[data-fallback], .sheetwrap, .page > .back) { opacity: 0; transition: opacity .16s var(--ease-io); }
 .page[data-lang-in] :is(.words > .id, .words > .jo, .toc .nm, .handling, .oku dt, .prefs, .case-l, .cs-t, .ctl > .w:not(.ar), .pf-t, .hint, .panel[data-fallback], .sheetwrap, .page > .back) { transition: none; animation: lang-in .18s var(--ease) both; }
 @keyframes lang-in { from { opacity: 0; } }

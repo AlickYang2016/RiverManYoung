@@ -19,7 +19,8 @@ export type Dict = {
   /** <html lang> for the chrome */
   htmlLang: string;
   booklet: Record<Tab, { name: string; local: string; latin: string; noun: (n: number) => string }>;
-  nav: { booklets: string; skip: string };
+  /** home: the way back to the owner's site (owner 2026-10-25), its accessible name */
+  nav: { booklets: string; skip: string; home: string };
   /** the language switch (each language is named in itself: English · 中文) */
   langs: { label: string };
   handling: { resume: string; cards: string; postcards: (n: number) => string; closed: string; printed: string };
@@ -126,7 +127,7 @@ export const en: Dict = {
     postcards: { name: "Postcards", local: "明信片", latin: "Postcards", noun: (n) => (n === 1 ? "postcard" : "postcards") },
     resume: { name: "Résumé", local: "简历", latin: "Résumé folio", noun: (n) => (n === 1 ? "thing" : "things") },
   },
-  nav: { booklets: "Booklets", skip: "Skip to the booklet" },
+  nav: { booklets: "Booklets", skip: "Skip to the booklet", home: "Back to the website" },
   langs: { label: "Language" },
   handling: {
     resume: "Tilt the desk and the things inside will slide. Lift one out to read it.",
@@ -234,7 +235,7 @@ export const fr: Dict = {
     postcards: { name: "Cartes postales", local: "明信片", latin: "Cartes postales", noun: (n) => (n === 1 ? "carte postale" : "cartes postales") },
     resume: { name: "CV", local: "简历", latin: "Pochette CV", noun: (n) => (n === 1 ? "objet" : "objets") },
   },
-  nav: { booklets: "Livrets", skip: "Aller au livret" },
+  nav: { booklets: "Livrets", skip: "Aller au livret", home: "Retour au site" },
   langs: { label: "Langue" },
   handling: {
     resume: "Inclinez le bureau : tout ce qui est dans la pochette glisse. Sortez un objet pour le lire de près.",
@@ -328,7 +329,7 @@ export const zh: Dict = {
     postcards: { name: "明信片", local: "明信片", latin: "Postcards", noun: () => "张明信片" },
     resume: { name: "简历", local: "简历", latin: "Résumé folio", noun: () => "件东西" },
   },
-  nav: { booklets: "册子", skip: "跳到册子" },
+  nav: { booklets: "册子", skip: "跳到册子", home: "返回个人网站" },
   langs: { label: "语言" },
   handling: {
     resume: "倾斜桌面，袋里的东西会随之滑动。取出一件，就能细看。",

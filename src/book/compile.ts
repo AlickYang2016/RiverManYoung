@@ -48,33 +48,22 @@ export function gpuCaughtUp(r: THREE.WebGLRenderer): Promise<void> {
 }
 
 /*
- * One queue for every compile on a renderer: a status query waits behind everything issued before it, so a poll made while another
- * compile is still being worked through waits for that one too. Each compile is issued in its turn, a fence after it; polling starts
- * only once the queue has drained and the last fence is through.
+ * Every compile on a renderer counted until its fence is through: they are issued at once (the GPU process compiles them in
+ * parallel), and readiness is polled only once none is left in flight — a status query waits behind everything issued before it,
+ * so a poll made while other compiles are still being worked through would wait for them too.
  */
-const queues = new WeakMap<THREE.WebGLRenderer, { tail: Promise<void>; pending: number }>();
-function queueOf(r: THREE.WebGLRenderer) {
-  let q = queues.get(r);
-  if (!q) queues.set(r, (q = { tail: Promise.resolve(), pending: 0 }));
-  return q;
-}
+const inFlight = new WeakMap<THREE.WebGLRenderer, number>();
 async function issue(r: THREE.WebGLRenderer, fn: () => void): Promise<void> {
-  const q = queueOf(r);
-  q.pending++;
-  const turn = q.tail.then(async () => {
+  inFlight.set(r, (inFlight.get(r) ?? 0) + 1);
+  try {
     fn();
     await gpuCaughtUp(r);
-  });
-  q.tail = turn.catch(() => {});
-  try {
-    await turn;
   } finally {
-    q.pending--;
+    inFlight.set(r, (inFlight.get(r) ?? 1) - 1);
   }
 }
 async function drained(r: THREE.WebGLRenderer): Promise<void> {
-  const q = queueOf(r);
-  while (q.pending) await q.tail;
+  while ((inFlight.get(r) ?? 0) > 0) await new Promise((go) => setTimeout(go, 16));
 }
 
 /** compileAsync, its readiness polled only once the GPU has caught up with every compile issued (see above) */

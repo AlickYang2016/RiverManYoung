@@ -37,4 +37,9 @@ void first().then(({ lang, profile }) => {
   applyFontVars(profileHan(profile));
   const root = document.getElementById("root");
   if (root) createRoot(root).render(<StrictMode><App folio={folio} lang={lang} profile={profile} /></StrictMode>);
+  // sasshi (2026-10-26): the 3D's modules start downloading now, not once the stage has probed WebGL (that probe waits for the
+  // browser's GPU process, a second or more on a first visit): by the time the stage asks for them they are in (measured: the
+  // book's build starts about a second sooner)
+  void import("../book/scene").catch(() => {});
+  void import("../bag").catch(() => {});
 });
