@@ -220,7 +220,9 @@ function HomeLink({ profile }: { profile: Profile }) {
         history.back();
       }}
     >
-      <span aria-hidden="true">←</span> {home.hostname.replace(/^www\./, "")}
+      <span className="home-arrow" aria-hidden="true">←</span>
+      <span className="home-label">{t.nav.home}</span>
+      <small>{home.hostname.replace(/^www\./, "")}</small>
     </a>
   );
 }
