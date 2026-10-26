@@ -256,5 +256,125 @@
     "file": "photos/washington.webp",
     "use": "polaroid",
     "license": "All rights reserved, Zijiang Yang"
+  },
+  {
+    "file": "photos/rail-narita-express.webp",
+    "use": "card cover",
+    "license": "Public domain",
+    "author": "Sui-setz",
+    "source": "https://commons.wikimedia.org/wiki/File:JR_East_E259_Narita-Express.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-kyushu-787.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "MaedaAkihiko",
+    "source": "https://commons.wikimedia.org/wiki/File:Series787-BM13_Nichirin-Seagaia-5.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-west-683.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "MaedaAkihiko",
+    "source": "https://commons.wikimedia.org/wiki/File:JRW_Series683-2000R_R11.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-shinkansen-n700s.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "MaedaAkihiko",
+    "source": "https://commons.wikimedia.org/wiki/File:Tokaido-Shinkansen_N700S_Kikugawa.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-shinkansen-e5.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "Toshinori baba",
+    "source": "https://commons.wikimedia.org/wiki/File:JRE-TEC-E5_omiya.JPG",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-yamanote.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "aqz-tmin",
+    "source": "https://commons.wikimedia.org/wiki/File:JRE_E235_Yamanote_Line_04_set_Tokyo_Station_2017-07-09_(35765917051).jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-rer-b.webp",
+    "use": "card cover",
+    "license": "Public domain",
+    "author": "Occitandu34",
+    "source": "https://commons.wikimedia.org/wiki/File:%C3%8Ele-de-France_RATP_MI_79_n%C2%B08290_RER_B_Aulnay-sous-Bois_RER.JPG",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-paris-mf67.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "Métroën",
+    "source": "https://commons.wikimedia.org/wiki/File:Abbesses_-_Ligne_12_-_2025_-_Rame_1.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-paris-mp14.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "Capitaine AdBlock",
+    "source": "https://commons.wikimedia.org/wiki/File:MP_14_-_Coteaux_Beauclair_(1).jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-washington-silver.webp",
+    "use": "card cover",
+    "license": "CC BY 2.0",
+    "author": "Mark Levisay from Ruckersville, VA, USA",
+    "source": "https://commons.wikimedia.org/wiki/File:A_Silver_Line_train_comes_into_the_Federal_Center_SW_Metro_station_(53185346696).jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/rail-lisbon-tram.webp",
+    "use": "card cover",
+    "license": "CC0",
+    "author": "swissbert from Switzerland",
+    "source": "https://commons.wikimedia.org/wiki/File:2016-10-17_Lissabon_5948_(30904284116).jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/lisbon-miradouro.webp",
+    "use": "postcard",
+    "license": "Public domain",
+    "author": "Commons user CorreiaPM",
+    "source": "https://commons.wikimedia.org/wiki/File:MiradouroSantaLuzia.JPG",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/budapest-chain-bridge.webp",
+    "use": "postcard",
+    "license": "CC0",
+    "author": "Random photos 1989",
+    "source": "https://commons.wikimedia.org/wiki/File:Budapest,_Clark_%C3%81d%C3%A1m_t%C3%A9r,_villamos,_4.jpg",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/vatican-st-peters.webp",
+    "use": "postcard",
+    "license": "Public domain",
+    "author": "Jolly Janner",
+    "source": "https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_of_St._Peter%27s_Basilica_1.JPG",
+    "note": "cropped"
+  },
+  {
+    "file": "photos/monaco-port-hercule.webp",
+    "use": "postcard",
+    "license": "CC0",
+    "author": "Benoît Prieur",
+    "source": "https://commons.wikimedia.org/wiki/File:Port_Hercule_-_novembre_2021_(3).jpg",
+    "note": "cropped"
   }
 ]

@@ -5,7 +5,7 @@ import { seal } from "./seal";
 /* Zijiang (Alexis) Yang — édition française du folio. Mêmes objets que en.ts, textes repris de alexisyang.com/?lang=fr. */
 
 const placeNotes = [
-  "Trois pages, trois chapitres. I · Études & travail : les villes du parcours, et la prochaine. II · Europe & au-delà : des voyages. III · Japon, octobre 2026. Chaque carte montre un lieu emblématique lié à la ville.",
+  "Quatre chapitres. I · Études & travail : les villes du parcours, et la prochaine. II · Europe & au-delà : des voyages. III · Japon, octobre 2026. Chaque carte montre un lieu emblématique lié à la ville. IV · Sur les rails : des trains, métros et trams que j’ai pris.",
   "Là où j’ai grandi, et où les concours scientifiques ont commencé. Sur la carte : Lujiazui, vu depuis le Bund.",
   "Université Renmin de Chine, 2019–2023 : licence d’économie (finance), mention excellence. Sur la carte : la Porte de l’Orient, au bord du lac Jinji.",
   "KEDGE Business School : bachelor en double diplôme, supply chain management. Sur la carte : le château des ducs d’Épernon à Cadillac, appellation bordelaise dont j’ai un jour aidé à promouvoir les vins.",
@@ -29,6 +29,17 @@ const placeNotes = [
   "Japon, octobre 2026 : la côte. Sur la carte : l’île d’Engetsu.",
   "Japon, octobre 2026 : le Kiyomizu-dera.",
   "Japon, octobre 2026 : la dernière étape avant Paris, le 17 octobre. La photo date d’un premier passage : la tour de Tokyo, en août 2024.",
+  "Narita Express : de l’aéroport jusqu’à Tokyo.",
+  "JR Kyushu, série 787 : le Kyushu en express.",
+  "JR West, série 683 : les express de l’Ouest du Japon.",
+  "Shinkansen Tōkaidō, N700S : le long des champs de thé de Shizuoka.",
+  "Shinkansen Tōhoku, série E5.",
+  "La ligne Yamanote : Tokyo en boucle.",
+  "RER B : Paris, Roissy et la banlieue.",
+  "Métro de Paris, ligne 12 à Abbesses : un MF 67, l’ancien matériel.",
+  "Métro de Paris, le nouveau MP 14.",
+  "Métro de Washington, ligne Silver : le semestre à GWU.",
+  "Lisbonne : un tram Remodelado dans les collines.",
 ];
 
 const postcardsFr: PostcardText[] = [
@@ -56,6 +67,10 @@ const postcardsFr: PostcardText[] = [
   { label: "Temple de Louxor", place: "Louxor, Égypte", message: "La colonnade, de nuit." },
   { label: "Dauphins", place: "La mer Rouge, Égypte", message: "Des dauphins le long du bateau." },
   { label: "Riviera", place: "Nice", message: "Des palmiers et la Méditerranée." },
+  { label: "Miradouro", place: "Lisbonne", message: "Des azulejos, des toits rouges, le Tage au loin." },
+  { label: "Pont des Chaînes", place: "Budapest", message: "Le Danube, le pont, un tram jaune qui passe." },
+  { label: "Saint-Pierre", place: "Cité du Vatican", message: "La basilique sous un ciel très bleu." },
+  { label: "Port Hercule", place: "Monaco", message: "Les bateaux en bas, le Rocher au-dessus." },
 ];
 
 const [card, resume, ticket, polaroid, note] = profile.items;
@@ -185,5 +200,5 @@ export const profileFr: Profile = {
       date: "2026-10-24",
     },
   ],
-  albums: albumsFor(placeNotes, postcardsFr, "Alexis", { chapters: ["I · Études & travail", "II · Europe & au-delà", "III · Japon 2026"], contents: "Sommaire", photo: "Photo", badges: { c5: "Recherche & Stratégie · 2026" } }),
+  albums: albumsFor(placeNotes, postcardsFr, "Alexis", { chapters: ["I · Études & travail", "II · Europe & au-delà", "III · Japon 2026", "IV · Sur les rails"], contents: "Sommaire", photo: "Photo", badges: { c5: "Recherche & Stratégie · 2026" } }),
 };

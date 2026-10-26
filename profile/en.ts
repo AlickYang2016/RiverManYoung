@@ -10,7 +10,7 @@ import { seal } from "./seal";
 export const CV = "https://alexisyang.com/assets/";
 
 /*
- * The card album: three pages, one chapter each (eight pockets a page), so the album reads in order instead of as a pile.
+ * The card album: one chapter a page (eight pockets a page; the rails run onto a fifth), so the album reads in order instead of as a pile.
  *   page 1 · I   Study & work      a contents card, the six cities of the path so far, and the next one
  *   page 2 · II  Europe & beyond   journeys
  *   page 3 · III Japan, October 2026
@@ -45,15 +45,26 @@ export const places = [
   { id: "c13", chapter: 2, label: "Shirahama", nameLocal: "白浜", color: "#c8d7d0", ...C("cover-shirahama", "Zairon", "CC BY 4.0") },
   { id: "c14", chapter: 2, label: "Kyoto", nameLocal: "京都", color: "#a5a9b6", ...C("cover-kyoto", "Martin Falbisoner", "CC BY-SA 4.0") },
   { id: "c15", chapter: 2, label: "Tokyo", nameLocal: "東京", color: "#6f8494", ...own("cover-tokyo") },
+  { id: "r1", chapter: 3, label: "Narita Express", nameLocal: "成田特快", color: "#d9dcdc", ...own("rail-narita-express") },
+  { id: "r2", chapter: 3, label: "JR Kyushu 787", nameLocal: "九州 787 系", color: "#a9adb1", ...own("rail-kyushu-787") },
+  { id: "r3", chapter: 3, label: "JR West 683", nameLocal: "西日本 683 系", color: "#c9d5e2", ...own("rail-west-683") },
+  { id: "r4", chapter: 3, label: "Shinkansen N700S", nameLocal: "东海道新干线", color: "#b9c9a6", ...own("rail-shinkansen-n700s") },
+  { id: "r5", chapter: 3, label: "Shinkansen E5", nameLocal: "东北新干线", color: "#a8d3cf", ...own("rail-shinkansen-e5") },
+  { id: "r6", chapter: 3, label: "Yamanote", nameLocal: "山手线", color: "#c3d7a4", ...own("rail-yamanote") },
+  { id: "r7", chapter: 3, label: "RER B", nameLocal: "巴黎 RER", color: "#d8c7c4", ...own("rail-rer-b") },
+  { id: "r8", chapter: 3, label: "Abbesses", nameLocal: "巴黎老地铁", color: "#d6d0c2", ...own("rail-paris-mf67") },
+  { id: "r9", chapter: 3, label: "Métro MP 14", nameLocal: "巴黎地铁 14 型", color: "#bcd2e0", ...own("rail-paris-mp14") },
+  { id: "r10", chapter: 3, label: "Silver Line", nameLocal: "华盛顿银线", color: "#8f97a3", ...own("rail-washington-silver") },
+  { id: "r11", chapter: 3, label: "Lisbon tram", nameLocal: "里斯本电车", color: "#e3cf8f", ...own("rail-lisbon-tram") },
 ] as const;
 
 /** What a language says on the album: the three chapter names, the contents card's label, and how a photo credit begins. */
 /** …and the line under a card's badge (by card id: the AEW card's role and year) */
-export type AlbumWords = { chapters: [string, string, string]; contents: string; photo: string; badges?: Record<string, string> };
-const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" } };
+export type AlbumWords = { chapters: [string, string, string, string]; contents: string; photo: string; badges?: Record<string, string> };
+const wordsEn: AlbumWords = { chapters: ["I · Study & work", "II · Europe & beyond", "III · Japan 2026", "IV · On the rails"], contents: "Contents", photo: "Photo", badges: { c5: "Research & Strategy · 2026" } };
 
 const placeNotes = [
-  "Three pages, three chapters. I · Study & work: the cities that shaped the path so far, and the next one. II · Europe & beyond: journeys. III · Japan, October 2026. Each card shows a landmark tied to its place.",
+  "Four chapters. I · Study & work: the cities that shaped the path so far, and the next one. II · Europe & beyond: journeys. III · Japan, October 2026. IV · On the rails: trains, metros and trams I have ridden. Each card shows a landmark tied to its place.",
   "Where I grew up, and where the science competitions started. On the card: Lujiazui, seen from the Bund.",
   "Renmin University of China, 2019–2023: Bachelor of Economics in Finance, graduated with distinction. On the card: the Gate of the Orient over Jinji Lake.",
   "KEDGE Business School: dual-degree bachelor’s in supply chain management. On the card: the Château des ducs d’Épernon in Cadillac, a Bordeaux wine appellation whose wines I once helped promote.",
@@ -77,6 +88,17 @@ const placeNotes = [
   "Japan, October 2026: the coast. On the card: Engetsu Island.",
   "Japan, October 2026: Kiyomizu-dera.",
   "Japan, October 2026: the last stop before Paris, on 17 October. The photo is from an earlier visit: Tokyo Tower, August 2024.",
+  "Narita Express: from the airport into Tokyo.",
+  "JR Kyushu, the 787 series: Kyushu by limited express.",
+  "JR West, the 683 series: the limited expresses of western Japan.",
+  "Tokaido Shinkansen, the N700S: past the tea fields of Shizuoka.",
+  "Tohoku Shinkansen, the E5 series.",
+  "The Yamanote line: Tokyo in a loop.",
+  "RER B: Paris, Roissy and the suburbs.",
+  "Paris Métro, line 12 at Abbesses: an MF 67, the older stock.",
+  "Paris Métro, the new MP 14.",
+  "Washington Metro, the Silver line: the semester at GWU.",
+  "Lisbon: a Remodelado tram on the hills.",
 ];
 
 /*
@@ -109,6 +131,10 @@ export const postcardBase = [
   { id: "p22", file: "luxor-temple", date: "", color: "#cdbb9c" },
   { id: "p23", file: "red-sea-dolphins", date: "", color: "#a9c8d4" },
   { id: "p24", file: "nice-seafront", date: "", color: "#c9d9e0" },
+  { id: "p25", file: "lisbon-miradouro", date: "2024", color: "#cfdbe6" },
+  { id: "p26", file: "budapest-chain-bridge", date: "2024", color: "#d3d2c6" },
+  { id: "p27", file: "vatican-st-peters", date: "2023", color: "#c7cfdf" },
+  { id: "p28", file: "monaco-port-hercule", date: "2024", color: "#bfd3e3" },
 ] as const;
 
 export type PostcardText = { label: string; place: string; placeLocal?: string; message: string };
@@ -138,6 +164,10 @@ const postcardsEn: PostcardText[] = [
   { label: "Luxor Temple", place: "Luxor, Egypt", message: "The colonnade by night." },
   { label: "Dolphins", place: "The Red Sea, Egypt", message: "Dolphins beside the boat." },
   { label: "Riviera", place: "Nice", message: "Palm trees and the Mediterranean." },
+  { label: "Miradouro", place: "Lisbon", message: "Blue tiles, red roofs, the Tagus beyond." },
+  { label: "Chain Bridge", place: "Budapest", message: "The Danube, the bridge, a yellow tram passing." },
+  { label: "St Peter’s", place: "Vatican City", message: "The basilica under a deep blue sky." },
+  { label: "Port Hercule", place: "Monaco", message: "Boats below, the Rock above." },
 ];
 
 /** The albums for one language, from its own notes, postcard texts and album words. */

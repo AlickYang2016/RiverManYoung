@@ -24,3 +24,24 @@ Cropped and resized for the card covers; each keeps its original licence.
 | `cover-wakayama.webp` | Wakayama Castle, tenshu-2.jpg | Saigen Jiro | CC0 | https://commons.wikimedia.org/wiki/File:Wakayama_Castle,_tenshu-2.jpg |
 | `cover-shirahama.webp` | Shirahama Engetsu Island 03.jpg | Zairon | CC BY 4.0 | https://commons.wikimedia.org/wiki/File:Shirahama_Engetsu_Island_03.jpg |
 | `cover-kyoto.webp` | Kiyomizu-dera, Kyoto, November 2016 -01.jpg | Martin Falbisoner | CC BY-SA 4.0 | https://commons.wikimedia.org/wiki/File:Kiyomizu-dera,_Kyoto,_November_2016_-01.jpg |
+
+
+Trains, metros and trams (album chapter IV) and travel postcards, added 2026-10-26, cropped from the originals. No credit is printed on these cards (owner's choice); the one photo whose licence asks for attribution is credited here.
+
+| File | Subject | Author | Licence | Source |
+|---|---|---|---|---|
+| `rail-narita-express.webp` | Narita Express (JR East E259 series, N'EX) | Sui-setz | Public domain | https://commons.wikimedia.org/wiki/File:JR_East_E259_Narita-Express.jpg |
+| `rail-kyushu-787.webp` | JR Kyushu 787 series (Nichirin Seagaia) | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:Series787-BM13_Nichirin-Seagaia-5.jpg |
+| `rail-west-683.webp` | JR West 683 series (2000 subseries, Thunderbird/Shirasagi family) | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:JRW_Series683-2000R_R11.jpg |
+| `rail-shinkansen-n700s.webp` | Tokaido Shinkansen N700S | MaedaAkihiko | CC0 | https://commons.wikimedia.org/wiki/File:Tokaido-Shinkansen_N700S_Kikugawa.jpg |
+| `rail-shinkansen-e5.webp` | Tohoku Shinkansen E5 series | Toshinori baba | CC0 | https://commons.wikimedia.org/wiki/File:JRE-TEC-E5_omiya.JPG |
+| `rail-yamanote.webp` | JR East Yamanote Line E235 series | aqz-tmin | CC0 | https://commons.wikimedia.org/wiki/File:JRE_E235_Yamanote_Line_04_set_Tokyo_Station_2017-07-09_(35765917051).jpg |
+| `rail-rer-b.webp` | RER B MI 79 | Occitandu34 | Public domain | https://commons.wikimedia.org/wiki/File:%C3%8Ele-de-France_RATP_MI_79_n%C2%B08290_RER_B_Aulnay-sous-Bois_RER.JPG |
+| `rail-paris-mf67.webp` | Paris Metro MF 67 on line 12 | Métroën | CC0 | https://commons.wikimedia.org/wiki/File:Abbesses_-_Ligne_12_-_2025_-_Rame_1.jpg |
+| `rail-paris-mp14.webp` | Paris Metro MP 14 (line 11 extension) | Capitaine AdBlock | CC0 | https://commons.wikimedia.org/wiki/File:MP_14_-_Coteaux_Beauclair_(1).jpg |
+| `rail-washington-silver.webp` | Washington Metro Silver Line train (7000 series) | Mark Levisay from Ruckersville, VA, USA | CC BY 2.0 | https://commons.wikimedia.org/wiki/File:A_Silver_Line_train_comes_into_the_Federal_Center_SW_Metro_station_(53185346696).jpg |
+| `rail-lisbon-tram.webp` | Lisbon tram (Remodelado, yellow Carris livery) | swissbert from Switzerland | CC0 | https://commons.wikimedia.org/wiki/File:2016-10-17_Lissabon_5948_(30904284116).jpg |
+| `lisbon-miradouro.webp` | Lisbon, Portugal | Commons user CorreiaPM | Public domain | https://commons.wikimedia.org/wiki/File:MiradouroSantaLuzia.JPG |
+| `budapest-chain-bridge.webp` | Budapest, Hungary | Random photos 1989 | CC0 | https://commons.wikimedia.org/wiki/File:Budapest,_Clark_%C3%81d%C3%A1m_t%C3%A9r,_villamos,_4.jpg |
+| `vatican-st-peters.webp` | Vatican City | Jolly Janner | Public domain | https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_of_St._Peter%27s_Basilica_1.JPG |
+| `monaco-port-hercule.webp` | Monaco | Benoît Prieur | CC0 | https://commons.wikimedia.org/wiki/File:Port_Hercule_-_novembre_2021_(3).jpg |
