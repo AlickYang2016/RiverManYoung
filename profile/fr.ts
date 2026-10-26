@@ -1,5 +1,5 @@
 import type { Profile } from "../src/profile/schema";
-import { albumsFor, CV, profile, type PostcardText } from "./en";
+import { albumsFor, card, CV, note, polaroid, resume, source, ticket, type PostcardText } from "./shared";
 import { seal } from "./seal";
 
 /* Zijiang (Alexis) Yang — édition française du folio. Mêmes objets que en.ts, textes repris de alexisyang.com/?lang=fr. */
@@ -73,8 +73,6 @@ const postcardsFr: PostcardText[] = [
   { label: "Port Hercule", place: "Monaco", message: "Les bateaux en bas, le Rocher au-dessus." },
 ];
 
-const [card, resume, ticket, polaroid, note] = profile.items;
-
 export const profileFr: Profile = {
   lang: "fr",
   name: "Zijiang (Alexis) Yang",
@@ -85,7 +83,7 @@ export const profileFr: Profile = {
   bio: "Recherche et stratégie chez AEW, Master in Management à l’ESSEC. Je cherche un stage de fin d’études à partir de janvier 2027.",
   coverTitle: "Alexis Yang — Folio",
   seal,
-  source: profile.source,
+  source,
   links: [
     { label: "E-mail", href: "mailto:zijiang.yang1@essec.edu" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/yangzijiang" },

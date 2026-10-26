@@ -3,7 +3,6 @@ import type { CoverMaterial } from "../book/cover";
 import { ensureFonts, hanLangOf, profileHan } from "../fonts";
 import { folioLangs, langKey, langName, loadProfile, type Folio } from "../profile/folio";
 import type { Profile } from "../profile/schema";
-import { profile as sample } from "../../profile/en";
 import { AlbumDetail } from "./AlbumDetail";
 import { readMaterials, writeMaterial } from "./booklets";
 import { applyFontVars, loadDomFaces, pageRuns, run } from "./fonts";
@@ -20,8 +19,8 @@ import { findItem, prefersReducedMotion, storeLang, typingTarget, writeUrlLang }
 
 export type { StageProps, StageMap, Tab } from "./types";
 export type AppProps = {
-  /** The one content model (with a folio: the language `lang`'s, already loaded). Defaults to the demo persona. */
-  profile?: Profile;
+  /** The one content model (with a folio: the language `lang`'s, already loaded). */
+  profile: Profile;
   /**
    * The person in several languages (src/profile/folio.ts): with two or more the page shows the language switch and changes
    * language in place — the booklet, the open cover, the page and the case stay; the words, the print on the booklets and the URL's
@@ -209,7 +208,7 @@ function useLanguage(first: Profile, folio: Folio | undefined, firstLang: string
   return { profile: shown.profile, stageProfile: stage, langs, fade };
 }
 
-export function App({ profile: firstProfile = sample, folio, lang: firstLang, stages = STAGES }: AppProps) {
+export function App({ profile: firstProfile, folio, lang: firstLang, stages = STAGES }: AppProps) {
   const { profile, stageProfile, langs, fade } = useLanguage(firstProfile, folio, firstLang);
   const t = useMemo(() => dictFor(profile), [profile]);
   /** The booklet's own words (its labels, the slip): they follow the page's once a switch's new words are in (useLanguage). */

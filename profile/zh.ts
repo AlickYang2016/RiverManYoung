@@ -1,5 +1,5 @@
 import type { Profile } from "../src/profile/schema";
-import { albumsFor, CV, profile, type PostcardText } from "./en";
+import { albumsFor, card, CV, note, polaroid, resume, source, ticket, type PostcardText } from "./shared";
 import { seal } from "./seal";
 
 /* 杨子江 · 作品集（中文版）。内容与 en.ts 一一对应，文字取自 alexisyang.com 的中文页面。 */
@@ -73,8 +73,6 @@ const postcardsZh: PostcardText[] = [
   { label: "大力神港", place: "摩纳哥", message: "港里是船，山上是老城。" },
 ];
 
-const [card, resume, ticket, polaroid, note] = profile.items;
-
 export const profileZh: Profile = {
   lang: "zh-CN",
   name: "杨子江",
@@ -84,7 +82,7 @@ export const profileZh: Profile = {
   bio: "ESSEC 管理学硕士在读。曾在 AEW 从事欧洲不动产研究，在法国巴黎银行参与国际项目。寻求 2027 年 1 月起的毕业实习。",
   coverTitle: "杨子江 · 作品集",
   seal,
-  source: profile.source,
+  source,
   links: [
     { label: "邮箱", href: "mailto:zijiang.yang1@essec.edu" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/yangzijiang" },
