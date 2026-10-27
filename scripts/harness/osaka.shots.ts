@@ -145,5 +145,15 @@ async function shot(page: Page, name: string, settle = 3200): Promise<void> {
   await page.close();
 }
 
+// ---------------------------------------------------------------- the still for browsers without WebGL (no words over it)
+{
+  const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, deviceScaleFactor: 1 });
+  await open(page, "?mode=showcase");
+  await page.addStyleTag({ content: ".osaka-showcase-cap, .osaka::after { display: none !important; }" });
+  await page.waitForTimeout(2500);
+  await page.screenshot({ path: `${out}/preview-still.jpg`, type: "jpeg", quality: 90 });
+  await page.close();
+}
+
 await browser.close();
 console.log(errors.length ? `console errors (${errors.length}):\n  ${errors.join("\n  ")}` : "console errors: none");

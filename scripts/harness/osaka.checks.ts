@@ -176,7 +176,7 @@ const watch = (page: Page) => {
   await page.goto(url);
   await page.waitForTimeout(1500);
   const text = (await page.locator(".osaka-fallback").textContent()) ?? "";
-  check("without WebGL the page explains itself", text.includes("could not start") && text.includes("Osaka Umeda"));
+  check("without WebGL the page shows a still and explains itself", text.includes("could not start") && text.includes("Osaka Umeda") && (await page.locator(".osaka-fallback img").evaluate((i) => (i as HTMLImageElement).naturalWidth)) > 0);
   await page.close();
 }
 

@@ -19,7 +19,8 @@ export type Rig = {
   update(dt: number): boolean;
   fly(view: View, seconds: number): Promise<void>;
   cut(view: View): void;
-  follow(target: (() => THREE.Vector3 | null) | null): void;
+  /** follow a moving point (a train), closing in to `distance` m when it is on the base; null stops */
+  follow(target: (() => THREE.Vector3 | null) | null, distance?: number): void;
   cancel(): void;
   get flying(): boolean;
   resize(w: number, h: number): void;
@@ -32,7 +33,7 @@ function wrap(a: number): number {
   return Math.atan2(Math.sin(a), Math.cos(a));
 }
 
-export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; interactive: boolean }): Rig {
+export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; interactive: boolean; floor?: (x: number, z: number) => number }): Rig {
   const camera = new THREE.PerspectiveCamera(26, 1, 2, 12000);
   const controls = new OrbitControls(camera, dom);
   controls.enableDamping = true;
@@ -54,6 +55,7 @@ export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; inte
   const prevFollow = new THREE.Vector3();
   let hasPrev = false;
   let jump = false; // fly to the train when it is (back) on the base
+  let followDistance = 150;
 
   const current = (): View => {
     const off = camera.position.clone().sub(controls.target);
@@ -111,32 +113,61 @@ export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; inte
       } else {
         if (following) {
           const p = following();
-          if (!p) {
+          // a train still outside the base's cut edge is not there yet: wait for it rather than fly off the model
+          if (!p || p.x < BOUNDS.x0 || p.x > BOUNDS.x1 || -p.z < BOUNDS.n0 || -p.z > BOUNDS.n1) {
             hasPrev = false;
             jump = true;
           } else if (jump) {
             jump = false;
             const v = current();
-            flight = { from: v, to: { target: [p.x, p.y + 2, -p.z], distance: Math.min(v.distance, 150), azimuth: v.azimuth, polar: Math.min(v.polar, 1.12) }, t: 0, dur: opts.reducedMotion ? 1e-3 : 1.6, done: () => {} };
+            flight = { from: v, to: { target: [p.x, p.y + 2, -p.z], distance: Math.min(v.distance, followDistance), azimuth: v.azimuth, polar: Math.min(v.polar, followDistance < 100 ? 0.62 : 1.0) }, t: 0, dur: opts.reducedMotion ? 1e-3 : 1.6, done: () => {} };
           } else {
-            if (hasPrev) {
-              const dx = p.x - prevFollow.x;
-              const dy = p.y - prevFollow.y;
-              const dz = p.z - prevFollow.z;
-              controls.target.x += dx;
-              controls.target.y += dy;
-              controls.target.z += dz;
-              camera.position.x += dx;
-              camera.position.y += dy;
-              camera.position.z += dz;
-              moving = moving || Math.abs(dx) + Math.abs(dz) > 1e-4;
-            }
+            // the target sits on the train; the camera keeps its offset from it (the visitor can still orbit and zoom)
+            const dx = p.x - controls.target.x;
+            const dy = p.y + 2 - controls.target.y;
+            const dz = p.z - controls.target.z;
+            controls.target.set(p.x, p.y + 2, p.z);
+            camera.position.x += dx;
+            camera.position.y += dy;
+            camera.position.z += dz;
+            moving = moving || Math.abs(dx) + Math.abs(dz) > 1e-4;
             prevFollow.copy(p);
             hasPrev = true;
           }
         }
         moving = controls.update(dt) || moving;
-        clampTarget();
+        if (!following) clampTarget();
+      }
+      // following: if a tower stands between the camera and the train, ease up and over it (never a jump)
+      if (following && opts.floor && !flight) {
+        const floor = opts.floor;
+        const sph = new THREE.Spherical().setFromVector3(camera.position.clone().sub(controls.target));
+        const blocked = (phi: number) => {
+          const cam = new THREE.Vector3().setFromSpherical(new THREE.Spherical(sph.radius, phi, sph.theta)).add(controls.target);
+          for (let t = 0.12; t < 1; t += 0.08) {
+            const x = controls.target.x + (cam.x - controls.target.x) * t;
+            const y = controls.target.y + (cam.y - controls.target.y) * t;
+            const z = controls.target.z + (cam.z - controls.target.z) * t;
+            if (floor(x, z) > y - 1.5) return true;
+          }
+          return false;
+        };
+        let want = sph.phi;
+        while (want > 0.1 && blocked(want)) want -= 0.06;
+        if (want < sph.phi - 1e-3) {
+          sph.phi += (want - sph.phi) * Math.min(1, dt * 2.5);
+          camera.position.setFromSpherical(sph).add(controls.target);
+          camera.lookAt(controls.target);
+          moving = true;
+        }
+      }
+      // never inside a building: keep the camera a few metres above whatever stands under it
+      if (opts.floor) {
+        const min = opts.floor(camera.position.x, camera.position.z) + 6;
+        if (camera.position.y < min) {
+          camera.position.y = min;
+          camera.lookAt(controls.target);
+        }
       }
       planes();
       return moving;
@@ -159,12 +190,15 @@ export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; inte
       controls.update();
       planes();
     },
-    follow(fn) {
-      // close in on the train at a railway photographer's angle (keeping the visitor's azimuth) whenever it is on the base
+    follow(fn, distance = 150) {
+      // close in on the train at a railway photographer's angle (keeping the visitor's azimuth) whenever it is on the base;
+      // while following, zoom goes toward the train, not toward the cursor (which would pull the view off it)
       this.cancel();
       following = fn;
+      followDistance = distance;
       hasPrev = false;
       jump = !!fn;
+      controls.zoomToCursor = !fn;
     },
     cancel() {
       if (flight) {

@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { LandmarkId, Operator } from "../data/types";
 import { LANDMARKS } from "../content";
 import type { OsakaHandle, OsakaMode, ServiceInfo, Stats, TrainStatus } from "../engine";
+import preview from "./preview.jpg";
+
+const PREVIEW_ALT = "The Osaka-Umeda miniature on its base, seen from the south-east: JR Osaka Station's glass roof in the middle, the Hankyu terminal's ten tracks to the right, HEP FIVE's red wheel, the Umeda Sky Building at the back left.";
 
 /*
  * The page round the miniature, in the folio's morning-light manner (docs/ART-DIRECTION.md): words in the shade on the left, set
@@ -17,6 +20,7 @@ type Phase = { kind: "loading"; p: number; what: string } | { kind: "ready" } | 
 const SPEEDS = [0.5, 1, 2, 4] as const;
 const speedLabel = (s: number) => (s === 0.5 ? "½×" : `${s}×`);
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+const trainWhen = (t: TrainStatus | undefined) => (!t ? "" : t.onBase ? "on the model now" : t.nextIn === 0 ? "at the edge of the model" : `next in ${clock(t.nextIn)}`);
 
 export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }: { mode: OsakaMode; debug: boolean; skipIntro: boolean; initial: string | null; night: boolean }) {
   const stage = useRef<HTMLDivElement>(null);
@@ -161,7 +165,7 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
           <span className="osaka-showcase-sub">A miniature railway city in motion — explore</span>
         </a>
         {phase.kind === "loading" && <div className="osaka-dawn" style={{ ["--p" as string]: phase.p }} />}
-        {phase.kind === "fallback" && <p className="osaka-showcase-fallback">Osaka Umeda — a 3D railway miniature (needs WebGL 2).</p>}
+        {phase.kind === "fallback" && <img className="osaka-still" src={preview} alt={PREVIEW_ALT} />}
       </div>
     );
   }
@@ -276,7 +280,7 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
                     <button type="button" role="menuitem" className={`osaka-op--${s.op}`} onClick={() => follow(s.index)}>
                       {s.label}
                       <i>
-                        {s.stock} · {s.cars} cars · {status[s.index]?.onBase ? "on the model now" : status[s.index] ? `next in ${clock(status[s.index]!.nextIn)}` : ""}
+                        {s.stock} · {s.cars} cars · {trainWhen(status[s.index])}
                       </i>
                     </button>
                   </li>
@@ -331,7 +335,8 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
 
       {phase.kind === "fallback" && (
         <div className="osaka-fallback">
-          <p className="osaka-eyebrow">The 3D model could not start</p>
+          <img className="osaka-still" src={preview} alt={PREVIEW_ALT} />
+          <p className="osaka-eyebrow">The 3D model could not start — this is a still of it</p>
           <p>{phase.why}</p>
           <p>
             Osaka Umeda is a 1.6 × 1.5 km model of the district round JR Osaka and Hankyu Osaka-Umeda stations, drawn from

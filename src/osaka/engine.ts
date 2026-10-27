@@ -2,6 +2,7 @@ import * as THREE from "three";
 import dataUrl from "./data/umeda.json?url";
 import type { LandmarkId, Operator, UmedaData } from "./data/types";
 import { BOUNDS } from "./geo/frame";
+import { heightField } from "./geo/heightfield";
 import { HOME, HOME_PHONE, INTRO, LANDMARKS, sceneTarget, type View } from "./content";
 import { PERIOD, resolve } from "./rail/services";
 import { STOCK } from "./rail/stock";
@@ -39,6 +40,8 @@ export type ServiceInfo = { index: number; id: string; label: string; labelJa: s
 /** Whether a service's train is on the base now, and if not, in how many seconds (wall time, at the current speed) it comes. */
 export type TrainStatus = { index: number; onBase: boolean; nextIn: number };
 
+const insideBase = (p: THREE.Vector3) => p.x > BOUNDS.x0 && p.x < BOUNDS.x1 && -p.z > BOUNDS.n0 && -p.z < BOUNDS.n1;
+
 export type OsakaOptions = {
   mode: OsakaMode;
   reducedMotion: boolean;
@@ -57,7 +60,7 @@ export type OsakaHandle = {
   setSpeed(x: number): void;
   setOperatorVisible(op: Operator, on: boolean): void;
   focus(id: LandmarkId | null): void;
-  follow(service: number | null): void;
+  follow(service: number | null, distance?: number): void;
   resetView(): void;
   playIntro(): Promise<void>;
   skipIntro(): void;
@@ -146,7 +149,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
   scene.add(fleet.group);
 
   // ---------------------------------------------------------------- camera
-  const rig = createRig(canvas, { reducedMotion: opts.reducedMotion, interactive: opts.mode === "explore" });
+  const rig = createRig(canvas, { reducedMotion: opts.reducedMotion, interactive: opts.mode === "explore", floor: heightField(data) });
   const home = (): View => (host.clientWidth / Math.max(1, host.clientHeight) < 0.8 ? HOME_PHONE : HOME);
   if (opts.mode === "showcase") {
     rig.controls.autoRotate = !opts.reducedMotion;
@@ -180,6 +183,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
   let level = 0; // quality steps taken
   let lastShadow = 0;
   const shown = { jr: true, hankyu: true };
+  const probe = { pos: new THREE.Vector3(), dir: new THREE.Vector3() };
   const ops = (stock: keyof typeof STOCK) => shown[STOCK[stock].op];
   fleet.update(simT);
 
@@ -348,7 +352,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       const info = LANDMARKS.find((l) => l.id === id)!;
       void rig.fly(info.view, 2.2);
     },
-    follow(i) {
+    follow(i, distance) {
       if (i === null) {
         rig.follow(null);
         return;
@@ -358,7 +362,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       opts.onSelect?.(null);
       opts.onLabel?.(0, 0, false);
       const p = { pos: new THREE.Vector3(), dir: new THREE.Vector3() };
-      rig.follow(() => (fleet.pose(i, p) ? p.pos.clone().addScaledVector(p.dir, -40) : null));
+      rig.follow(() => (fleet.pose(i, p) ? p.pos.clone().addScaledVector(p.dir, -40) : null), distance);
     },
     resetView() {
       rig.follow(null);
@@ -396,8 +400,10 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
     trains: () =>
       resolved.services.map((s, index) => {
         const tc = (((simT - s.plan.offset) % PERIOD) + PERIOD) % PERIOD;
-        const onBase = tc < s.plan.duration && ops(s.def.stock);
-        return { index, onBase, nextIn: onBase ? 0 : (PERIOD - tc) / Math.max(speed, 0.01) };
+        const running = tc < s.plan.duration && ops(s.def.stock);
+        const onBase = running && fleet.pose(index, probe) && insideBase(probe.pos);
+        // running but not on the base: arriving from (or just gone past) the cut edge
+        return { index, onBase, nextIn: running ? 0 : (PERIOD - tc) / Math.max(speed, 0.01) };
       }),
     dropped: resolved.dropped,
     stats,
