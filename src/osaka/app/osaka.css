@@ -1,0 +1,183 @@
+/*
+ * Osaka Umeda — the page round the miniature. The folio's tokens (docs/ART-DIRECTION.md): 朝霧 for the ground, 墨 for names,
+ * 鉄鼠 for text, 藍鼠 for labels, 藍 the one accent; Shippori Mincho for names and titles, Zen Kaku Gothic New for the rest.
+ * Controls are printed words; the words column sits in the shade at the left, over a veil that keeps them legible on the model.
+ */
+
+:root {
+  --asagiri: #e3e8eb;
+  --sumi: #1c232b;
+  --tetsu: #36424e;
+  --ainezu: #4f5d69;
+  --shironezu: #c2cbd2;
+  --ai: #2f4f73;
+  --maroon: #5d1a26;
+  --jr: #0b6db7;
+  --sh: 21 35 58;
+  --mincho: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+  --gothic: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", "YuGothic", "Noto Sans JP", sans-serif;
+  --ease: cubic-bezier(.22, .61, .36, 1);
+  --m: 40px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--asagiri); }
+body { font-family: var(--gothic); color: var(--tetsu); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+
+.osaka { position: fixed; inset: 0; overflow: hidden; --ink: var(--sumi); --text: var(--tetsu); --label: var(--ainezu); --line: var(--shironezu); --veil: 227 232 235; transition: color .6s var(--ease); }
+.osaka[data-night] { --ink: #eef2f5; --text: #c9d3db; --label: #95a4b1; --line: #3b4855; --veil: 13 20 28; --ai: #9fb9d8; }
+.osaka-stage { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s var(--ease); }
+.osaka[data-ready] .osaka-stage { opacity: 1; }
+
+/* the shade the words stand in */
+.osaka::before {
+  content: ""; position: absolute; inset: 0 auto 0 0; width: min(420px, 40vw); pointer-events: none; z-index: 1;
+  background: linear-gradient(90deg, rgb(var(--veil) / .88) 0%, rgb(var(--veil) / .62) 55%, rgb(var(--veil) / 0) 100%);
+  transition: background .8s var(--ease);
+}
+.osaka::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 120px; pointer-events: none; z-index: 1;
+  background: linear-gradient(0deg, rgb(var(--veil) / .8), rgb(var(--veil) / 0));
+}
+
+.osaka-head, .osaka-index, .osaka-caption, .osaka-hands, .osaka-credit { position: absolute; z-index: 2; }
+
+.osaka-head { left: var(--m); top: 34px; max-width: 320px; }
+.osaka-back { font-size: 12.5px; letter-spacing: .04em; color: var(--label); text-decoration: none; border-bottom: 1px solid transparent; }
+.osaka-back::before { content: "← "; }
+.osaka-back:hover { color: var(--ink); border-bottom-color: currentColor; }
+.osaka-head h1 { font-family: var(--mincho); font-weight: 500; font-size: 38px; line-height: 1.08; letter-spacing: .01em; color: var(--ink); margin: 16px 0 6px; }
+.osaka-sub { margin: 0; font-family: var(--mincho); font-size: 16px; color: var(--text); }
+.osaka-ja { margin: 4px 0 0; font-family: var(--mincho); font-size: 13px; letter-spacing: .12em; color: var(--label); }
+
+.osaka-eyebrow { margin: 0 0 8px; font-size: 11.5px; letter-spacing: .14em; color: var(--label); }
+
+.osaka-index { left: var(--m); top: 196px; width: 300px; }
+.osaka-index ol { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.osaka-index li { border-bottom: 1px solid var(--line); }
+.osaka-index button {
+  all: unset; box-sizing: border-box; display: grid; grid-template-columns: 26px 1fr auto; align-items: baseline; gap: 6px; width: 100%;
+  padding: 8px 2px; cursor: pointer; color: var(--text); transition: color .2s var(--ease);
+}
+.osaka-index button:disabled { cursor: default; opacity: .55; }
+.osaka-n { font-size: 11px; color: var(--label); }
+.osaka-name { font-family: var(--mincho); font-size: 15.5px; color: var(--ink); }
+.osaka-name-ja { font-family: var(--mincho); font-size: 11.5px; color: var(--label); }
+.osaka-index button:hover .osaka-name, .osaka-index button[aria-pressed="true"] .osaka-name { color: var(--ai); }
+.osaka-index button[aria-pressed="true"] .osaka-n { color: var(--ai); }
+.osaka-index button[aria-pressed="true"] .osaka-n::before { content: "●"; font-size: 8px; margin-right: 4px; vertical-align: 2px; }
+.osaka-index button:focus-visible, .osaka-word:focus-visible, .osaka-menu button:focus-visible { outline: 2px solid var(--ai); outline-offset: 3px; border-radius: 2px; }
+
+.osaka-caption { left: var(--m); top: 548px; width: 300px; font-size: 13.5px; line-height: 1.7; color: var(--text); }
+.osaka-caption h2 { margin: 0 0 8px; font-family: var(--mincho); font-weight: 500; font-size: 21px; line-height: 1.3; color: var(--ink); }
+.osaka-caption h2 span { display: block; font-size: 13px; letter-spacing: .1em; color: var(--label); margin-top: 2px; }
+.osaka-caption p { margin: 0 0 10px; }
+.osaka-caption ul { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--label); }
+.osaka-caption li::before { content: "— "; color: var(--line); }
+
+.osaka-word {
+  all: unset; box-sizing: border-box; cursor: pointer; font-size: 13.5px; line-height: 1; padding: 9px 0; color: var(--label);
+  border-bottom: 1px solid transparent; transition: color .2s var(--ease), border-color .2s var(--ease); white-space: nowrap;
+}
+.osaka-word:hover { color: var(--ink); }
+.osaka-word[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.osaka-word:disabled { opacity: .45; cursor: default; }
+
+.osaka-hands { left: var(--m); right: var(--m); bottom: 44px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 30px; }
+.osaka-group { display: inline-flex; align-items: center; gap: 14px; position: relative; }
+.osaka-group + .osaka-group::before { content: ""; position: absolute; left: -16px; top: 50%; width: 1px; height: 14px; margin-top: -7px; background: var(--line); }
+.osaka-speed { min-width: 22px; text-align: center; }
+.osaka-op::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 7px; vertical-align: 0; opacity: .35; }
+.osaka-op[aria-pressed="true"]::before { opacity: 1; }
+.osaka-op--jr::before { background: var(--jr); }
+.osaka-op--hankyu::before { background: var(--maroon); }
+
+.osaka-menu {
+  position: absolute; left: -14px; bottom: 40px; list-style: none; margin: 0; padding: 8px 0; min-width: 300px;
+  background: rgb(var(--veil) / .96); box-shadow: 0 0 0 .5px rgb(var(--sh) / .2), 0 18px 40px -12px rgb(var(--sh) / .35); border-radius: 3px;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.osaka-menu button { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 8px 14px 8px 30px; cursor: pointer; font-size: 13px; color: var(--ink); position: relative; }
+.osaka-menu button i { display: block; font-style: normal; font-size: 11.5px; color: var(--label); margin-top: 2px; }
+.osaka-menu button:hover { background: rgb(var(--sh) / .06); }
+.osaka-menu button.osaka-op--jr::before, .osaka-menu button.osaka-op--hankyu::before { content: ""; position: absolute; left: 13px; top: 13px; width: 8px; height: 8px; border-radius: 50%; }
+
+.osaka-credit { right: var(--m); bottom: 12px; left: var(--m); display: flex; justify-content: flex-end; align-items: center; gap: 16px; font-size: 11px; color: var(--label); }
+.osaka-credit .osaka-word { font-size: 11px; padding: 4px 0; }
+
+/* both classes: .osaka-word's `all: unset` would otherwise drop the positioning and leave the button under the canvas */
+.osaka-word.osaka-skip { position: absolute; right: var(--m); top: 36px; z-index: 3; }
+
+.osaka-label { position: absolute; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .3s var(--ease); will-change: transform; }
+.osaka-label span {
+  position: absolute; left: 0; bottom: 14px; transform: translateX(-50%); white-space: nowrap; padding: 6px 10px 7px;
+  font-family: var(--mincho); font-size: 14px; color: var(--sumi); background: rgb(248 249 247 / .92); border-radius: 2px;
+  box-shadow: 0 0 0 .5px rgb(var(--sh) / .18), 0 10px 22px -8px rgb(var(--sh) / .4);
+}
+.osaka-label span i { font-style: normal; font-size: 11.5px; color: var(--ainezu); margin-left: 8px; letter-spacing: .08em; }
+.osaka-label span::after { content: ""; position: absolute; left: 50%; bottom: -13px; width: 1px; height: 13px; background: rgb(var(--sh) / .5); }
+
+.osaka-loading { position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; align-content: center; gap: 14px; pointer-events: none; }
+.osaka-loading p { margin: 0; font-size: 12.5px; letter-spacing: .08em; color: var(--label); }
+.osaka-dawn { width: min(320px, 60vw); height: 1px; background: linear-gradient(90deg, var(--ai) calc(var(--p, 0) * 100%), var(--line) calc(var(--p, 0) * 100%)); transition: background .3s; }
+
+.osaka-fallback { position: absolute; z-index: 3; left: var(--m); right: var(--m); top: 200px; max-width: 560px; font-size: 14.5px; line-height: 1.75; }
+
+.osaka-sheet { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: rgb(var(--veil) / .55); }
+.osaka-sheet-body { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 64px); overflow: auto; padding: 28px 30px 20px; background: #f8f9f7; color: var(--tetsu); border-radius: 3px; font-size: 14px; line-height: 1.75; box-shadow: 0 0 0 .5px rgb(var(--sh) / .18), 0 30px 60px -18px rgb(var(--sh) / .45); }
+.osaka-sheet-body h2 { margin: 0 0 12px; font-family: var(--mincho); font-weight: 500; font-size: 22px; color: var(--sumi); }
+.osaka-sheet-body .osaka-word { color: var(--ainezu); }
+
+.osaka-debug { position: absolute; right: var(--m); top: 70px; z-index: 5; margin: 0; padding: 6px 9px; font: 11px/1.5 ui-monospace, monospace; color: #eef2f5; background: rgb(21 35 58 / .72); border-radius: 2px; }
+
+/* the preview a home page embeds */
+.osaka--showcase::before { display: none; }
+.osaka--showcase::after { height: 90px; }
+.osaka-showcase-cap { position: absolute; z-index: 2; left: 20px; bottom: 16px; display: grid; gap: 2px; text-decoration: none; }
+.osaka-showcase-title { font-family: var(--mincho); font-size: 20px; color: var(--sumi); }
+.osaka-showcase-sub { font-size: 12.5px; color: var(--ainezu); }
+.osaka-showcase-sub::after { content: " →"; }
+.osaka-showcase-cap:hover .osaka-showcase-sub { color: var(--ai); }
+.osaka--showcase .osaka-dawn { position: absolute; left: 50%; top: 50%; transform: translateX(-50%); z-index: 3; }
+.osaka-showcase-fallback { position: absolute; inset: auto 20px 50% 20px; text-align: center; font-family: var(--mincho); color: var(--tetsu); }
+
+/* a short desk: the caption moves up beside the index */
+@media (max-height: 820px) and (min-width: 1100px) {
+  .osaka-caption { left: calc(var(--m) + 330px); top: 196px; }
+  .osaka::before { width: min(760px, 56vw); }
+}
+
+/* phones and narrow windows: a header, the index as one row of words, the caption over the controls */
+@media (max-width: 760px) {
+  :root { --m: 16px; }
+  .osaka::before { inset: 0 0 auto 0; width: auto; height: 210px; background: linear-gradient(180deg, rgb(var(--veil) / .92) 55%, rgb(var(--veil) / 0)); }
+  .osaka::after { height: 240px; }
+  .osaka-head { top: 14px; right: var(--m); max-width: none; }
+  .osaka-head h1 { font-size: 27px; margin: 8px 0 2px; }
+  .osaka-sub { font-size: 13.5px; }
+  .osaka-ja { display: none; }
+  .osaka-index { top: 118px; left: 0; right: 0; width: auto; }
+  .osaka-index .osaka-eyebrow { display: none; }
+  .osaka-index ol { display: flex; gap: 18px; overflow-x: auto; padding: 0 var(--m); border: 0; scrollbar-width: none; }
+  .osaka-index ol::-webkit-scrollbar { display: none; }
+  .osaka-index li { border: 0; flex: none; }
+  .osaka-index button { display: inline-flex; gap: 6px; padding: 6px 0; }
+  .osaka-name-ja, .osaka-n { display: none; }
+  .osaka-name { font-size: 14px; }
+  .osaka-index button[aria-pressed="true"] .osaka-name { border-bottom: 1px solid currentColor; }
+  .osaka-caption { left: var(--m); right: var(--m); top: auto; bottom: 128px; width: auto; font-size: 12.5px; line-height: 1.6; }
+  .osaka-caption p { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .osaka-caption h2 { font-size: 18px; }
+  .osaka-hands { left: 0; right: 0; bottom: 30px; flex-wrap: nowrap; overflow-x: auto; padding: 0 var(--m); gap: 6px 26px; scrollbar-width: none; }
+  .osaka-hands::-webkit-scrollbar { display: none; }
+  .osaka-group { flex: none; }
+  .osaka-menu { position: fixed; left: var(--m); right: var(--m); bottom: 74px; min-width: 0; }
+  .osaka-credit { justify-content: space-between; font-size: 10px; bottom: 8px; }
+  .osaka-credit > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .osaka-word.osaka-skip { top: auto; bottom: 168px; }
+  .osaka-label span { font-size: 12.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .osaka *, .osaka *::before, .osaka *::after { transition: none !important; }
+}
