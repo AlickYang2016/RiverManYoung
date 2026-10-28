@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Osaka Umeda — a miniature railway city in motion · Alexis Yang</title>
+    <meta name="description" content="An interactive 3D miniature of Osaka-Umeda built from OpenStreetMap and PLATEAU data: JR Osaka Station's great roof, Hankyu's ten-track terminal, the Umeda Sky Building, HEP FIVE's wheel, and JR and Hankyu trains running an illustrative timetable." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Osaka Umeda — a miniature railway city in motion" />
+    <meta property="og:description" content="JR Osaka, Hankyu Osaka-Umeda and the towers around them as an exhibition model you can turn in your hand, with the trains running." />
+    <meta name="theme-color" content="#e3e8eb" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23e3e8eb'/%3E%3Crect x='6' y='17' width='20' height='6' rx='1.5' fill='%235d1a26'/%3E%3Crect x='6' y='17' width='20' height='1.6' fill='%23eee7d2'/%3E%3Crect x='4' y='24.5' width='24' height='1' fill='%232f4f73'/%3E%3C/svg%3E" />
+    <style>
+      html { background: #e3e8eb; color-scheme: light; }
+    </style>
+  </head>
+  <body>
+    <div id="osaka-root"></div>
+    <noscript>
+      <p style="font: 16px/1.6 system-ui, sans-serif; max-width: 40em; margin: 15vh auto; color: #36424e">
+        Osaka Umeda is an interactive 3D miniature of the district around JR Osaka and Hankyu Osaka-Umeda stations, with moving
+        trains. It needs JavaScript and WebGL 2.
+      </p>
+    </noscript>
+    <script type="module" src="/src/osaka/app/main.tsx"></script>
+  </body>
+</html>

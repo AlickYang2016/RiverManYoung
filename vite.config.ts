@@ -30,7 +30,8 @@ function profileMeta(): Plugin {
   const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
   return {
     name: "folio:profile-meta",
-    async transformIndexHtml(html) {
+    async transformIndexHtml(html, ctx) {
+      if (ctx.path !== "/index.html") return html; // the folio's own page; the project pages (projects/*) carry their own
       const p = await loadProfile(folio, folio.primary);
       const t = dictFor(p);
       const title = esc(t.meta.title(p, "folio"));
@@ -45,4 +46,13 @@ function profileMeta(): Plugin {
 }
 
 /** `base: "./"`: every URL the build writes is relative, so the same files work at a domain's root and under a sub-path (GitHub Pages' /<repo>/). */
-export default defineConfig({ base: "./", plugins: [woff2Only(), profileMeta(), react()], server: { port: 5188, host: "127.0.0.1" } });
+/**
+ * Two pages: the folio (index.html) and the Osaka-Umeda miniature (projects/osaka-umeda/index.html), which shares the build, the
+ * fonts and the deploy but none of the folio's code.
+ */
+export default defineConfig({
+  base: "./",
+  plugins: [woff2Only(), profileMeta(), react()],
+  server: { port: 5188, host: "127.0.0.1" },
+  build: { rollupOptions: { input: { folio: "index.html", "osaka-umeda": "projects/osaka-umeda/index.html" } } },
+});
