@@ -2,7 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import type { UmedaData } from "../data/types";
 import { edgeKey } from "./graph";
-import { PERIOD, resolve } from "./services";
+import { PLATFORM_ABOVE_RAIL, RAIL_TOP } from "../geo/frame";
+import { PERIOD, platformFrame, platformSpan, resolve, SERVICES } from "./services";
 import { headAt } from "./sim";
 
 const data = JSON.parse(readFileSync(new URL("../data/umeda.json", import.meta.url), "utf8")) as UmedaData;
@@ -27,7 +28,48 @@ function held(i: number, t: number): Set<number> {
 describe("Osaka-Umeda timetable", () => {
   test("every service resolves to a real route", () => {
     expect(dropped).toEqual([]);
-    expect(services.length).toBe(7);
+    expect(services.length).toBe(SERVICES.length);
+  });
+
+  test("each train stops alongside its own platform face, at the platform's level", () => {
+    for (const s of services) {
+      if (s.def.kind !== "through") continue;
+      const def = s.def;
+      const leg = s.plan.legs[0]!;
+      // the platform of that number at Osaka (Fukushima's, at the edge of the data, has numbers too)
+      const pl = data.platforms
+        .filter((q) => q.op === def.platform.op && q.ref === def.platform.ref)
+        .sort((a, b) => Math.hypot(platformFrame(a.r[0]!).cx, platformFrame(a.r[0]!).cz) - Math.hypot(platformFrame(b.r[0]!).cx, platformFrame(b.r[0]!).cz))[0]!;
+      const f = platformFrame(pl.r[0]!);
+      // along the stopped train, the closest it comes to the platform's edge (platforms curve and taper): just clear of it,
+      // on the named side
+      let best = { out: Infinity, south: false };
+      for (let k = 0; k <= 10; k++) {
+        const q = leg.path.at(leg.stop! - (s.plan.trainLength * k) / 10);
+        const u = (q.x - f.cx) * f.ax + (q.z - f.cz) * f.az;
+        if (Math.abs(u) > f.half) continue;
+        const v = -(q.x - f.cx) * f.az + (q.z - f.cz) * f.ax;
+        const span = platformSpan(pl.r[0]!, u);
+        const out = v > span.v1 ? v - span.v1 : span.v0 - v;
+        if (out < best.out) best = { out, south: (v > span.v1) === f.ax > 0 };
+      }
+      expect(`${def.id} ${best.out > 0.5 && best.out < 3.5}`).toBe(`${def.id} true`);
+      expect(`${def.id} ${best.south ? "south" : "north"}`).toBe(`${def.id} ${def.platform.side}`);
+      const p = leg.path.at(leg.stop! - s.plan.trainLength / 2);
+      const rail = pl.y !== undefined ? pl.y / 10 - PLATFORM_ABOVE_RAIL : RAIL_TOP[pl.op];
+      expect(Math.abs(p.y - rail)).toBeLessThan(0.05);
+    }
+  });
+
+  test("the Haruka and Kuroshio call underground at Umekita and come up near Fukushima", () => {
+    for (const s of services.filter((x) => /^(haruka|kuroshio)/.test(x.def.id))) {
+      const path = s.plan.legs[0]!.path;
+      const ys = [...path.ys];
+      expect(Math.min(...ys)).toBeLessThan(-14);
+      // the south-west end is up on the viaduct toward Nishikujō
+      const sw = path.xs[0]! < path.xs[path.xs.length - 1]! ? ys[0]! : ys[ys.length - 1]!;
+      expect(sw).toBeGreaterThan(2);
+    }
   });
 
   test("Hankyu trains stay on Hankyu track and JR trains on JR track", () => {

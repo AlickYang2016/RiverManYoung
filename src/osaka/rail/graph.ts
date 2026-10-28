@@ -1,4 +1,5 @@
 import type { Operator, UmedaData } from "../data/types";
+import { RAIL_TOP } from "../geo/frame";
 import { Path } from "./path";
 
 /*
@@ -15,6 +16,8 @@ export const MAX_TURN = (32 * Math.PI) / 180;
 export type RailGraph = {
   x: Float64Array;
   z: Float64Array;
+  /** rail top, m above the street */
+  y: Float64Array;
   op: Operator[];
   adj: number[][];
   bufferStops: Set<number>;
@@ -39,7 +42,10 @@ export function buildGraph(rail: UmedaData["rail"]): RailGraph {
       }
     }
   }
-  return { x, z, op, adj: adj.map((s) => [...s]), bufferStops: new Set(rail.bufferStops) };
+  const y = new Float64Array(n);
+  for (let i = 0; i < n; i++) y[i] = RAIL_TOP[op[i]!];
+  for (const [i, dm] of rail.el ?? []) y[i] = dm / 10;
+  return { x, z, y, op, adj: adj.map((s) => [...s]), bufferStops: new Set(rail.bufferStops) };
 }
 
 export function nearestNode(g: RailGraph, px: number, pz: number, op?: Operator): number {
@@ -161,6 +167,7 @@ export function pathOf(g: RailGraph, nodes: readonly number[]): Path {
   return new Path(
     nodes.map((i) => [g.x[i]!, g.z[i]!] as const),
     nodes,
+    nodes.map((i) => g.y[i]!),
   );
 }
 

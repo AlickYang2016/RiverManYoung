@@ -19,6 +19,8 @@ export type City = {
   group: THREE.Group;
   /** pickable meshes, one per landmark that has OSM buildings */
   landmarkMeshes: Map<LandmarkId, THREE.Mesh>;
+  /** the underground view: the street (paving, roads, greens, sites, crossings) turns to glass over what lies below it */
+  setXray(on: boolean): void;
   dispose(): void;
 };
 
@@ -87,11 +89,15 @@ function ringAxis(r: XZ[]): { cx: number; cz: number; yaw: number; long: number;
   return { cx, cz, yaw: -th, long: u1 - u0, short: v1 - v0 };
 }
 
+/** A facade colour (0xRRGGBB) packed for the facade shader's use channel: 5 bits a channel, 0 for none. */
+export const tintCode = (c: number | undefined): number => (c === undefined ? 0 : 1 + ((c >> 19) & 31) * 1024 + ((c >> 11) & 31) * 32 + ((c >> 3) & 31));
+
 /** Writes one building record into a builder with its aInfo (use, seed, top, landmark). */
 export function addBuilding(b: Builder, rec: BuildingRec, rings = rec.r.map(ringXZ)): void {
   const top = m(rec.h);
   const bottom = rec.b ? m(rec.b) : 0;
-  b.extra = [rec.u, seedOf(rec.i), top, rec.lm ? LANDMARK_INDEX[rec.lm]! : 0];
+  // a facade colour mapped in OSM (building:colour) rides in the use channel above the use code, 5 bits a channel
+  b.extra = [rec.u + 8 * tintCode(rec.c), seedOf(rec.i), top, rec.lm ? LANDMARK_INDEX[rec.lm]! : 0];
   prism(b, rings, bottom, top, bottom > 0.01);
 }
 
@@ -145,7 +151,7 @@ function nameplateTexture(): THREE.CanvasTexture {
   return t;
 }
 
-export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | null, opts: { mobile: boolean; clip: THREE.Plane[] }): City {
+export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | null, opts: { mobile: boolean; clip: THREE.Plane[]; holes?: XZ[][] }): City {
   const group = new THREE.Group();
   group.name = "city";
   const disposables: { dispose(): void }[] = [];
@@ -158,12 +164,16 @@ export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | 
 
   // ---------------------------------------------------------------- plinth, nameplate, the table's shadow
   const plinthMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.plinth, roughness: 0.55, metalness: 0.05 }));
-  const plinth = new THREE.Mesh(keep(new THREE.BoxGeometry(W, PLINTH_DEPTH, D)), plinthMat);
+  // an open box (the ground is its lid), lined inside: what runs under the street shows against it in the underground view
+  plinthMat.side = THREE.DoubleSide;
+  const lid = keep(new THREE.MeshBasicMaterial({ visible: false }));
+  const plinth = new THREE.Mesh(keep(new THREE.BoxGeometry(W, PLINTH_DEPTH, D)), [plinthMat, plinthMat, lid, plinthMat, plinthMat, plinthMat]);
   plinth.position.set(cx, -PLINTH_DEPTH / 2 - 0.02, cz);
   plinth.receiveShadow = true;
   group.add(plinth);
   const trimMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.plinthTrim, roughness: 0.5 }));
-  const trim = new THREE.Mesh(keep(new THREE.BoxGeometry(W + 0.8, 1.2, D + 0.8)), trimMat);
+  // a rim round the edge only (its top and bottom left open, like the plinth's)
+  const trim = new THREE.Mesh(keep(new THREE.BoxGeometry(W + 0.8, 1.2, D + 0.8)), [trimMat, trimMat, lid, lid, trimMat, trimMat]);
   trim.position.set(cx, -0.62, cz);
   group.add(trim);
   const plate = new THREE.Mesh(keep(new THREE.PlaneGeometry(W * 0.62, (W * 0.62) / 16)), keep(new THREE.MeshStandardMaterial({ map: keep(nameplateTexture()), roughness: 0.6 })));
@@ -187,7 +197,11 @@ export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | 
   group.add(tableShadow);
 
   // ---------------------------------------------------------------- ground: paving, greens, building sites
-  const ground = new THREE.Mesh(keep(new THREE.PlaneGeometry(W, D)), keep(new THREE.MeshStandardMaterial({ color: PALETTE.paving, roughness: 0.95 })));
+  // the paving, with a hole wherever a track runs in an open cutting below it (shape y = scene −z)
+  const outline = new THREE.Shape([new THREE.Vector2(-W / 2, -D / 2), new THREE.Vector2(W / 2, -D / 2), new THREE.Vector2(W / 2, D / 2), new THREE.Vector2(-W / 2, D / 2)]);
+  for (const h of opts.holes ?? []) outline.holes.push(new THREE.Path(h.map(([x, z]) => new THREE.Vector2(x - cx, -(z - cz)))));
+  const groundMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.paving, roughness: 0.95 }));
+  const ground = new THREE.Mesh(keep(new THREE.ShapeGeometry(outline)), groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.position.set(cx, 0, cz);
   ground.receiveShadow = true;
@@ -195,12 +209,14 @@ export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | 
 
   const gb = new Builder();
   for (const gr of data.greens) cap(gb, gr.r.map(ringXZ), gr.k ? 0.07 : 0.06);
-  const greens = new THREE.Mesh(keep(gb.build()), keep(new THREE.MeshStandardMaterial({ color: PALETTE.grass, roughness: 1 })));
+  const greensMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.grass, roughness: 1 }));
+  const greens = new THREE.Mesh(keep(gb.build()), greensMat);
   greens.receiveShadow = true;
   group.add(greens);
   const wb = new Builder();
   for (const w of data.works) cap(wb, w.r.map(ringXZ), 0.05);
-  const works = new THREE.Mesh(keep(wb.build()), keep(new THREE.MeshStandardMaterial({ color: PALETTE.works, roughness: 1 })));
+  const worksMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.works, roughness: 1 }));
+  const works = new THREE.Mesh(keep(wb.build()), worksMat);
   works.receiveShadow = true;
   group.add(works);
 
@@ -347,8 +363,9 @@ export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | 
       stripes.push(tmp.clone());
     }
   }
+  const zebraMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.roadLine, roughness: 0.8 }));
   if (stripes.length) {
-    const zm = new THREE.InstancedMesh(keep(new THREE.BoxGeometry(1, 1, 1)), keep(new THREE.MeshStandardMaterial({ color: PALETTE.roadLine, roughness: 0.8 })), stripes.length);
+    const zm = new THREE.InstancedMesh(keep(new THREE.BoxGeometry(1, 1, 1)), zebraMat, stripes.length);
     stripes.forEach((mm, i) => zm.setMatrixAt(i, mm));
     zm.receiveShadow = true;
     group.add(zm);
@@ -444,9 +461,18 @@ export function buildCity(data: UmedaData, shared: Shared, env: THREE.Texture | 
   trunks.castShadow = false;
   group.add(trunks, crowns);
 
+  const street = [groundMat, greensMat, worksMat, roadMat, zebraMat];
   return {
     group,
     landmarkMeshes,
+    setXray(on) {
+      for (const mm of street) {
+        mm.transparent = on;
+        mm.opacity = on ? 0.22 : 1;
+        mm.depthWrite = !on;
+        mm.needsUpdate = true;
+      }
+    },
     dispose() {
       for (const d of disposables) d.dispose();
     },

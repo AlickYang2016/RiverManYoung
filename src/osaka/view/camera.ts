@@ -19,6 +19,8 @@ export type Rig = {
   update(dt: number): boolean;
   fly(view: View, seconds: number): Promise<void>;
   cut(view: View): void;
+  /** the same view, raised (smaller polar angle) until no building stands between the camera and its target */
+  clear(view: View): View;
   /** follow a moving point (a train), closing in to `distance` m when it is on the base; null stops */
   follow(target: (() => THREE.Vector3 | null) | null, distance?: number): void;
   cancel(): void;
@@ -148,7 +150,7 @@ export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; inte
             const x = controls.target.x + (cam.x - controls.target.x) * t;
             const y = controls.target.y + (cam.y - controls.target.y) * t;
             const z = controls.target.z + (cam.z - controls.target.z) * t;
-            if (floor(x, z) > y - 1.5) return true;
+            if (y > 0 && floor(x, z) > y - 1.5) return true; // below the street the ground is glass (the underground view)
           }
           return false;
         };
@@ -183,6 +185,25 @@ export function createRig(dom: HTMLElement, opts: { reducedMotion: boolean; inte
       return new Promise<void>((done) => {
         flight = { from: current(), to: view, t: 0, dur: seconds, done };
       });
+    },
+    clear(view) {
+      const floor = opts.floor;
+      if (!floor) return view;
+      const t = sceneTarget(view);
+      const blocked = (phi: number) => {
+        const r = view.distance;
+        const cx = t[0] + r * Math.sin(phi) * Math.sin(view.azimuth);
+        const cy = t[1] + r * Math.cos(phi);
+        const cz = t[2] + r * Math.sin(phi) * Math.cos(view.azimuth);
+        for (let k = 0.08; k <= 1; k += 0.04) {
+          const y = t[1] + (cy - t[1]) * k;
+          if (y > 0 && floor(t[0] + (cx - t[0]) * k, t[2] + (cz - t[2]) * k) > y - 2) return true;
+        }
+        return false;
+      };
+      let polar = view.polar;
+      while (polar > 0.12 && blocked(polar)) polar -= 0.04;
+      return { ...view, polar };
     },
     cut(view) {
       this.cancel();

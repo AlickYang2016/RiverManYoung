@@ -161,8 +161,10 @@ export function prism(b: Builder, rings: XZ[][], y0: number, y1: number, bottom 
  * A flat ribbon along a polyline (mitred joins, capped mitre), `width` wide at height y. uv = (distance along, -0.5…0.5 across).
  * With `depth`, it also gets side walls down to y - depth (a deck, a ballast bed).
  */
-export function ribbon(b: Builder, pts: XZ[], width: number, y: number, depth = 0, offset = 0): void {
+/** `y`: the top, one height or one per point (a track on a grade). */
+export function ribbon(b: Builder, pts: XZ[], width: number, y: number | readonly number[], depth = 0, offset = 0): void {
   const n = pts.length;
+  const Y = (i: number) => (typeof y === "number" ? y : y[i]!);
   if (n < 2) return;
   const L: XZ[] = [];
   const R: XZ[] = [];
@@ -208,15 +210,16 @@ export function ribbon(b: Builder, pts: XZ[], width: number, y: number, depth = 
     const l1 = L[i + 1]!;
     const r0 = R[i]!;
     const r1 = R[i + 1]!;
-    b.quad({ x: l0[0], y, z: l0[1] }, { x: l1[0], y, z: l1[1] }, { x: r1[0], y, z: r1[1] }, { x: r0[0], y, z: r0[1] }, [[u, 0.5], [u + seg, 0.5], [u + seg, -0.5], [u, -0.5]], UP);
+    const y0 = Y(i);
+    const y1 = Y(i + 1);
+    b.quad({ x: l0[0], y: y0, z: l0[1] }, { x: l1[0], y: y1, z: l1[1] }, { x: r1[0], y: y1, z: r1[1] }, { x: r0[0], y: y0, z: r0[1] }, [[u, 0.5], [u + seg, 0.5], [u + seg, -0.5], [u, -0.5]], UP);
     if (depth > 0) {
-      const yb = y - depth;
       for (const [s0, s1, sign] of [[l0, l1, 1], [r0, r1, -1]] as const) {
         const ex = s1[0] - s0[0];
         const ez = s1[1] - s0[1];
         const el = Math.hypot(ex, ez) || 1;
         const want = { x: (ez / el) * sign, y: 0, z: (-ex / el) * sign };
-        b.quad({ x: s0[0], y: yb, z: s0[1] }, { x: s1[0], y: yb, z: s1[1] }, { x: s1[0], y, z: s1[1] }, { x: s0[0], y, z: s0[1] }, [[u, yb], [u + seg, yb], [u + seg, y], [u, y]], want);
+        b.quad({ x: s0[0], y: y0 - depth, z: s0[1] }, { x: s1[0], y: y1 - depth, z: s1[1] }, { x: s1[0], y: y1, z: s1[1] }, { x: s0[0], y: y0, z: s0[1] }, [[u, y0 - depth], [u + seg, y1 - depth], [u + seg, y1], [u, y0]], want);
       }
     }
     u += seg;

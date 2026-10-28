@@ -29,6 +29,58 @@ OUT = ROOT / "src" / "osaka" / "data" / "umeda.json"
 CLIP = box(SCENE_X[0], SCENE_N[0], SCENE_X[1], SCENE_N[1])
 RAIL_BOX = CLIP.buffer(160, join_style=2)  # tracks run on past the base so trains can slide in from the cut edge
 
+# The Umeda freight line (梅田貨物線), underground since February 2023 through Osaka Station's Umekita platforms 21–24. Its
+# south portal is inside the base (OSM: the tunnel begins where the line, having crossed Naniwa-suji at grade and passed under
+# the JR Kobe line viaduct by Fukushima, turns north); its north portal is 250 m past the base's north edge (OSM, at about
+# (3, 1097) m — not in the extract, so given here). No open source gives the depths: the line is laid as a 3.5 % grade from each
+# portal down to the station's level, rail top 14.5 m below the street (the platforms are published as about 15 m down, B2).
+UMEKITA_X_MAX = -150.0  # the corridor is the JR tunnel track west of this (east of it: the JR Tōzai line, left out)
+UMEKITA_RAIL = -14.5
+UMEKITA_GRADE = 0.035
+NORTH_PORTAL = (3.0, 1097.0)
+PORTAL_DEPTH = -6.8  # rail top at the south portal's mouth (a train and its wires under the street), after an open cutting
+VIADUCT_GRADE = 0.025  # from the Fukushima level crossing the line climbs to its viaduct toward Nishikujō
+VIADUCT_TOP = 7.0
+
+
+# OSM building:colour → the facade tone the miniature paints. Named colours are the facade's own materials as they read from the
+# street (OSM "white" on a Japanese office block is off-white tile or panel, not paper white), so each maps to a weathered tone.
+FACADE_TONES = {
+    "white": 0xE6E3DC, "beige": 0xD9CBB0, "brown": 0x8A6A52, "grey": 0xA7AAAB, "gray": 0xA7AAAB, "black": 0x3A3D40,
+    "red": 0xA4473C, "green": 0x7E9479, "blue": 0x6F8396, "yellow": 0xD8C27A, "orange": 0xC98552, "silver": 0xBFC3C6,
+    "pink": 0xD6A9A4, "cream": 0xE8DFC8, "ivory": 0xEAE4D2, "tan": 0xC8AE8A, "maroon": 0x6E2B2A,
+}
+
+
+# The landmarks' facade tones where OSM has none, from photographs (Wikimedia Commons, docs/osaka/DATA_SOURCES.md): what each
+# reads as from a few hundred metres in daylight.
+LANDMARK_TONES = {
+    "jr-osaka": 0xB6C0C7,  # North Gate Building (LUCUA): silver-grey glass
+    "hankyu-umeda": 0xA2AAB1,  # Umeda Hankyu Building: grey glass over a stone base
+    "grand-front": 0xA9B7C3,  # blue-grey glass between pale fins
+    "grand-green": 0x8DA6BC,  # the towers' bluish curtain walls
+    "hep-five": 0xDAD9D4,  # light grey panels (the red is the wheel and the band at street level)
+    "yodobashi": 0x59616A,  # Yodobashi Umeda Tower: dark glass
+}
+TONE_BY_ID = {
+    "w161450829": 0xD8CFBF,  # South Gate Building (Daimaru, Hotel Granvia): pale stone
+}
+
+
+def colour_of(v) -> int | None:
+    if not v:
+        return None
+    v = v.strip().lower().split(";")[0]
+    if v in FACADE_TONES:
+        return FACADE_TONES[v]
+    m = re.fullmatch(r"#?([0-9a-f]{6})", v)
+    return int(m.group(1), 16) if m else None
+
+
+def underground_way(e) -> bool:
+    t = e.get("tags", {})
+    return (num(t.get("layer")) or 0) < 0 or t.get("tunnel") == "yes" or t.get("location") == "underground"
+
 # The source of a building's height, stored per building (key "s").
 HEIGHT_SOURCES = {
     1: "PLATEAU measured height (MLIT Project PLATEAU, imported into OSM with source:height=MLIT_PLATEAU)",
@@ -185,12 +237,15 @@ def main() -> None:
         if e["type"] != "way" or t.get("railway") != "rail" or "geometry" not in e:
             continue
         layer = num(t.get("layer")) or 0
-        if layer < 0 or t.get("tunnel") == "yes" or t.get("location") == "underground":
-            continue
         op = t.get("operator", "") + t.get("name", "")
+        line = LineString(pts(e["geometry"]))
+        underground = layer < 0 or t.get("tunnel") == "yes" or t.get("location") == "underground"
+        # the one underground line kept: the Umeda freight line through Osaka Station's Umekita platforms (21–24), which the
+        # Haruka and Kuroshio use; it comes up inside the base near Fukushima. The Hanshin, Metro and JR Tōzai lines stay out.
+        if underground and not (t.get("operator") == "西日本旅客鉄道" and ("梅田貨物線" in op or ("東西線" not in op and line.centroid.x < UMEKITA_X_MAX))):
+            continue
         if "阪神" in op or "Metro" in op:
             continue
-        line = LineString(pts(e["geometry"]))
         if not line.intersects(RAIL_BOX):
             continue
         rail_ways.append((e, line, "hankyu" if "阪急" in op else "jr"))
@@ -201,11 +256,9 @@ def main() -> None:
         if e["type"] != "way" or not (t.get("railway") == "platform" or t.get("public_transport") == "platform"):
             continue
         layer = num(t.get("layer"))
-        if layer is not None and layer < 0:
-            continue
         ref = t.get("ref", "")
-        if any(r in ref.split(";") for r in ("21", "22", "23", "24")):  # Umekita underground platforms (Osaka Station, B1/B2)
-            log["platform:underground"].append(ref)
+        umekita = any(r in ref.split(";") for r in ("21", "22", "23", "24"))  # Osaka Station's Umekita platforms, B2
+        if layer is not None and layer < 0 and not umekita:
             continue
         g = e.get("geometry")
         if not g:
@@ -217,9 +270,10 @@ def main() -> None:
         if poly.is_empty or not poly.intersects(CLIP) or poly.area < 30:
             continue
         op = "hankyu" if any(poly.distance(l) < 3.0 for (w, l, o) in rail_ways if o == "hankyu") and poly.centroid.y > 150 else "jr"
-        platforms.append({"poly": poly, "op": op, "ref": ref, "id": f"w{e['id']}"})
+        platforms.append({"poly": poly, "op": op, "ref": ref, "id": f"w{e['id']}", **({"ug": True} if umekita else {})})
 
-    corridor = unary_union([pl["poly"] for pl in platforms] + [l.buffer(2.4) for (w, l, o) in rail_ways])
+    # what is under the street clears no building off it
+    corridor = unary_union([pl["poly"] for pl in platforms if not pl.get("ug")] + [l.buffer(2.4) for (w, l, o) in rail_ways if not underground_way(w)])
     corridor_p = prepared.prep(corridor)
 
     # ---------------------------------------------------------------- buildings
@@ -315,10 +369,15 @@ def main() -> None:
             if not rings:
                 continue
             b = {"i": oid, "h": dm(h), "s": s, "u": USE_CODES[use], "r": rings}
+            col = colour_of(t.get("building:colour"))
+            if col is not None:
+                b["c"] = col
             if min_h > 0:
                 b["b"] = dm(min_h)
             if lm:
                 b["lm"] = lm
+                if "c" not in b and lm in LANDMARK_TONES:
+                    b["c"] = TONE_BY_ID.get(oid, LANDMARK_TONES[lm])
                 landmark_geoms[lm].append(poly)
             if t.get("name") and h >= 40:
                 b["n"] = t.get("name")
@@ -338,28 +397,47 @@ def main() -> None:
     nodes_out: list[list[int]] = []
     ways_out = []
 
-    def nidx(nid: int) -> int:
+    def nidx(nid) -> int:
         if nid not in node_index:
             node_index[nid] = len(nodes_out)
             x, n = node_xy[nid]
             nodes_out.append([dm(x), dm(n)])
         return node_index[nid]
 
+    edge = RAIL_BOX.exterior
+
+    def cut(a, b):
+        """Where the segment a→b crosses the box's edge (one inside, one outside)."""
+        hit = LineString([a, b]).intersection(edge)
+        p = hit if hit.geom_type == "Point" else min(getattr(hit, "geoms", [Point(a)]), key=lambda q: q.distance(Point(a)))
+        return (p.x, p.y)
+
     for e, line, op in rail_ways:
         t = e["tags"]
-        run: list[int] = []
+        run: list = []
         runs = []
-        for nid in e["nodes"]:
-            if keep_box.contains(Point(node_xy[nid])):
+        prev = None
+        for k, nid in enumerate(e["nodes"]):
+            inside = keep_box.contains(Point(node_xy[nid]))
+            if prev is not None and inside != prev[1]:
+                # a track leaving (or entering) the kept box ends at the box's edge, not at its last node inside: OSM's long
+                # straight segments would otherwise stop a track short of the edge, or drop it
+                c = ("cut", e["id"], k)
+                node_xy[c] = cut(node_xy[prev[0]], node_xy[nid])
+                run.append(c)
+                if not inside:
+                    if len(run) >= 2:
+                        runs.append(run)
+                    run = []
+            if inside:
                 run.append(nid)
-            else:
-                if len(run) >= 2:
-                    runs.append(run)
-                run = []
+            prev = (nid, inside)
         if len(run) >= 2:
             runs.append(run)
         for r in runs:
             w = {"op": op, "n": [nidx(n) for n in r]}
+            if underground_way(e):
+                w["ug"] = 1
             nm = t.get("name", "")
             if nm:
                 w["ln"] = nm
@@ -370,6 +448,62 @@ def main() -> None:
             ways_out.append(w)
     buffer_stops = [node_index[nid] for nid, kind in special.items() if kind == "buffer_stop" and nid in node_index]
     switches = [node_index[nid] for nid, kind in special.items() if kind == "switch" and nid in node_index]
+
+    # ---------------------------------------------------------------- the Umekita line's levels (estimates; see UMEKITA_*)
+    def xy(i):
+        return nodes_out[i][0] / 10, nodes_out[i][1] / 10
+
+    corridor_w = [w for w in ways_out if w.get("ug") or "梅田貨物線" in w.get("ln", "")]
+    adj_c: dict[int, set] = defaultdict(set)
+    for w in corridor_w:
+        for a, b in zip(w["n"], w["n"][1:]):
+            adj_c[a].add((b, bool(w.get("ug"))))
+            adj_c[b].add((a, bool(w.get("ug"))))
+
+    def along(start: int, ug: bool) -> dict[int, float]:
+        """Track distance from `start` over the corridor's tunnel (ug) or surface track."""
+        dist = {start: 0.0}
+        todo = [start]
+        while todo:
+            todo.sort(key=lambda i: -dist[i])
+            i = todo.pop()
+            for j, wug in adj_c[i]:
+                if wug != ug:
+                    continue
+                d = dist[i] + math.dist(xy(i), xy(j))
+                if d < dist.get(j, math.inf):
+                    dist[j] = d
+                    todo.append(j)
+        return dist
+
+    ug_nodes = {i for w in corridor_w if w.get("ug") for i in w["n"]}
+    surface = {i for w in corridor_w if not w.get("ug") for i in w["n"]}
+    portal = min(ug_nodes & surface, key=lambda i: math.dist(xy(i), (-587, -374)))
+    elev: dict[int, float] = {}
+    s_ug = along(portal, True)
+    for i in ug_nodes:
+        north = -UMEKITA_GRADE * math.dist(xy(i), NORTH_PORTAL)
+        elev[i] = max(UMEKITA_RAIL, PORTAL_DEPTH - UMEKITA_GRADE * s_ug.get(i, 1e9), north)
+    # outside the portal: an open cutting climbing to the street at the same grade, then street level to the viaduct
+    s_sf = along(portal, False)
+    cutting = -PORTAL_DEPTH / UMEKITA_GRADE
+    bridge_nodes = set()
+    for e, line, op in rail_ways:
+        if "梅田貨物線" in e["tags"].get("name", "") and e["tags"].get("bridge") and not underground_way(e):
+            bridge_nodes |= {node_index[n] for n in e["nodes"] if n in node_index}
+    foot = min(bridge_nodes, key=lambda i: s_sf.get(i, 1e9)) if bridge_nodes else None
+    s_foot = s_sf.get(foot, 1e9) if foot is not None else 1e9
+    for i in surface - ug_nodes:
+        s = s_sf.get(i, 1e9)
+        if s < cutting:
+            elev[i] = PORTAL_DEPTH * (1 - s / cutting)
+        elif i in bridge_nodes or s > s_foot:
+            elev[i] = min(VIADUCT_TOP, VIADUCT_GRADE * (s - s_foot))
+        else:
+            elev[i] = 0.0
+    print(f"Umekita line: portal node at {xy(portal)}, cutting {cutting:.0f} m, viaduct foot {s_foot:.0f} m from the portal; "
+          f"rail {min(elev.values()):.1f}…{max(elev.values()):.1f} m")
+    el_out = [[i, dm(v)] for i, v in sorted(elev.items())]
 
     # ---------------------------------------------------------------- roads, pedestrian decks
     roads = []
@@ -587,7 +721,7 @@ def main() -> None:
         poly = p["poly"]
         inner = poly.buffer(-0.8, join_style=2)
         p["tactile"] = [ring_out(q)[0] for q in polys_of(inner)] if not inner.is_empty else []
-        if p["op"] == "jr":
+        if p["op"] == "jr" and not p.get("ug"):
             canopy = poly.buffer(-0.5, join_style=2).difference(roof_poly.buffer(1.0, join_style=2))
             p["canopy"] = [ring_out(q) for q in polys_of(canopy) if q.area > 25]
 
@@ -616,9 +750,10 @@ def main() -> None:
             "license": "Map data © OpenStreetMap contributors, ODbL 1.0; building heights in part from MLIT Project PLATEAU (CC BY 4.0 compatible terms) via OSM",
         },
         "buildings": buildings,
-        "rail": {"nodes": nodes_out, "ways": ways_out, "bufferStops": buffer_stops, "switches": switches},
+        "rail": {"nodes": nodes_out, "ways": ways_out, "bufferStops": buffer_stops, "switches": switches, "el": el_out},
         "platforms": [
-            {"op": p["op"], "ref": p["ref"], "r": ring_out(p["poly"]), "t": p.get("tactile", []), **({"cv": p["canopy"]} if p.get("canopy") else {})}
+            {"op": p["op"], "ref": p["ref"], "r": ring_out(p["poly"]), "t": p.get("tactile", []), **({"cv": p["canopy"]} if p.get("canopy") else {}),
+             **({"ug": 1, "y": dm(UMEKITA_RAIL + 1.1)} if p.get("ug") else {})}
             for p in platforms
             if p["poly"].intersects(RAIL_BOX)
         ],

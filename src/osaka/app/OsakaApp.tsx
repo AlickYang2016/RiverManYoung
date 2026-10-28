@@ -4,7 +4,7 @@ import { LANDMARKS } from "../content";
 import type { OsakaHandle, OsakaMode, ServiceInfo, Stats, TrainStatus } from "../engine";
 import preview from "./preview.jpg";
 
-const PREVIEW_ALT = "The Osaka-Umeda miniature on its base, seen from the south-east: JR Osaka Station's glass roof in the middle, the Hankyu terminal's ten tracks to the right, HEP FIVE's red wheel, the Umeda Sky Building at the back left.";
+const PREVIEW_ALT = "The Osaka-Umeda miniature on its base, seen from the south-east: JR Osaka Station's glass roof in the middle, the Hankyu terminal's nine tracks to the right, HEP FIVE's red wheel, the Umeda Sky Building at the back left.";
 
 /*
  * The page round the miniature, in the folio's morning-light manner (docs/ART-DIRECTION.md): words in the shade on the left, set
@@ -34,11 +34,14 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
   const [ops, setOps] = useState<Record<Operator, boolean>>({ jr: true, hankyu: true });
   const [services, setServices] = useState<ServiceInfo[]>([]);
   const [following, setFollowing] = useState<number | null>(null);
+  const [underground, setUnderground] = useState(false);
   const [menu, setMenu] = useState(false);
   const [status, setStatus] = useState<TrainStatus[]>([]);
   const [intro, setIntro] = useState(false);
   const [about, setAbout] = useState(false);
   const [stats, setStats] = useState<Stats | null>(null);
+  const undergroundRef = useRef(false);
+  undergroundRef.current = underground;
   const reduced = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   useEffect(() => {
@@ -63,6 +66,7 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
           },
           onStats: debug ? (s) => setStats(s) : undefined,
           onIntroEnd: () => setIntro(false),
+          onUnderground: (on) => setUnderground(on),
         });
         if (cancelled) {
           h.dispose();
@@ -143,6 +147,7 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
         togglePlay();
       } else if (e.key === "r" || e.key === "R") reset();
       else if (e.key === "f" || e.key === "F") fullscreen();
+      else if (e.key === "u" || e.key === "U") engine.current?.setUnderground(!undergroundRef.current);
       else if (e.key === "Escape") {
         if (about) setAbout(false);
         else if (following !== null) follow(null);
@@ -269,6 +274,11 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
               </button>
             ))}
           </span>
+          <span className="osaka-group">
+            <button type="button" className="osaka-word" aria-pressed={underground} disabled={!ready} title="See through the street to the Umekita line and its underground platforms 21–24" onClick={() => engine.current?.setUnderground(!underground)}>
+              Underground
+            </button>
+          </span>
           <span className="osaka-group osaka-follow">
             <button type="button" className="osaka-word" aria-expanded={menu} disabled={!ready || !services.length} onClick={() => setMenu((x) => !x)}>
               {following === null ? "Follow a train" : "Following…"}
@@ -340,9 +350,10 @@ export function OsakaApp({ mode, debug, skipIntro, initial, night: startNight }:
           <p>{phase.why}</p>
           <p>
             Osaka Umeda is a 1.6 × 1.5 km model of the district round JR Osaka and Hankyu Osaka-Umeda stations, drawn from
-            OpenStreetMap footprints and PLATEAU building heights: JR Osaka's glass roof, Hankyu's ten-track terminal, Grand Front and
-            Grand Green Osaka, the Umeda Sky Building and HEP FIVE's red wheel, with JR 323 and 225 series and Hankyu 1000 and 1300
-            series trains on an illustrative timetable. It needs a browser that can draw WebGL 2.
+            OpenStreetMap footprints and PLATEAU building heights: JR Osaka's glass roof, Hankyu's nine-track terminal, Grand Front and
+            Grand Green Osaka, the Umeda Sky Building and HEP FIVE's red wheel, with the trains that call there — Loop Line and Special
+            Rapid, the Thunderbird, Super Hakuto, Kounotori, Hamakaze, Haruka and Kuroshio, Hankyu's three lines — each at its own
+            platform on an illustrative timetable. It needs a browser that can draw WebGL 2.
           </p>
         </div>
       )}
@@ -375,7 +386,10 @@ function About({ onClose }: { onClose: () => void }) {
           The landmarks are built in code on those footprints. JR Osaka's great roof is placed between the North and South Gate
           buildings, whose facing walls stand 98.5 m apart in the data (the published span is about 100 m); its height and curve,
           and the station's floor levels, are estimates. Trains run where OSM says the tracks are, keeping left as Japanese
-          railways do, on a timetable made up to show them — not live running information.
+          railways do, on a timetable made up to show them — not live running information. Each series is modelled in Blender to
+          its published dimensions and painted in its livery as photographed, and stops at the platform it uses at Osaka: the Haruka
+          and Kuroshio underground at Umekita (21–24), whose tunnel's depths are estimates. There is no Shinkansen: it calls at
+          Shin-Osaka, 3.5 km north of the model.
         </p>
         <p>Nothing here is taken from Google Maps or any proprietary 3D model.</p>
         <button type="button" className="osaka-word" onClick={onClose} autoFocus>

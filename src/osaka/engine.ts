@@ -1,16 +1,18 @@
 import * as THREE from "three";
+import stockUrl from "./assets/rolling-stock.glb?url";
 import dataUrl from "./data/umeda.json?url";
 import type { LandmarkId, Operator, UmedaData } from "./data/types";
 import { BOUNDS } from "./geo/frame";
 import { heightField } from "./geo/heightfield";
 import { HOME, HOME_PHONE, INTRO, LANDMARKS, sceneTarget, type View } from "./content";
 import { PERIOD, resolve } from "./rail/services";
+import { headAt } from "./rail/sim";
 import { STOCK } from "./rail/stock";
 import { buildCity } from "./scene/city";
 import { buildLandmarks } from "./scene/landmarks";
 import { createShared, LANDMARK_INDEX } from "./scene/materials";
-import { buildTrack, railIndex } from "./scene/track";
-import { buildFleet } from "./scene/trains";
+import { buildTrack, cuttings, railIndex } from "./scene/track";
+import { buildFleet, loadModels } from "./scene/trains";
 import { createRig } from "./view/camera";
 import { createLighting } from "./view/lighting";
 
@@ -38,7 +40,7 @@ export type Stats = { fps: number; ms: number; calls: number; triangles: number;
 export type ServiceInfo = { index: number; id: string; label: string; labelJa: string; op: Operator; stock: string; cars: number };
 
 /** Whether a service's train is on the base now, and if not, in how many seconds (wall time, at the current speed) it comes. */
-export type TrainStatus = { index: number; onBase: boolean; nextIn: number };
+export type TrainStatus = { index: number; onBase: boolean; nextIn: number; standing: boolean };
 
 const insideBase = (p: THREE.Vector3) => p.x > BOUNDS.x0 && p.x < BOUNDS.x1 && -p.z > BOUNDS.n0 && -p.z < BOUNDS.n1;
 
@@ -52,6 +54,8 @@ export type OsakaOptions = {
   onLabel?(x: number, y: number, visible: boolean): void;
   onStats?(s: Stats): void;
   onIntroEnd?(): void;
+  /** the underground view turned on or off (by the page, or by following a train into the Umekita tunnel) */
+  onUnderground?(on: boolean): void;
 };
 
 export type OsakaHandle = {
@@ -59,9 +63,15 @@ export type OsakaHandle = {
   setPlaying(on: boolean): void;
   setSpeed(x: number): void;
   setOperatorVisible(op: Operator, on: boolean): void;
+  /** the street turns see-through over the Umekita line, its tunnel and its underground platforms (21–24) */
+  setUnderground(on: boolean): void;
   focus(id: LandmarkId | null): void;
   follow(service: number | null, distance?: number): void;
   resetView(): void;
+  /** fly (or cut) to any view; for the page's own tools and the harnesses */
+  view(v: View, seconds?: number): void;
+  /** where a service's leading car is now (scene metres) and which way it runs, or null while it is off the base */
+  trainPose(i: number): { pos: [number, number, number]; dir: [number, number] } | null;
   playIntro(): Promise<void>;
   skipIntro(): void;
   services: ServiceInfo[];
@@ -96,6 +106,8 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
   const res = await fetch(dataUrl);
   if (!res.ok) throw new Error(`the district's data did not load (${res.status})`);
   const data = (await res.json()) as UmedaData;
+  // the Blender rolling stock loads while the city is built
+  const models = loadModels(stockUrl);
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance", alpha: false });
   let pixelRatio = Math.min(window.devicePixelRatio || 1, phone ? 1.5 : 2);
@@ -127,7 +139,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
 
   progress(0.2, "streets and buildings");
   await nextFrame();
-  const city = buildCity(data, shared, null, { mobile: phone, clip });
+  const city = buildCity(data, shared, null, { mobile: phone, clip, holes: cuttings(data) });
   scene.add(city.group);
 
   progress(0.45, "stations and landmarks");
@@ -145,7 +157,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
   await nextFrame();
   const resolved = resolve(data);
   if (resolved.dropped.length) console.warn("[osaka] services left out:", resolved.dropped);
-  const fleet = buildFleet(resolved.services, data, shared, clip);
+  const fleet = buildFleet(resolved.services, data, shared, clip, await models);
   scene.add(fleet.group);
 
   // ---------------------------------------------------------------- camera
@@ -183,6 +195,16 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
   let level = 0; // quality steps taken
   let lastShadow = 0;
   const shown = { jr: true, hankyu: true };
+  let underground = false;
+  let autoUnderground = false; // turned on by following a train into the tunnel, so turned off again when that ends
+  const setUnderground = (on: boolean) => {
+    if (on === underground) return;
+    underground = on;
+    city.setXray(on);
+    opts.onUnderground?.(on);
+    dirty = true;
+  };
+  const runsUnderground = (i: number) => resolved.services[i]!.plan.legs.some((l) => l.path.ys.some((y) => y < -2));
   const probe = { pos: new THREE.Vector3(), dir: new THREE.Vector3() };
   const ops = (stock: keyof typeof STOCK) => shown[STOCK[stock].op];
   fleet.update(simT);
@@ -340,6 +362,10 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       fleet.update(simT);
       dirty = true;
     },
+    setUnderground(on) {
+      autoUnderground = false;
+      setUnderground(on);
+    },
     focus(id) {
       selected = id;
       setHighlight();
@@ -353,9 +379,17 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       void rig.fly(info.view, 2.2);
     },
     follow(i, distance) {
+      if (autoUnderground && (i === null || !runsUnderground(i))) {
+        autoUnderground = false;
+        setUnderground(false);
+      }
       if (i === null) {
         rig.follow(null);
         return;
+      }
+      if (runsUnderground(i) && !underground) {
+        autoUnderground = true;
+        setUnderground(true);
       }
       selected = null;
       setHighlight();
@@ -364,8 +398,19 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       const p = { pos: new THREE.Vector3(), dir: new THREE.Vector3() };
       rig.follow(() => (fleet.pose(i, p) ? p.pos.clone().addScaledVector(p.dir, -40) : null), distance);
     },
+    view(v, seconds = 0) {
+      handle.follow(null);
+      v = rig.clear(v);
+      if (seconds > 0) void rig.fly(v, seconds);
+      else rig.cut(v);
+      dirty = true;
+    },
+    trainPose(i) {
+      if (!fleet.pose(i, probe)) return null;
+      return { pos: [probe.pos.x, probe.pos.y, probe.pos.z], dir: [probe.dir.x, probe.dir.z] };
+    },
     resetView() {
-      rig.follow(null);
+      handle.follow(null);
       handle.focus(null);
       void rig.fly(home(), 2.0);
     },
@@ -403,7 +448,8 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
         const running = tc < s.plan.duration && ops(s.def.stock);
         const onBase = running && fleet.pose(index, probe) && insideBase(probe.pos);
         // running but not on the base: arriving from (or just gone past) the cut edge
-        return { index, onBase, nextIn: running ? 0 : (PERIOD - tc) / Math.max(speed, 0.01) };
+        const h = running ? headAt(s.plan, simT, PERIOD) : null;
+        return { index, onBase, nextIn: running ? 0 : (PERIOD - tc) / Math.max(speed, 0.01), standing: !!h && h.v === 0 && h.doors > 0 };
       }),
     dropped: resolved.dropped,
     stats,

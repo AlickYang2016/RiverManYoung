@@ -16,11 +16,14 @@ export type BuildingRec = {
   r: Ring[];
   lm?: LandmarkId;
   n?: string; // name, for towers ≥ 40 m
+  c?: number; // facade colour from OSM building:colour (0xRRGGBB, as a facade tone)
 };
 
-export type RailWay = { op: Operator; n: number[]; ln?: string; svc?: string; cov?: 1 };
+/** ug: in a tunnel (the Umekita line), drawn only in the underground view */
+export type RailWay = { op: Operator; n: number[]; ln?: string; svc?: string; cov?: 1; ug?: 1 };
 
-export type Platform = { op: Operator; ref: string; r: Ring[]; t: Ring[]; cv?: Ring[][] };
+/** ug, y: an underground platform (Osaka Station 21–24) and its top, dm; otherwise the operator's level (geo/frame.ts) */
+export type Platform = { op: Operator; ref: string; r: Ring[]; t: Ring[]; cv?: Ring[][]; ug?: 1; y?: number };
 
 /** c: 0 motorway · 1 trunk · 2 primary · 3 secondary · 4 tertiary · 5 minor · 6 service · 7 pedestrian street · 8 footbridge deck */
 export type Road = { c: number; w: number; p: number[]; e?: number; o?: 1 };
@@ -40,7 +43,8 @@ export type UmedaData = {
     license: string;
   };
   buildings: BuildingRec[];
-  rail: { nodes: [number, number][]; ways: RailWay[]; bufferStops: number[]; switches: number[] };
+  /** el: [node, rail top dm] for every node off its operator's standard level (the Umekita line's tunnel, cutting and viaduct) */
+  rail: { nodes: [number, number][]; ways: RailWay[]; bufferStops: number[]; switches: number[]; el?: [number, number][] };
   platforms: Platform[];
   roads: Road[];
   crossings: [number, number, number, number][]; // x, n (dm), road bearing (rad from east), road width (dm)

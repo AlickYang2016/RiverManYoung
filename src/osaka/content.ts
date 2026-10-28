@@ -32,8 +32,8 @@ export const LANDMARKS: LandmarkInfo[] = [
     name: "Hankyu Osaka-Umeda Station",
     nameJa: "大阪梅田駅",
     kind: "Terminal · Hankyu Railway",
-    blurb: "Nine platforms and ten tracks for the Kobe, Takarazuka and Kyoto lines, side by side — Japan's largest private-railway terminal. Every train ends here and reverses.",
-    facts: ["Opened 1910", "9 platforms, 10 tracks", "Hankyu maroon since 1910"],
+    blurb: "Ten platforms and nine tracks for the Kobe, Takarazuka and Kyoto lines, side by side — Japan's largest private-railway terminal. Every train ends here and reverses.",
+    facts: ["Opened 1910", "10 platforms, 9 tracks", "Hankyu maroon since 1910"],
     view: { target: [226, 10, 349], distance: 330, azimuth: 0.3, polar: 0.92 },
   },
   {

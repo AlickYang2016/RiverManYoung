@@ -12,9 +12,56 @@ import { platformFrame } from "../rail/services";
  * great roof have their canopies on posts; Hankyu's tracks end at buffer stops; masts carry the contact wire.
  *
  * Nothing is placed where a train runs or a car drives: masts need clearance from every other track, piers from every road.
+ *
+ * The one line below the street, the Umeda freight line through Osaka Station's Umekita platforms (21–24), is drawn in its tunnel:
+ * a concrete box under the city, seen only when the ground is made see-through (the underground view). Where it comes up near
+ * Fukushima it runs in an open cutting between retaining walls, out of a portal, and the ground has a hole for it.
  */
 
 export type Track = { group: THREE.Group; dispose(): void };
+
+/** Rail top of every point of every way (m): its node's level (the Umekita line) or its operator's. */
+export function wayHeights(data: UmedaData): number[][] {
+  const el = new Map(data.rail.el ?? []);
+  return data.rail.ways.map((w) => w.n.map((i) => (el.has(i) ? el.get(i)! / 10 : RAIL_TOP[w.op])));
+}
+
+const CUT_HALF = 3.4; // half the open cutting's width between its retaining walls
+
+/** The open cuttings (surface track below the street) as rings in scene (x, z): the holes the ground leaves for them. */
+export function cuttings(data: UmedaData): XZ[][] {
+  const N = data.rail.nodes;
+  const hs = wayHeights(data);
+  const out: XZ[][] = [];
+  data.rail.ways.forEach((w, wi) => {
+    if (w.ug) return;
+    let run: XZ[] = [];
+    const flush = () => {
+      if (run.length >= 2) {
+        const L: XZ[] = [];
+        const R: XZ[] = [];
+        for (let i = 0; i < run.length; i++) {
+          const a = run[Math.max(0, i - 1)]!;
+          const b = run[Math.min(run.length - 1, i + 1)]!;
+          const l = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+          const nx = (b[1] - a[1]) / l;
+          const nz = -(b[0] - a[0]) / l;
+          L.push([run[i]![0] + nx * CUT_HALF, run[i]![1] + nz * CUT_HALF]);
+          R.push([run[i]![0] - nx * CUT_HALF, run[i]![1] - nz * CUT_HALF]);
+        }
+        out.push([...L, ...R.reverse()]);
+      }
+      run = [];
+    };
+    w.n.forEach((i, k) => {
+      // a point belongs to the cutting while its rail is below the street, and the next one up joins it to close the slope
+      if (hs[wi]![k]! < -0.15 || (k > 0 && hs[wi]![k - 1]! < -0.15)) run.push([N[i]![0] / 10, -N[i]![1] / 10]);
+      else flush();
+    });
+    flush();
+  });
+  return out;
+}
 
 /** A coarse spatial index of segments for clearance tests. */
 export class SegmentGrid {
@@ -79,7 +126,7 @@ export function railIndex(data: UmedaData): (x: number, z: number, pad?: number)
   const grid = new SegmentGrid();
   const N = data.rail.nodes;
   for (const w of data.rail.ways)
-    for (let k = 0; k + 1 < w.n.length; k++) grid.add([N[w.n[k]!]![0] / 10, -N[w.n[k]!]![1] / 10], [N[w.n[k + 1]!]![0] / 10, -N[w.n[k + 1]!]![1] / 10], 1.6);
+    for (let k = 0; !w.ug && k + 1 < w.n.length; k++) grid.add([N[w.n[k]!]![0] / 10, -N[w.n[k]!]![1] / 10], [N[w.n[k + 1]!]![0] / 10, -N[w.n[k + 1]!]![1] / 10], 1.6);
   return (x, z, pad = 0) => grid.hits(x, z, pad);
 }
 
@@ -108,9 +155,13 @@ export function buildTrack(data: UmedaData, shared: Shared, opts: { mobile: bool
     for (let k = 0; k + 3 < r.p.length; k += 2) roads.add([r.p[k]! / 10, -r.p[k + 1]! / 10], [r.p[k + 2]! / 10, -r.p[k + 3]! / 10], w / 2 + 0.5);
   }
 
+  const heights = wayHeights(data);
   const deckB = new Builder();
   const ballastB = new Builder();
   const railB = new Builder();
+  const boxB = new Builder(); // tunnel and cutting: floor slab and side walls
+  const ugBallastB = new Builder();
+  const ugRailB = new Builder();
   const wire: number[] = [];
   const piers: THREE.Matrix4[] = [];
   const masts: THREE.Matrix4[] = [];
@@ -122,8 +173,47 @@ export function buildTrack(data: UmedaData, shared: Shared, opts: { mobile: bool
   data.rail.ways.forEach((w, wi) => {
     const pts = wayPts[wi]!;
     if (pts.length < 2) return;
-    const top = RAIL_TOP[w.op];
+    const ys = heights[wi]!;
     const g = GAUGE[w.op];
+    const level = ys.every((y) => y === RAIL_TOP[w.op]);
+    if (!level) {
+      // the Umekita line: in its tunnel, its open cutting, at grade by Fukushima, then up onto its viaduct
+      const below = ys.map((y) => y < -0.15);
+      const bal = w.ug ? ugBallastB : ballastB;
+      const rl = w.ug ? ugRailB : railB;
+      ribbon(bal, pts, 3.0, ys.map((y) => y - 0.16), 0.42);
+      for (const side of [-1, 1]) ribbon(rl, pts, 0.075, ys, 0.17, side * (g / 2 + 0.035));
+      if (w.ug || below.some(Boolean)) {
+        const lo = Math.min(...ys) - 0.6;
+        ribbon(boxB, pts, 2 * CUT_HALF + 0.8, ys.map((y) => y - 0.6), 0.5);
+        // retaining walls: up to the street (a low parapet) in the cutting, a metre and a half above the rail in the tunnel
+        const wallTop = ys.map((y) => (w.ug ? y + 1.5 : 0.45));
+        for (const side of [-1, 1]) ribbon(boxB, pts, 0.4, wallTop, Math.max(...wallTop) - lo, side * CUT_HALF);
+      }
+      if (!w.ug) {
+        ribbon(deckB, pts, 5.2, ys.map((y) => Math.max(y, 0) - 0.55), 1.5);
+        let s0 = 0;
+        for (let i = 0; i + 1 < pts.length; i++) {
+          const a = pts[i]!;
+          const b = pts[i + 1]!;
+          const seg = Math.hypot(b[0] - a[0], b[1] - a[1]);
+          for (let s = (12 - (s0 % 12)) % 12; s < seg; s += 12) {
+            const y = ys[i]! + ((ys[i + 1]! - ys[i]!) * s) / (seg || 1);
+            if (y < 2.6) continue;
+            const x = a[0] + ((b[0] - a[0]) * s) / seg;
+            const z = a[1] + ((b[1] - a[1]) * s) / seg;
+            if (roads.hits(x, z, 0.6)) continue;
+            q.setFromAxisAngle(up, -Math.atan2(b[1] - a[1], b[0] - a[0]));
+            tmp.compose(new THREE.Vector3(x, (y - 2.05) / 2, z), q, new THREE.Vector3(0.9, y - 2.05, 4.2));
+            piers.push(tmp.clone());
+          }
+          s0 += seg;
+        }
+        for (let i = 0; i + 1 < pts.length; i++) if (ys[i]! > -0.15) wire.push(pts[i]![0], ys[i]! + 5.1, pts[i]![1], pts[i + 1]![0], ys[i + 1]! + 5.1, pts[i + 1]![1]);
+      }
+      return;
+    }
+    const top = RAIL_TOP[w.op];
     ribbon(deckB, pts, 5.2, top - 0.55, 1.5);
     ribbon(ballastB, pts, w.op === "hankyu" ? 3.3 : 3.0, top - 0.16, 0.42);
     for (const side of [-1, 1]) ribbon(railB, pts, 0.075, top, 0.17, side * (g / 2 + 0.035));
@@ -158,10 +248,35 @@ export function buildTrack(data: UmedaData, shared: Shared, opts: { mobile: bool
   const deck = new THREE.Mesh(keep(deckB.build()), concrete);
   deck.castShadow = true;
   deck.receiveShadow = true;
-  const ballast = new THREE.Mesh(keep(ballastB.build()), keep(ballastMaterial()));
+  const ballastMat = keep(ballastMaterial());
+  const railMat = keep(new THREE.MeshStandardMaterial({ color: PALETTE.rail, roughness: 0.4, metalness: 0.7 }));
+  const ballast = new THREE.Mesh(keep(ballastB.build()), ballastMat);
   ballast.receiveShadow = true;
-  const railMesh = new THREE.Mesh(keep(railB.build()), keep(new THREE.MeshStandardMaterial({ color: PALETTE.rail, roughness: 0.4, metalness: 0.7 })));
+  const railMesh = new THREE.Mesh(keep(railB.build()), railMat);
   group.add(deck, ballast, railMesh);
+  // the Umekita line below the street: tunnel box and cutting walls, its ballast and rails
+  const boxMesh = new THREE.Mesh(keep(boxB.build()), keep(new THREE.MeshStandardMaterial({ color: 0x9a9b96, roughness: 0.92 })));
+  boxMesh.receiveShadow = true;
+  const ugBallast = new THREE.Mesh(keep(ugBallastB.build()), ballastMat);
+  const ugRail = new THREE.Mesh(keep(ugRailB.build()), railMat);
+  group.add(boxMesh, ugBallast, ugRail);
+  // the south portal: a headwall over the tunnel mouth, from the top of the train's envelope up to the street
+  const ugNode = new Set(data.rail.ways.filter((w) => w.ug).flatMap((w) => w.n));
+  data.rail.ways.forEach((w, wi) => {
+    if (w.ug) return;
+    w.n.forEach((i, k) => {
+      const y = heights[wi]![k]!;
+      if (!ugNode.has(i) || y > -0.15) return;
+      const pts = wayPts[wi]!;
+      const a = pts[Math.max(0, k - 1)]!;
+      const b = pts[Math.min(pts.length - 1, k + 1)]!;
+      q.setFromAxisAngle(up, -Math.atan2(b[1] - a[1], b[0] - a[0]));
+      const top = 0.45;
+      const bottom = y + 5.2;
+      tmp.compose(new THREE.Vector3(pts[k]![0], (top + bottom) / 2, pts[k]![1]), q, new THREE.Vector3(1.4, top - bottom, 2 * CUT_HALF + 0.8));
+      piers.push(tmp.clone());
+    });
+  });
 
   const box = keep(new THREE.BoxGeometry(1, 1, 1));
   const inst = (list: THREE.Matrix4[], mat: THREE.Material, shadow = true) => {
@@ -189,9 +304,9 @@ export function buildTrack(data: UmedaData, shared: Shared, opts: { mobile: bool
   const canB = new Builder();
   const posts: THREE.Matrix4[] = [];
   for (const p of data.platforms) {
-    const top = RAIL_TOP[p.op] + PLATFORM_ABOVE_RAIL;
+    const top = p.y !== undefined ? p.y / 10 : RAIL_TOP[p.op] + PLATFORM_ABOVE_RAIL;
     const rings = p.r.map(ringXZ);
-    prism(platB, rings, RAIL_TOP[p.op] - 0.55, top, false);
+    prism(platB, rings, top - PLATFORM_ABOVE_RAIL - 0.55, top, false);
     for (const t of p.t) {
       const r = ringXZ(t);
       r.push(r[0]!);

@@ -96,6 +96,7 @@ body { font-family: var(--gothic); color: var(--tetsu); -webkit-font-smoothing: 
   position: absolute; left: -14px; bottom: 40px; list-style: none; margin: 0; padding: 8px 0; min-width: 300px;
   background: rgb(var(--veil) / .96); box-shadow: 0 0 0 .5px rgb(var(--sh) / .2), 0 18px 40px -12px rgb(var(--sh) / .35); border-radius: 3px;
   -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  max-height: min(68vh, 560px); overflow-y: auto; overscroll-behavior: contain;
 }
 .osaka-menu button { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 8px 14px 8px 30px; cursor: pointer; font-size: 13px; color: var(--ink); position: relative; }
 .osaka-menu button i { display: block; font-style: normal; font-size: 11.5px; color: var(--label); margin-top: 2px; }

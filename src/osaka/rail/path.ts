@@ -7,21 +7,25 @@
  * it turns continuously as the bogies run through the polyline's vertices, and overhangs a curve the way a real car does.
  */
 
-export type PathSample = { x: number; z: number; dx: number; dz: number };
+export type PathSample = { x: number; y: number; z: number; dx: number; dz: number };
 
 export class Path {
   readonly xs: Float64Array;
   readonly zs: Float64Array;
+  /** rail top at each vertex (m above the street) */
+  readonly ys: Float64Array;
   /** cum[i] = arc length from the start to vertex i. */
   readonly cum: Float64Array;
   readonly length: number;
 
   /** `nodes`: the rail-graph node of every vertex (for block occupancy), when the path came from the graph. */
-  constructor(points: readonly (readonly [number, number])[], readonly nodes: readonly number[] = []) {
+  constructor(points: readonly (readonly [number, number])[], readonly nodes: readonly number[] = [], heights?: readonly number[]) {
     const n = points.length;
     if (n < 2) throw new Error("a path needs two points");
     this.xs = new Float64Array(n);
     this.zs = new Float64Array(n);
+    this.ys = new Float64Array(n);
+    if (heights) this.ys.set(heights);
     this.cum = new Float64Array(n);
     for (let i = 0; i < n; i++) {
       this.xs[i] = points[i]![0];
@@ -46,7 +50,7 @@ export class Path {
     return lo;
   }
 
-  at(s: number, out: PathSample = { x: 0, z: 0, dx: 1, dz: 0 }): PathSample {
+  at(s: number, out: PathSample = { x: 0, y: 0, z: 0, dx: 1, dz: 0 }): PathSample {
     const i = this.segmentAt(s);
     const x0 = this.xs[i]!;
     const z0 = this.zs[i]!;
@@ -56,6 +60,9 @@ export class Path {
     const t = s - this.cum[i]!;
     out.x = x0 + dx * t;
     out.z = z0 + dz * t;
+    // height: interpolated inside the path, held level past its ends
+    const k = seg > 0 ? Math.max(0, Math.min(1, t / seg)) : 0;
+    out.y = this.ys[i]! + (this.ys[i + 1]! - this.ys[i]!) * k;
     out.dx = dx;
     out.dz = dz;
     return out;

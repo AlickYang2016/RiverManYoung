@@ -4,7 +4,7 @@ import type { LandmarkId, UmedaData } from "../data/types";
 import { PLATFORM_ABOVE_RAIL, RAIL_TOP, ringXZ } from "../geo/frame";
 import { Builder, frameBox, frameOf, prism, ribbon, type XZ } from "./geom";
 import { LANDMARK_INDEX, PALETTE, facadeMaterial, nightGlow, roofGlassMaterial, type Shared } from "./materials";
-import { rng, seedOf } from "./city";
+import { rng, seedOf, tintCode } from "./city";
 
 /*
  * The landmarks the city is known by, built in code on the footprints and frames the data gives them.
@@ -187,7 +187,7 @@ export function buildLandmarks(data: UmedaData, shared: Shared, env: THREE.Textu
     const F = frameOf([-528, 321.5], sk.a);
     const b = new Builder(4);
     const tower = (u0: number, u1: number, top: number, key: string) => {
-      b.extra = [1, seedOf(key), 173, LANDMARK_INDEX["sky-building"]!];
+      b.extra = [1 + 8 * tintCode(0x55657B), seedOf(key), 173, LANDMARK_INDEX["sky-building"]!]; // deep blue mirror glass
       frameBox(b, F, u0, u1, -28, 28, 0, top, false);
     };
     tower(-56, -40, 160, "sky-w1");
@@ -202,7 +202,7 @@ export function buildLandmarks(data: UmedaData, shared: Shared, env: THREE.Textu
       const t = (k / 48) * Math.PI * 2;
       hole.push(F.at(18 * Math.cos(t), 18 * Math.sin(t)));
     }
-    b.extra = [1, seedOf("sky-garden"), 173, LANDMARK_INDEX["sky-building"]!];
+    b.extra = [1 + 8 * tintCode(0xBAC1C7), seedOf("sky-garden"), 173, LANDMARK_INDEX["sky-building"]!]; // the garden's silver cladding
     prism(b, [square, hole], 157, 173, true);
     facadeMesh(b, "sky-building");
     // the escalator tube across the void, from the east tower up into the garden

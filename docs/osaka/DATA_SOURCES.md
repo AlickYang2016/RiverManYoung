@@ -11,10 +11,13 @@ is an estimate, labelled as one in the data file and listed here.
 | [OpenStreetMap](https://www.openstreetmap.org/) via the Overpass API (`scripts/osaka/fetch_osm.py`) | building footprints and parts, heights and storey counts, every track centreline, platforms, roads, crossings, parks, building sites, mapped trees, HEP FIVE's wheel | database state 2026-10-27 16:39 UTC (fetched 2026-10-27) | © OpenStreetMap contributors, [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
 | [MLIT Project PLATEAU](https://www.mlit.go.jp/plateau/) — Osaka City 3D city model | measured building heights, **as imported into OSM** (`source:height=MLIT_PLATEAU`) on 1,533 of the 3,231 buildings on the base | as present in OSM on 2026-10-27 | PLATEAU site policy (CC BY 4.0-compatible), credited on the page |
 | GSI 基盤地図情報 (Fundamental Geospatial Data), via OSM | most building footprints in the district (`source=GSI/KIBAN 2500`) | as present in OSM | GSI terms, imported into OSM under ODbL |
+| [Japanese Wikipedia, 大阪駅](https://ja.wikipedia.org/wiki/大阪駅) (from JR West's station guide) | which trains use which of Osaka Station's platforms (のりば), including Umekita's 21–24 | read 2026-10-28 | CC BY-SA 4.0 (facts only are used) |
+| Wikimedia Commons photographs of each series (the infobox photos of the English/Japanese Wikipedia articles on the 221, 225, 281, 287, 321, 323, 683 series, KiHa 189, HOT7000, Hankyu 9300) and of the landmarks | the liveries the Blender models are painted in; the landmarks' facade tones | viewed 2026-10-28 | each photo's own free licence; no image is copied into the model, only colours read from them |
 | Owners' and operators' published figures | South Gate Building 122 m; Umeda Hankyu Building 186.95 m; the great roof's ~180 m × ~100 m; HEP FIVE's wheel Ø 75 m, top 106 m, boarding on 7F; opening years; rolling-stock dimensions | — | facts, cited in the page's text |
 
-Not used: Google Maps, Google Earth or any other proprietary 3D data or imagery; no third-party 3D models or textures (everything
-is built in code, as the rest of this repository is).
+Not used: Google Maps, Google Earth or any other proprietary 3D data or imagery; no third-party 3D models or textures. The trains
+are modelled in Blender by this repository's own script (`scripts/osaka/blender/rolling_stock.py`); everything else is built in
+code, as the rest of this repository is.
 
 ### PLATEAU directly, and Claude Code PLATEAU tools
 
@@ -46,14 +49,22 @@ builds its own station roofs, and the trains have to stay visible.
 
 ## Railway
 
-- 209 track ways, 879 nodes above ground (JR and Hankyu); underground lines (Hanshin, the Osaka Metro, the JR Tōzai line, the
-  Umeda freight line and Osaka Station's Umekita platforms 21–24) are not drawn.
+- 230 track ways, 993 nodes (JR and Hankyu). Tracks are clipped at the edge of the kept box (160 m past the base) where they cross
+  it, not at their last node inside, so OSM's long straight segments reach the edge. Underground: only the Umeda freight line
+  (梅田貨物線) through Osaka Station's Umekita platforms 21–24, which the Haruka and Kuroshio use; Hanshin, the Osaka Metro and the
+  JR Tōzai line are not drawn.
+- The Umekita line's levels are not in any open source and are estimates: rail top 14.5 m below the street under the station
+  (the platforms are published as about 15 m down, B2), a 3.5 % grade from each portal, the south portal where OSM's tunnel tag
+  begins near Fukushima (rail 6.8 m down at its mouth, after a 194 m open cutting), the north portal 250 m past the base (OSM),
+  street level by the Naniwa-suji level crossing, then a 2.5 % climb onto the viaduct toward Nishikujō.
+- Platforms follow Osaka Station's assignments (Wikipedia, above). Exceptions forced by the data: OSM's track at platform 7 does
+  not connect to the Kyoto line, so the eastbound locals that use it are left out rather than drawn at another platform; the
+  Thunderbird's empty run to platform 11 is shown arriving from the west.
+- No Shinkansen: the Tōkaidō and San'yō Shinkansen call at Shin-Osaka, 3.5 km north of the base, and no Shinkansen track is in it.
 - The graph is OSM's: trains run only where OSM has track, and only along routes that never turn more than 32° at a node (no
   reversing in a switch). JR (1,067 mm) and Hankyu (1,435 mm) form separate networks in the data, as on the ground.
-- In OSM, Osaka Station's platforms 3–6 do not connect to both the Kyoto and Kobe ends; the Special Rapid therefore uses
-  platform 7·8, which does. Platform assignments in the model are plausible, not timetabled.
-- The timetable (`src/osaka/rail/services.ts`) is illustrative: seven services, each once every 300 s of simulated time. It is
-  not live running information, and the page says so.
+- The timetable (`src/osaka/rail/services.ts`) is illustrative: 25 services, each once every 600 s of simulated time. It is not
+  live running information, and the page says so.
 
 ## Approximated geometry
 
@@ -71,6 +82,8 @@ Built in code on the data's footprints and frames, with these estimates:
 | Tower cranes | Umekita's building sites (OSM `landuse=construction`) | positions, heights |
 | Trees | 313 mapped trees (OSM) | park planting (1,002, 7.5 m jittered grid in park polygons) and street trees (1,812, every 10 m along major streets) |
 | Viaduct piers, catenary masts | — | every 12 m / 48 m, kept clear of roads and of other tracks |
+| Rolling stock (Blender) | car length, width, height, doors per side and their spacing, formation lengths; liveries from photographs | the noses' exact curves; cab details; bogie and roof equipment as simple solids; one cab type per series (the Haruka's 271 add-on cars are drawn as 281s) |
+| Building colours | 37 facades from OSM `building:colour`; the landmarks' tones from photographs (Grand Front, Grand Green, HEP FIVE, Yodobashi Umeda Tower, the Gate buildings, Umeda Hankyu, the Sky Building's mirror glass) | every other building keeps the model's restrained palette by use |
 
 ## Rebuilding the data
 

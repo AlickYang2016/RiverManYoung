@@ -81,11 +81,18 @@ vec3 usePalette(float use, float seed) {
 `;
 
 const FACADE_BODY = /* glsl */ `
-  float fUse = vInfo.x;
+  // x carries the use (0–7) and, above it, a facade colour from OSM building:colour packed as 5 bits a channel (city.ts)
+  float fUse = floor(mod(vInfo.x + 0.5, 8.0));
+  float fTint = floor((vInfo.x + 0.5) / 8.0);
   float fSeed = vInfo.y;
   float fTop = vInfo.z;
   float fLm = vInfo.w;
   vec3 fCol = usePalette(fUse, fSeed);
+  if (fTint > 0.5) {
+    float c = fTint - 1.0;
+    vec3 tint = vec3(floor(c / 1024.0), mod(floor(c / 32.0), 32.0), mod(c, 32.0)) / 31.0;
+    fCol = pow(tint, vec3(2.2)); // sRGB to linear, near enough for a facade tone
+  }
   float fRough = 0.86;
   float fMetal = 0.0;
   vec3 fEmit = vec3(0.0);
