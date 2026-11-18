@@ -367,6 +367,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       setUnderground(on);
     },
     focus(id) {
+      if (id) handle.skipIntro();
       selected = id;
       setHighlight();
       opts.onSelect?.(id);
@@ -379,6 +380,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       void rig.fly(info.view, 2.2);
     },
     follow(i, distance) {
+      if (i !== null) handle.skipIntro();
       if (autoUnderground && (i === null || !runsUnderground(i))) {
         autoUnderground = false;
         setUnderground(false);
@@ -399,6 +401,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       rig.follow(() => (fleet.pose(i, p) ? p.pos.clone().addScaledVector(p.dir, -40) : null), distance);
     },
     view(v, seconds = 0) {
+      handle.skipIntro();
       handle.follow(null);
       v = rig.clear(v);
       if (seconds > 0) void rig.fly(v, seconds);
@@ -410,11 +413,14 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       return { pos: [probe.pos.x, probe.pos.y, probe.pos.z], dir: [probe.dir.x, probe.dir.z] };
     },
     resetView() {
+      handle.skipIntro();
       handle.follow(null);
       handle.focus(null);
       void rig.fly(home(), 2.0);
     },
     async playIntro() {
+      handle.skipIntro();
+      handle.follow(null);
       if (opts.reducedMotion) {
         rig.cut(home());
         opts.onIntroEnd?.();
@@ -429,7 +435,8 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
         if (me.cancelled) break;
         await new Promise((r) => setTimeout(r, shot.hold * 1000));
       }
-      if (intro === me) intro = null;
+      if (intro !== me) return;
+      intro = null;
       rig.controls.enabled = opts.mode === "explore";
       opts.onIntroEnd?.();
     },
@@ -440,6 +447,7 @@ export async function createOsaka(host: HTMLElement, opts: OsakaOptions): Promis
       rig.cut(home());
       rig.controls.enabled = opts.mode === "explore";
       dirty = true;
+      opts.onIntroEnd?.();
     },
     services: resolved.services.map((s, index) => ({ index, id: s.def.id, label: s.def.label, labelJa: s.def.labelJa, op: STOCK[s.def.stock].op, stock: STOCK[s.def.stock].name, cars: s.def.cars })),
     trains: () =>

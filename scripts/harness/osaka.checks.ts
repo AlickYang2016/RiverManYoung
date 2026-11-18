@@ -123,6 +123,15 @@ const watch = (page: Page) => {
   await skip.click();
   check("Skip the opening ends it", (await skip.count()) === 0);
 
+  await page.getByRole("button", { name: "Pause trains" }).click();
+  await page.getByRole("button", { name: "Opening" }).click();
+  await page.waitForTimeout(500);
+  await page.locator(".osaka-index button").nth(1).click();
+  await page.waitForTimeout(3000);
+  const chosen = await camera(page);
+  await page.waitForTimeout(4000);
+  check("landmark selection cancels opening and keeps the chosen camera", (await skip.count()) === 0 && (await camera(page)) === chosen);
+
   await page.getByRole("button", { name: "About the data" }).click();
   check("About the data opens", (await page.getByRole("dialog").count()) === 1);
   await page.keyboard.press("Escape");
