@@ -4,3 +4,7 @@ dist
 .DS_Store
 dist-dbg
 dist-base
+
+# Osaka-Umeda: the raw OSM extract (scripts/osaka/fetch_osm.py) is rebuilt on demand, not versioned
+scripts/osaka/raw
+__pycache__

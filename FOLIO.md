@@ -39,3 +39,8 @@ Add one entry to the main nav, next to "Beyond work" or "CV":
 sasshi is AGPL-3.0. Publishing this folio means its source must be public: push this repository to
 https://github.com/AlickYang2016/RiverManYoung (public) — the page footer's "Source" link already points there.
 The main site's own code is not affected as long as it only links to /folio/ and does not import this code.
+
+## Osaka Umeda (projects/osaka-umeda/)
+A second page in the same build: an interactive 3D miniature of Osaka-Umeda with JR and Hankyu trains, served at
+`folio/projects/osaka-umeda/`. It shares the fonts and three.js but none of the folio's code. Build, data, licences, tests and the
+lines to add on the main site: [docs/osaka/README.md](docs/osaka/README.md).
